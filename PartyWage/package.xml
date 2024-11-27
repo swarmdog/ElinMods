@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Meta>
+	<title>PartyWage</title>
+	<id>mistermeagle_PartyWage</id>
+	<author>mistermeagle</author>
+	<loadPriority>100</loadPriority>
+	<description>
+		Pay your party 10% of your on hand orens every month.
+	</description>
+	<version>0.23.40</version>
+</Meta>

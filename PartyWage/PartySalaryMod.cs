@@ -1,10 +1,7 @@
-using System.Collections.Generic;
-using BepInEx;
+﻿using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
 using System;
-using System.ComponentModel;
-using System.Text.Json;
 
 namespace PartySalaryMod
 {
@@ -55,7 +52,9 @@ namespace PartySalaryMod
         }
         private static void PayPartySalaries()
         {
+            Random rgen = new Random();
             Party playerParty = EClass.pc?.party;
+            PartyWageStrings pws = new PartyWageStrings();
 
             // Get the player's current Orens
             int playerOrens = EClass.pc.GetCurrency("money");
@@ -69,9 +68,6 @@ namespace PartySalaryMod
             int partySize = playerParty.members.Count - 1;
             int individualShare = totalSalaryPool / partySize;
 
-            //SalaryMod.Log($"party salary mod notes a day has passed with {partySize} members in ur party and a wallet of {playerOrens}");
-            //SalaryMod.Log($"config says {minimumSafeMoney} min safe money and {totalSalaryPool} salary pool");
-
             // Silent if the player has no active party
             if (playerParty == null || playerParty.members == null || playerParty.members.Count < 2)
                 return;
@@ -81,10 +77,13 @@ namespace PartySalaryMod
             {
                 Msg.SayRaw($"Having a mere ${playerOrens} on hand you decide not to distribute salaries this month, since it would take you below your limit of ${minimumSafeMoney}..");
                 // say funny thing about not being able to afford
+                EClass.pc.TalkRaw(pws.wizardPaymentExcuses[rgen.Next(pws.wizardPaymentExcuses.Length)]);
                 return;
             }
 
-            Msg.SayRaw($"You pay a total of ${totalSalaryPool} to {partySize} party members:");
+            Msg.SayRaw($"You pay a total of ${totalSalaryPool} in salary to {partySize} party members.");
+            // Deduct the total salary pool from the player's Orens
+            EClass.pc.ModCurrency(-totalSalaryPool, "money");
             // Distribute salaries to party members
             foreach (var member in playerParty.members)
             {
@@ -92,11 +91,8 @@ namespace PartySalaryMod
                 member.ModCurrency(individualShare, "money"); // Add Orens to the member
                 string disp_name = member.GetName(NameStyle.Full);
                 SalaryMod.Log($"paid {disp_name}  $${individualShare} ");
-                Msg.SayRaw($"{disp_name} - ${individualShare}");
             }
-            
-            // Deduct the total salary pool from the player's Orens
-            EClass.pc.ModCurrency(-totalSalaryPool, "money");
+            EClass.pc.TalkRaw(pws.wizardPaymentPhrases[rgen.Next(pws.wizardPaymentPhrases.Length)]);
 
         }
 
