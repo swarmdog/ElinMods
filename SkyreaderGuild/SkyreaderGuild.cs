@@ -39,26 +39,15 @@ namespace SkyreaderGuild {
             ModUtil.ImportExcel(f, "Thing", s.things);
             this.AddQuest(s);
 
-            //string dump = JsonConvert.SerializeObject(s.quests);
-            //SkyreaderGuild.Log(dump);
-
-
-            /*if(!EClass.game.quests.IsStarted<QuestSkyreader>() && !EClass.game.quests.IsCompleted("skyreader_guild"))
-            {
-                //EClass.game.quests.Add("skyreader_guild", "srg_arkyn").startDate = EClass.world.date.GetRaw(0)+1440;
-            }*/
         }
 
         private void AddQuest(SourceManager sources)
         {
             //Sets up the quest's information so it can be instantiated later
             var quest = sources.quests.CreateRow();
-            //ClassCache.assemblies.Add("Mod_KiriaDLC");
             quest.id = "skyreader_guild";
             quest.name = "the skyreader's guild";
             quest.name_JP = "..."; //TODO
-                                   //If you have a quest lcass, specify it here, you can use a mod namespace, see
-                                   //QuestKiria.cs
             quest.type = "SkyreaderGuild.QuestSkyreader";
             //The message on the quest board.
             //For multistep quests, each step's description is separated by pipes.
@@ -125,76 +114,6 @@ namespace SkyreaderGuild {
         }  
         
     }
-    /*
-    // Don't execute regular TraitScrollMap setname
-    [HarmonyPatch(typeof(TraitScrollMap), "SetName")]
-    public static class YithSetNamePatch
-    {
-        public static bool Prefix(ref TraitScrollMap __instance)
-        {
-            SkyreaderGuild.Log("Checking " +  __instance.owner.id.ToString() + " to see if its srg_starchart...");
-            if (__instance.owner.id == "srg_starchart") return false;
-            return true;
-        }
-
-       private static void AddQuest(SourceManager sources)
-    {
-        //Sets up the quest's information so it can be instantiated later
-        var quest = sources.quests.CreateRow();
-        //ClassCache.assemblies.Add("Mod_KiriaDLC");
-        quest.id = "kiria_map_quest";
-        quest.name = "Investigation request";
-        quest.name_JP = "..."; //TODO
-        //If you have a quest lcass, specify it here, you can use a mod namespace, see
-        //QuestKiria.cs
-        quest.type = "Mod_KiriaDLC.QuestKiria";
-        //The message on the quest board.
-        //For multistep quests, each step's description is separated by pipes.
-        quest.detail =
-            "#pc, can you look into something for me?|You've recieved a map from Kiria, find out where it points.";
-        quest.detail_JP =
-            "#pc, ..."; //TODO
-        quest.drama = ["kiriaDLC", "main"];
-        sources.quests.rows.Add(quest);
-
-    [HarmonyPatch(typeof(Zone))]
-    [HarmonyPatch(nameof(Zone.Activate))]
-    class ZonePatch : EClass {
-    static void Prefix(Zone __instance)
-    {
-        Debug.LogWarning("Zone.Activate() called:");
-        Debug.LogWarning("\t" + __instance.NameWithDangerLevel);
-        Debug.LogWarning("\t" + __instance.pathExport);
-    }
-    static void Postfix(Zone __instance) {
-        Debug.LogWarning("Now entering " + __instance.source.id);
-        //If they've already gotten the quest, or the quest is finished, we don't want to add it again
-        //Also make sure it's the PC's zone and that it's not already in the list to avoid duplication
-        //and issues with moongates.
-        //This is a one and done quest
-        if (!EClass.game.quests.IsCompleted("kiria_map_quest") 
-            && !EClass.game.quests.IsStarted<QuestKiria>()
-            && EClass._zone.IsPCFaction
-            && EClass.game.quests.globalList.All(x => x.id != "kiria_map_quest")
-            )
-        {
-            //Quest must have a client, we find Kiria to be the client
-            Chara c = EClass.game.cards.globalCharas.Find("adv_kiria");
-            //If Kiria is recruited and has enough affinity, add the quest 
-            if (c != null) // && c.IsPCFaction && c.affinity.value >= 85) //Pre marriage, post recruit
-            {
-                //Putting it on the global quest list and setting the client will make the quest
-                //Appear on the quest board
-                Debug.Log("KiriaDLC:: Adding quest to global list");
-                EClass.game.quests.globalList.Add(Quest.Create("kiria_map_quest").SetClient(c, false));
-            }
-            
-        }
-    }
-}
-    }
-    
-    }*/
 
     // Drop the map when we kill this yith
     [HarmonyPatch(typeof(Card), "SpawnLoot")]
