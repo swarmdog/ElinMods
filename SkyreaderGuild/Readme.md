@@ -1,7 +1,7 @@
 # Skyreader Guild Mod Feature Document
 
 ## **Introduction**
-The Skyreader Guild Mod introduces a new faction in *Elin's Inn* focused on cosmic exploration and discovery. Players can join the Skyreader Guild, progress through its ranks, and engage in activities tied to meteors, cosmic crafting, and lore.
+The Skyreader Guild Mod introduces a new faction in *Elin's Inn* focused on cosmic exploration and discovery. 
 
 ---
 
