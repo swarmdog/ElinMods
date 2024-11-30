@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Meta>
+	<title>The Skyreader's Guild</title>
+	<id>mistermeagle_srg</id>
+	<author>mistermeagle</author>
+	<loadPriority>100</loadPriority>
+	<description>
+	Find an invitation to the lost Skyreader's Guild in lvl 15+ nefias.  Watch for meteors, analyze them, and use the astrological codex to alter items and summon bosses.  Search for those affected by contact and cleanse them.
+	
+	A new friend, items, and activities are included.  Meteor activity begins 1 game year after beginning the game.
+	</description>
+	<version>0.23.44</version>
+</Meta>
