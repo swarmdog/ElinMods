@@ -150,7 +150,7 @@ namespace SkyreaderGuild {
             if (__instance.DangerLv < 15) return;
             if (EClass.game.quests.IsCompleted("skyreader_guild") ||
                     EClass.game.quests.IsStarted<QuestSkyreader>()) return;
-            if (EClass.rnd(100) > 20) return; // 20% chance to spawn one
+            if (EClass.rnd(100) <21) return; // 20% chance to spawn one
 
             // Ensure the specific Chara does not already exist in the zone
             Chara existingChara = __instance.FindChara("srg_growth");
