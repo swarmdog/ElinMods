@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Meta>
-	<title>PartyWage</title>
-	<id>mistermeagle_PartyWage</id>
+	<title>The Skyreader's Guild</title>
+	<id>mistermeagle_SkyreaderGuild</id>
 	<author>mistermeagle</author>
 	<loadPriority>100</loadPriority>
 	<description>
-		Pay your party 10% of your on hand orens every month.  By default, don't pay salaries at all if you don't have at least 5k.
-
-		Settings can be adjusted in your Elin game folder in BepInEx/config/mrmeagle.elin.partywage.cfg
-
-		Source code:
-		- https://github.com/swarmdog/ElinMods
-
-		This mod was created using a personal GPT loaded with the Elin mod documentation and the discovered CSV data. Tips - start the conversation by asking for an Elin mod template, and refer to Elin often.
-		GPT:
-		- https://chatgpt.com/g/g-6744f2ed7dd481918b4faf55062cafdb-elin-s-inn-c-modder
+The Skyreader Guild Mod introduces a new activity in Elin's Inn focused on cosmic exploration and discovery. Players acquire rare resources from meteors, which can be used to summon bosses, enhance items, recruit an NPC, and affect adventurer stats.
 	</description>
-	<tags>QoL</tags>
+	<tags>NPC</tags>
 	<version>0.23.45</version>
 </Meta>
