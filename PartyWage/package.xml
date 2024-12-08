@@ -5,7 +5,18 @@
 	<author>mistermeagle</author>
 	<loadPriority>100</loadPriority>
 	<description>
-		Pay your party 10% of your on hand orens every month.
+		Pay your party members a salary every month, week, or day.  By default it pays a salary of 10% of your on hand orens, split to all your party members, if you have at least 5k on hand.
+		If you change a setting you can pay a yearly bonus as well.
+
+		You can change all of these in your Elin game folder in BepInEx/config/mrmeagle.elin.partywage.cfg
+
+		Source code:
+		- https://github.com/swarmdog/ElinMods
+
+		This mod was created using a personal GPT loaded with the Elin mod documentation and the discovered CSV data. Tips - start the conversation by asking for an Elin mod template, and refer to Elin often.
+		GPT:
+		- https://chatgpt.com/g/g-6744f2ed7dd481918b4faf55062cafdb-elin-s-inn-c-modder
 	</description>
-	<version>0.23.40</version>
+	<tags>QoL</tags>
+	<version>0.23.45</version>
 </Meta>
