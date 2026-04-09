@@ -1,1 +1,2 @@
 PartyWage - pays your party a configurable amount of your cash on hand each month, with a reserve limit
+FastStart - adds a new starting option that has fast forwarded past the Vernis quests.  Starts in Meadow with items, NPCs, and a land deed that you can use on Vernis or another map.
