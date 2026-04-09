@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
@@ -10,33 +9,23 @@ namespace FastStartMod
     [BepInPlugin("mrmeagle.elin.faststart", "Fast Start", "1.1.0")]
     public class FastStartPlugin : BaseUnityPlugin
     {
-        /// <summary>
-        /// The prologue index we use for Fast Start mode.
-        /// This is beyond the vanilla prologues list (0-3), so we intercept
-        /// the Prologue getter to return the standard story prologue instead.
-        /// </summary>
         public const int FastStartPrologueIndex = 100;
 
-        /// <summary>
-        /// Set to true while we are applying fast start rewards,
-        /// so we can suppress noisy side effects if needed.
-        /// </summary>
         internal static bool IsApplyingFastStart = false;
+        internal static bool HasAppliedFastStart = false;
 
         private static FastStartPlugin _instance;
 
-        /// <summary>
-        /// Config entry for extra items to grant on fast start.
-        /// Format: id:count,id:count,...
-        /// </summary>
         internal static ConfigEntry<string> ExtraItemsConfig;
 
         void Awake()
         {
             _instance = this;
 
-            ExtraItemsConfig = Config.Bind("ExtraItems", "Items",
-                "money2:5,plat:20",
+            ExtraItemsConfig = Config.Bind(
+                "ExtraItems",
+                "Items",
+                "money2:12,plat:20",
                 "Extra items to grant on fast start. Format: id:count,id:count,...  Example: money2:5,plat:20,torch:1");
 
             var harmony = new Harmony("mrmeagle.elin.faststart");
@@ -46,11 +35,9 @@ namespace FastStartMod
 
         internal static void Log(string msg) => _instance?.Logger.LogInfo(msg);
         internal static void LogWarn(string msg) => _instance?.Logger.LogWarning(msg);
+        internal static void LogError(string msg) => _instance?.Logger.LogError(msg);
     }
 
-    // =========================================================================
-    // Patch 1: Intercept Game.Prologue getter so our custom index doesn't crash
-    // =========================================================================
     [HarmonyPatch(typeof(Game), nameof(Game.Prologue), MethodType.Getter)]
     static class Patch_Game_Prologue
     {
@@ -58,28 +45,26 @@ namespace FastStartMod
         {
             if (__instance.idPrologue == FastStartPlugin.FastStartPrologueIndex)
             {
-                // Return the standard story prologue (index 0) for zone/spawn settings
                 __result = EClass.setting.start.prologues[0];
                 return false;
             }
+
             return true;
         }
     }
 
-    // =========================================================================
-    // Patch 2: Add "Fast Start" to the mode selection list in UICharaMaker
-    // =========================================================================
     [HarmonyPatch(typeof(UICharaMaker), nameof(UICharaMaker.SetChara))]
     static class Patch_UICharaMaker_SetChara
     {
         static void Postfix(UICharaMaker __instance)
         {
-            // Append our custom mode to the list
             var modes = new List<string>(__instance.listMode);
-            modes.Add("Fast Start");
-            __instance.listMode = modes.ToArray();
+            if (!modes.Contains("Fast Start"))
+            {
+                modes.Add("Fast Start");
+                __instance.listMode = modes.ToArray();
+            }
 
-            // If we're already set to our mode, update the display text
             if (EMono.game.idPrologue == FastStartPlugin.FastStartPrologueIndex)
             {
                 __instance.textMode.SetText("Fast Start");
@@ -87,23 +72,17 @@ namespace FastStartMod
         }
     }
 
-    // =========================================================================
-    // Patch 3: Handle selection of our mode in the ListModes popup
-    // =========================================================================
     [HarmonyPatch(typeof(UICharaMaker), nameof(UICharaMaker.ListModes))]
     static class Patch_UICharaMaker_ListModes
     {
         static bool Prefix(UICharaMaker __instance)
         {
-            // Replace the entire method with our version that handles
-            // the extra "Fast Start" entry properly
             EMono.ui.AddLayer<LayerList>().SetStringList(
                 () => __instance.listMode,
                 delegate (int a, string b)
                 {
                     if (a < EClass.setting.start.prologues.Count)
                     {
-                        // Vanilla mode selected
                         EMono.game.idPrologue = a;
                         Prologue prologue = EMono.game.Prologue;
                         EMono.world.date.year = prologue.year;
@@ -113,36 +92,30 @@ namespace FastStartMod
                     }
                     else
                     {
-                        // Our custom "Fast Start" mode
                         EMono.game.idPrologue = FastStartPlugin.FastStartPrologueIndex;
-                        // Use story prologue's date/weather settings
                         Prologue prologue = EClass.setting.start.prologues[0];
                         EMono.world.date.year = prologue.year;
                         EMono.world.date.month = prologue.month;
                         EMono.world.date.day = prologue.day;
                         EMono.world.weather._currentCondition = prologue.weather;
                     }
+
                     __instance.textMode.SetText(__instance.listMode[a]);
                     __instance.Refresh();
                 }
             ).SetSize().SetTitles("wStartMode");
 
-            return false; // skip original
+            return false;
         }
     }
 
-    // =========================================================================
-    // Allow Vernis to be claimed after quest completion
-    // The game only allows claiming at phase 4, but our mod completes
-    // the quest entirely (phase 999). 
-    // =========================================================================
     [HarmonyPatch(typeof(Zone_Vernis), nameof(Zone_Vernis.isClaimable), MethodType.Getter)]
     static class Patch_Zone_Vernis_isClaimable
     {
         static void Postfix(Zone_Vernis __instance, ref bool __result)
         {
             if (!__result
-                && EClass.game.quests.GetPhase<QuestVernis>() == 999
+                && EClass.game.quests.GetPhase<QuestVernis>() == Quest.PhaseComplete
                 && __instance.mainFaction != EClass.pc.faction)
             {
                 __result = true;
@@ -150,394 +123,507 @@ namespace FastStartMod
         }
     }
 
-    // =========================================================================
-    // Patch 5: Apply all Fast Start rewards after the game starts
-    // =========================================================================
+    [HarmonyPatch(typeof(Quest), nameof(Quest.ShowCompleteText))]
+    static class Patch_Quest_ShowCompleteText
+    {
+        static bool Prefix() => !FastStartPlugin.IsApplyingFastStart;
+    }
+
+    [HarmonyPatch(typeof(QuestDialog), nameof(QuestDialog.ShowCompleteText))]
+    static class Patch_QuestDialog_ShowCompleteText
+    {
+        static bool Prefix() => !FastStartPlugin.IsApplyingFastStart;
+    }
+
+    [HarmonyPatch(typeof(Quest), nameof(Quest.UpdateJournal))]
+    static class Patch_Quest_UpdateJournal
+    {
+        static bool Prefix() => !FastStartPlugin.IsApplyingFastStart;
+    }
+
     [HarmonyPatch(typeof(Game), nameof(Game.StartNewGame))]
     static class Patch_Game_StartNewGame
     {
+        static void Prefix()
+        {
+            FastStartPlugin.HasAppliedFastStart = false;
+        }
+
         static void Postfix()
         {
             if (EClass.game.idPrologue != FastStartPlugin.FastStartPrologueIndex)
+            {
                 return;
+            }
 
+            if (FastStartPlugin.HasAppliedFastStart)
+            {
+                FastStartPlugin.LogWarn("Fast Start bootstrap already ran for this new game.");
+                return;
+            }
+
+            FastStartPlugin.HasAppliedFastStart = true;
             FastStartPlugin.Log("Applying Fast Start...");
             FastStartPlugin.IsApplyingFastStart = true;
+            bool succeeded = false;
 
             try
             {
-                FastStartRewards.Apply();
+                FastStartBootstrap.Apply();
+                succeeded = true;
+            }
+            catch (Exception ex)
+            {
+                FastStartPlugin.LogError($"Fast Start failed: {ex}");
             }
             finally
             {
                 FastStartPlugin.IsApplyingFastStart = false;
             }
 
-            FastStartPlugin.Log("Fast Start complete.");
+            if (succeeded)
+            {
+                FastStartPlugin.Log("Fast Start complete.");
+            }
         }
     }
 
-    // =========================================================================
-    // The actual reward/state injection logic
-    // =========================================================================
-    static class FastStartRewards
+    static class FastStartBootstrap
     {
-        /// <summary>
-        /// All quest IDs to mark as completed.
-        /// These are the quests from game start through Vernis completion.
-        /// </summary>
-        static readonly string[] CompletedQuestIds = {
-            // Tutorial
-            "crafter",
-            "sharedContainer",
-            "tax",
-            "introInspector",
-            "shippingChest",
-            "defense",
-            // Post-tutorial home quests
-            "loytel_farm",
-            "puppy",
-            // Exploration / Nymelle
-            "exploration",
-            "fiama_reward",
-            "fiama_lock",
-            // Fiama starter gift (day-7 dialog)
-            "fiama_starter_gift",
-            // Vernis prep chain
-            "greatDebt",
-            "farris_tulip",
-            "kettle_join",
-            "quru_morning",
-            "quru_sing",
-            "quru_past1",
-            "quru_past2",
-            // Vernis main quest
-            "vernis_gold",
-            // Post-Vernis
-            "after_vernis",
-        };
-
-        /// <summary>
-        /// Quest type names to mark as completed (prevents re-offering).
-        /// </summary>
-        static readonly string[] CompletedQuestTypes = {
-            "QuestCrafter",
-            "QuestSharedContainer",
-            "QuestTax",
-            "QuestIntroInspector",
-            "QuestShippingChest",
-            "QuestDefense",
-            "QuestLoytelFarm",
-            "QuestPuppy",
-            "QuestExploration",
-            "QuestFiamaLock",
-            "QuestVernis",
-            "QuestDialog",
-        };
-
-        /// <summary>
-        /// NPC IDs to add as colony residents.
-        /// </summary>
-        static readonly string[] ResidentNpcIds = {
-            "loytel",
-            "farris",
-            "kettle",
-            "quru",
-            "corgon",
-            "demitas",
-        };
+        const string FiamaGiftCompanionId = "shojo";
 
         public static void Apply()
         {
-            MarkQuestsComplete();
-            SetMainQuestPhase();
-            ClaimHomeZone();
-            GrantRewardItems();
-            GrantRecipes();
-            AddResidentNpcs();
-            MoveStoryNpcs();
-            QueueFollowOnQuests();
+            RequireStartZone();
+            EnsureCoreQuests();
+            ClaimStartingHome();
+            ReplayTutorialHomeChain();
+            ReplayExplorationChain();
+            ReplayPostExplorationDialogChain();
+            ReplayVernisQuest();
+            GrantFiamaGiftReplacement();
+            GrantBaselineTools();
             SetPlayerFlags();
             RemoveFaintCondition();
             GrantExtraItems();
         }
 
-        /// <summary>
-        /// Mark all tutorial/Vernis quests as completed in the quest manager.
-        /// </summary>
-        static void MarkQuestsComplete()
+        static void RequireStartZone()
         {
-            var quests = EClass.game.quests;
-
-            foreach (var id in CompletedQuestIds)
+            if (EClass._zone != EClass.game.StartZone)
             {
-                if (!quests.completedIDs.Contains(id))
-                    quests.completedIDs.Add(id);
+                throw new InvalidOperationException("Fast Start bootstrap must run in the start zone.");
             }
-
-            foreach (var type in CompletedQuestTypes)
-            {
-                if (!quests.completedTypes.Contains(type))
-                    quests.completedTypes.Add(type);
-            }
-
-            // Also complete the "home" quest and advance it
-            if (!quests.completedIDs.Contains("home"))
-                quests.completedIDs.Add("home");
-
-            FastStartPlugin.Log($"Marked {CompletedQuestIds.Length} quests as completed.");
         }
 
-        /// <summary>
-        /// Set the main story quest to phase 700 (AfterAshLeaveHome).
-        /// This is past all tutorial and Nymelle content.
-        /// </summary>
-        static void SetMainQuestPhase()
+        static void EnsureCoreQuests()
         {
-            var mainQuest = EClass.game.quests.Get<QuestMain>();
-            mainQuest.ChangePhase(700); // AfterAshLeaveHome
-            FastStartPlugin.Log("Main quest set to phase 700 (AfterAshLeaveHome).");
+            if (EClass.game.quests.Get<QuestMain>() == null)
+            {
+                EClass.game.quests.Start("main");
+            }
+
+            if (EClass.game.quests.Get<QuestHome>() == null)
+            {
+                EClass.game.quests.Start("home");
+            }
         }
 
-        /// <summary>
-        /// Ensure the home zone is claimed as a PC faction zone.
-        /// This is needed for NPCs to be added as branch members.
-        /// </summary>
-        static void ClaimHomeZone()
+        static void ClaimStartingHome()
         {
+            ConsumeOnePlayerItem("deed");
+
             if (!EClass._zone.IsPCFaction)
             {
                 EClass._zone.ClaimZone();
-                FastStartPlugin.Log("Claimed home zone.");
+                FastStartPlugin.Log("Claimed the starting home zone.");
             }
-        }
 
-        /// <summary>
-        /// Grant all items that would have been received from the completed quests.
-        /// </summary>
-        static void GrantRewardItems()
-        {
-            var player = EClass.player;
+            QuestHome home = EClass.game.quests.Get<QuestHome>()
+                ?? throw new InvalidOperationException("QuestHome is missing during Fast Start bootstrap.");
+            QuestMain main = EClass.game.quests.Get<QuestMain>()
+                ?? throw new InvalidOperationException("QuestMain is missing during Fast Start bootstrap.");
 
-            // --- From QuestCrafter.OnDropReward ---
-            player.DropReward(ThingGen.Create("housePlate"));
-            player.DropReward(ThingGen.Create("343"));
-            player.DropReward(ThingGen.Create("432"));
-
-            // --- From QuestTax.OnDropReward ---
-            player.DropReward(ThingGen.Create("mailpost"));
-
-            // --- From QuestDefense.OnDropReward ---
-            player.DropReward(ThingGen.Create("plat").SetNum(10));
-
-            // --- From DramaOutcome.QuestDefense_1 (stones, potions, bandages) ---
-            player.DropReward(ThingGen.Create("stone").SetNum(20));
-            player.DropReward(ThingGen.Create("330").SetNum(3));   // minor healing potions
-            player.DropReward(ThingGen.Create("331").SetNum(3));   // minor mana potions
-            player.DropReward(ThingGen.Create("bandage").SetNum(5));
-
-            // --- From DramaOutcome.QuestSharedContainer_Drop1 ---
-            player.DropReward(ThingGen.Create("chest6"));
-
-            // --- From DramaOutcome.QuestShippingChest_Drop1 (shipping chest ingredients) ---
-            Recipe.DropIngredients("container_shipping", "palm", 6);
-
-            // --- From DramaOutcome.QuestCraft_Drop1 (straw material) ---
-            player.DropReward(ThingGen.CreateRawMaterial(EClass.sources.materials.alias["straw"]));
-
-            // --- From QuestPuppy.OnDropReward ---
-            player.DropReward(ThingGen.Create("coolerbox"));
-
-            // --- From QuestLoytelFarm.OnDropReward ---
-            player.DropReward(TraitSeed.MakeSeed("pasture").SetNum(5));
-            player.DropReward(TraitSeed.MakeSeed("tomato").SetNum(5));
-            player.DropReward(TraitSeed.MakeSeed("kinoko").SetNum(5));
-
-            // --- From DramaOutcome.QuestExploration_Drop1 (scrolls) ---
-            player.DropReward(ThingGen.CreateScroll(8220)); // Return
-            player.DropReward(ThingGen.CreateScroll(8221)); // Escape
-
-            // --- From QuestVernis.OnChangePhase(7) ---
-            player.DropReward(ThingGen.CreatePotion(8506).SetNum(3));
-            player.DropReward(ThingGen.Create("blanket_fire"));
-
-            // --- From QuestFiamaLock.OnStart (lockpick) ---
-            var lockpick = ThingGen.Create("lockpick");
-            lockpick.c_charges = 12;
-            player.DropReward(lockpick);
-
-            // --- From DramaOutcome.fiama_gold (10 gold bars) ---
-            player.DropReward(ThingGen.Create("money2").SetNum(10));
-
-            // --- From DramaOutcome.fiama_starter_gift (ring choice, index 0) ---
-            var ring = ThingGen.Create("ring_decorative").SetNoSell();
-            ring.elements.SetBase(65, 10);
-            player.DropReward(ring);
-
-            // --- Land deed for Vernis (lets player claim it at their leisure) ---
-            player.DropReward(ThingGen.Create("deed"));
-
-            FastStartPlugin.Log("Granted all reward items.");
-        }
-
-        /// <summary>
-        /// Grant all recipes that would have been received from quest rewards.
-        /// </summary>
-        static void GrantRecipes()
-        {
-            var recipes = EClass.player.recipes;
-
-            // From QuestCrafter
-            GrantRecipe(recipes, "torch_wall");
-            GrantRecipe(recipes, "factory_sign");
-
-            // From QuestDialog fiama_reward
-            GrantRecipe(recipes, "workbench2");
-            GrantRecipe(recipes, "factory_stone");
-            GrantRecipe(recipes, "stonecutter");
-
-            // From DramaOutcome.QuestVernis_DropRecipe
-            GrantRecipe(recipes, "explosive");
-
-            FastStartPlugin.Log("Granted all recipes.");
-        }
-
-        static void GrantRecipe(RecipeManager recipes, string id)
-        {
-            if (!recipes.knownRecipes.ContainsKey(id))
-                recipes.knownRecipes[id] = 1;
-        }
-
-        /// <summary>
-        /// Add key NPCs as residents of the player's home colony.
-        /// Follows the same pattern as CoreDebug.Story_Test.
-        /// </summary>
-        static void AddResidentNpcs()
-        {
-            foreach (var npcId in ResidentNpcIds)
+            if (home.phase < 1)
             {
-                AddResident(npcId);
+                home.ChangePhase(1);
             }
-            FastStartPlugin.Log($"Added {ResidentNpcIds.Length} resident NPCs.");
+
+            if (main.phase < 200)
+            {
+                main.ChangePhase(200);
+            }
+
+            AddGlobalQuestIfMissing("sharedContainer", "ashland");
+            AddGlobalQuestIfMissing("crafter", "ashland");
+            AddGlobalQuestIfMissing("defense", "ashland");
+
+            if (home.phase < 2)
+            {
+                home.ChangePhase(2);
+            }
         }
 
-        /// <summary>
-        /// Add a single NPC as a resident, following CoreDebug's pattern.
-        /// </summary>
-        static void AddResident(string id)
+        static void ReplayTutorialHomeChain()
         {
-            // Check if already a global chara
-            var chara = EClass.game.cards.globalCharas.Find(id);
-            if (chara == null)
-            {
-                // Create and register as global
-                chara = CharaGen.Create(id);
-                chara.SetGlobal();
-            }
+            FastStartPlugin.Log("Replaying tutorial and home quest chain.");
 
-            // Add to the zone and branch
-            var spawnPoint = EClass.pc.pos.GetNearestPoint(
-                allowBlock: false, allowChara: false);
+            GrantSharedContainerReward();
+            CompleteGlobalQuest("sharedContainer");
 
-            if (chara.currentZone != EClass._zone)
-            {
-                EClass._zone.AddCard(chara, spawnPoint);
-            }
+            GrantCrafterSetupReward();
+            CompleteGlobalQuest("crafter");
 
-            if (!EClass.Branch.members.Contains(chara))
-            {
-                EClass.Branch.AddMemeber(chara);
-            }
+            GrantDefenseCombatRewards();
+            Quest defense = StartQuest("defense");
+            defense.ChangePhase(2);
+            defense.Complete();
 
-            // Corgon gets special flag (from QuestVernis.OnComplete)
-            if (id == "corgon")
-            {
-                chara.SetInt(100, 1);
-            }
+            CompleteGlobalQuest("puppy");
+            CompleteGlobalQuest("tax");
+            CompleteGlobalQuest("introInspector");
 
-            FastStartPlugin.Log($"  Added resident: {id}");
+            GrantShippingChestIngredients();
+            CompleteGlobalQuest("shippingChest");
+            CompleteGlobalQuest("loytel_farm");
         }
 
-        /// <summary>
-        /// Move Ash and Fiama to Lothria (they leave home after exploration).
-        /// This matches DramaOutcome.QuestExploration_AfterComplete.
-        /// </summary>
-        static void MoveStoryNpcs()
+        static void ReplayExplorationChain()
         {
-            var ash = EClass.game.cards.globalCharas.Find("ashland");
+            FastStartPlugin.Log("Replaying exploration and Fiama chain.");
+
+            QuestExploration exploration = StartQuest("exploration") as QuestExploration
+                ?? throw new InvalidOperationException("Quest 'exploration' did not resolve to QuestExploration.");
+
+            FastStartPlugin.Log("  Completing fiama_reward.");
+            CompleteGlobalQuest("fiama_reward");
+            FastStartPlugin.Log("  Completing fiama_lock.");
+            CompleteGlobalQuest("fiama_lock");
+
+            FastStartPlugin.Log("  Granting exploration travel scrolls.");
+            GrantExplorationTravelScrolls();
+            FastStartPlugin.Log("  Recruiting Farris and advancing exploration.");
+            ApplyMeetFarris(exploration);
+            exploration.ChangePhase(5);
+            FastStartPlugin.Log("  Completing exploration and moving Ash/Fiama out.");
+            exploration.Complete();
+            ApplyAfterExplorationComplete();
+        }
+
+        static void ReplayPostExplorationDialogChain()
+        {
+            FastStartPlugin.Log("Replaying post-exploration dialog chain.");
+
+            CompleteGlobalQuest("greatDebt");
+            CompleteGlobalQuest("farris_tulip");
+            CompleteGlobalQuest("kettle_join");
+            CompleteGlobalQuest("quru_morning");
+            CompleteGlobalQuest("quru_sing");
+            CompleteGlobalQuest("quru_past1");
+            CompleteGlobalQuest("quru_past2");
+        }
+
+        static void ReplayVernisQuest()
+        {
+            FastStartPlugin.Log("Replaying Vernis quest.");
+
+            QuestVernis vernis = StartQuest("vernis_gold") as QuestVernis
+                ?? throw new InvalidOperationException("Quest 'vernis_gold' did not resolve to QuestVernis.");
+
+            EClass.player.DropReward(ThingGen.CreateRecipe("explosive"));
+            EClass.player.DropReward(ThingGen.Create("deed"));
+
+            vernis.ChangePhase(1);
+            vernis.ChangePhase(5);
+            vernis.ChangePhase(7);
+            vernis.Complete();
+            NormalizePostVernisResidents();
+        }
+
+        static void ApplyMeetFarris(QuestExploration exploration)
+        {
+            Chara farris = FindOrCreateGlobalChara("farris");
+
+            exploration.ChangePhase(1);
+            farris.RemoveEditorTag(EditorTag.AINoMove);
+            farris.RemoveEditorTag(EditorTag.InvulnerableToMobs);
+            farris.RemoveEditorTag(EditorTag.Invulnerable);
+            farris.homeZone = EClass.game.StartZone;
+            farris.MoveZone(EClass.game.StartZone, ZoneTransition.EnterState.Return);
+
+            exploration.ChangePhase(2);
+            EClass.Branch.Recruit(farris);
+            EnsureMainQuestPhase(300);
+        }
+
+        static void ApplyAfterExplorationComplete()
+        {
+            Chara ash = RequireGlobalChara("ashland");
+            Chara fiama = RequireGlobalChara("fiama");
+
             ash.MoveHome("lothria", 40, 49);
             EClass.game.quests.RemoveAll(ash);
-            FastStartPlugin.Log("Moved Ashland to Lothria.");
 
-            var fiama = EClass.game.cards.globalCharas.Find("fiama");
             fiama.MoveHome("lothria", 46, 56);
             EClass.game.quests.RemoveAll(fiama);
-            FastStartPlugin.Log("Moved Fiama to Lothria.");
+
+            SuppressTutorialHooks();
+            EnsureMainQuestPhase(700);
         }
 
-        /// <summary>
-        /// Queue the follow-on quests that would normally start after Vernis.
-        /// </summary>
-        static void QueueFollowOnQuests()
+        static void EnsureMainQuestPhase(int phase)
         {
-            var quests = EClass.game.quests;
+            QuestMain main = EClass.game.quests.Get<QuestMain>();
+            if (main == null)
+            {
+                main = EClass.game.quests.Start("main") as QuestMain
+                    ?? throw new InvalidOperationException("Failed to start QuestMain.");
+            }
 
-            // From QuestVernis.OnComplete: mokyu + pre_debt
-            quests.Add("mokyu", "corgon").startDate =
-                EClass.world.date.GetRaw() + 14400;
-
-            quests.Add("pre_debt", "farris").startDate =
-                EClass.world.date.GetRaw() + 28800;
-
-            // From QuestDialog exile_quru: into_darkness
-            quests.Add("into_darkness", "kettle").startDate =
-                EClass.world.date.GetRaw() + 7200;
-
-            FastStartPlugin.Log("Queued follow-on quests (mokyu, pre_debt, into_darkness).");
+            if (main.phase < phase)
+            {
+                main.ChangePhase(phase);
+            }
         }
 
-        /// <summary>
-        /// Set player flags to skip tutorial UI hints.
-        /// </summary>
+        static Quest CompleteGlobalQuest(string id)
+        {
+            Quest quest = StartQuest(id);
+            quest.Complete();
+            return quest;
+        }
+
+        static Quest StartQuest(string id)
+        {
+            Quest started = EClass.game.quests.Get(id);
+            if (started != null)
+            {
+                return started;
+            }
+
+            Quest global = EClass.game.quests.GetGlobal(id);
+            if (global != null)
+            {
+                EClass.game.quests.RemoveGlobal(global);
+                return EClass.game.quests.Start(global);
+            }
+
+            return EClass.game.quests.Start(id);
+        }
+
+        static void AddGlobalQuestIfMissing(string id, string clientId = null)
+        {
+            if (EClass.game.quests.IsCompleted(id)
+                || EClass.game.quests.Get(id) != null
+                || EClass.game.quests.GetGlobal(id) != null)
+            {
+                return;
+            }
+
+            Quest quest = string.IsNullOrEmpty(clientId)
+                ? Quest.Create(id)
+                : Quest.Create(id).SetClient(RequireGlobalChara(clientId), assignQuest: false);
+
+            EClass.game.quests.globalList.Add(quest);
+        }
+
+        static Chara RequireGlobalChara(string id)
+        {
+            Chara chara = EClass.game.cards.globalCharas.Find(id);
+            if (chara == null)
+            {
+                throw new InvalidOperationException($"Required global character '{id}' was not found.");
+            }
+
+            return chara;
+        }
+
+        static Chara FindOrCreateGlobalChara(string id)
+        {
+            Chara chara = EClass.game.cards.globalCharas.Find(id);
+            if (chara != null)
+            {
+                return chara;
+            }
+
+            FastStartPlugin.Log($"Creating missing global character '{id}' for Fast Start.");
+            chara = CharaGen.Create(id);
+            chara.SetGlobal();
+            return chara;
+        }
+
+        static void SuppressTutorialHooks()
+        {
+            RemoveQuestIfPresent("ash1");
+            RemoveQuestIfPresent("ash2");
+            RemoveQuestIfPresent("fiama1");
+            RemoveQuestIfPresent("fiama2");
+
+            EClass.player.dialogFlags["ash1"] = 1;
+            EClass.player.dialogFlags["fiama1"] = 1;
+        }
+
+        static void NormalizePostVernisResidents()
+        {
+            FastStartPlugin.Log("Normalizing post-Vernis residents to the starting zone.");
+
+            string[] residentIds = { "loytel", "farris", "kettle", "quru", "corgon" };
+            Point[] offsets =
+            {
+                new Point(-2, -1),
+                new Point(-1, 1),
+                new Point(1, -1),
+                new Point(2, 1),
+                new Point(0, 2),
+            };
+
+            for (int i = 0; i < residentIds.Length; i++)
+            {
+                MoveResidentToStartZone(residentIds[i], offsets[i].x, offsets[i].z);
+            }
+        }
+
+        static void MoveResidentToStartZone(string id, int offsetX, int offsetZ)
+        {
+            Chara resident = RequireGlobalChara(id);
+            EnsureBranchMembership(resident);
+
+            Point target = new Point(EClass.pc.pos.x + offsetX, EClass.pc.pos.z + offsetZ)
+                .GetNearestPoint(allowBlock: false, allowChara: false);
+            resident.MoveHome(EClass.game.StartZone, target.x, target.z);
+        }
+
+        static void EnsureBranchMembership(Chara resident)
+        {
+            if (resident.homeBranch != EClass.Branch || !EClass.Branch.members.Contains(resident))
+            {
+                EClass.Branch.AddMemeber(resident);
+            }
+        }
+
+        static void GrantFiamaGiftReplacement()
+        {
+            FastStartPlugin.Log("Granting Fiama Fast Start replacement gift: shojo.");
+
+            Point target = new Point(EClass.pc.pos.x + 1, EClass.pc.pos.z + 2)
+                .GetNearestPoint(allowBlock: false, allowChara: false);
+            Chara companion = EClass._zone.AddCard(CharaGen.Create(FiamaGiftCompanionId), target).Chara;
+            companion.MakeAlly();
+            companion.SetInt(100, 1);
+        }
+
+        static void RemoveQuestIfPresent(string id)
+        {
+            Quest started = EClass.game.quests.Get(id);
+            if (started != null)
+            {
+                EClass.game.quests.Remove(started);
+            }
+
+            Quest global = EClass.game.quests.GetGlobal(id);
+            if (global != null)
+            {
+                EClass.game.quests.RemoveGlobal(global);
+            }
+        }
+
+        static void ConsumeOnePlayerItem(string id)
+        {
+            Thing thing = EClass.pc.things.Find(id);
+            if (thing == null)
+            {
+                return;
+            }
+
+            thing.ModNum(-1);
+        }
+
+        static void GrantSharedContainerReward()
+        {
+            EClass.player.DropReward(ThingGen.Create("chest6"));
+        }
+
+        static void GrantCrafterSetupReward()
+        {
+            EClass.player.DropReward(ThingGen.CreateRawMaterial(EClass.sources.materials.alias["straw"]));
+        }
+
+        static void GrantShippingChestIngredients()
+        {
+            Recipe.DropIngredients("container_shipping", "palm", 6);
+        }
+
+        static void GrantDefenseCombatRewards()
+        {
+            EClass.player.DropReward(ThingGen.Create("stone").SetNum(20));
+            EClass.player.DropReward(ThingGen.Create("330").SetNum(3), silent: true).Identify(show: false);
+            EClass.player.DropReward(ThingGen.Create("331").SetNum(3), silent: true).Identify(show: false);
+            EClass.player.DropReward(ThingGen.Create("bandage").SetNum(5));
+        }
+
+        static void GrantExplorationTravelScrolls()
+        {
+            EClass.player.DropReward(ThingGen.CreateScroll(8220), silent: true).c_IDTState = 0;
+            EClass.player.DropReward(ThingGen.CreateScroll(8221)).c_IDTState = 0;
+        }
+
+        static void GrantBaselineTools()
+        {
+            FastStartPlugin.Log("Granting baseline tools.");
+
+            GrantTool("axe", "iron");
+            GrantTool("hoe", "granite");
+            GrantTool("shovel", "granite");
+            GrantTool("pickaxe", "granite");
+            GrantTool("hammer", "granite");
+        }
+
+        static void GrantTool(string id, string material)
+        {
+            Thing tool = ThingGen.Create(id);
+            tool.ChangeMaterial(material);
+            EClass.player.DropReward(tool);
+        }
+
         static void SetPlayerFlags()
         {
             EClass.player.flags.welcome = true;
             EClass.player.flags.toggleHotbarHighlightActivated = true;
-            FastStartPlugin.Log("Set player flags.");
         }
 
-        /// <summary>
-        /// Remove the ConFaint condition that the story prologue applies.
-        /// </summary>
         static void RemoveFaintCondition()
         {
             EClass.pc.RemoveCondition<ConFaint>();
-            FastStartPlugin.Log("Removed faint condition.");
         }
 
-        /// <summary>
-        /// Grant extra items from the BepInEx config file.
-        /// Format: id:count,id:count,...
-        /// </summary>
         static void GrantExtraItems()
         {
-            var configValue = FastStartPlugin.ExtraItemsConfig.Value;
-            if (string.IsNullOrWhiteSpace(configValue)) return;
-
-            foreach (var entry in configValue.Split(','))
+            string configValue = FastStartPlugin.ExtraItemsConfig.Value;
+            if (string.IsNullOrWhiteSpace(configValue))
             {
-                var trimmed = entry.Trim();
-                if (string.IsNullOrEmpty(trimmed)) continue;
+                return;
+            }
 
-                var parts = trimmed.Split(':');
+            foreach (string entry in configValue.Split(','))
+            {
+                string trimmed = entry.Trim();
+                if (string.IsNullOrEmpty(trimmed))
+                {
+                    continue;
+                }
+
+                string[] parts = trimmed.Split(':');
                 string id = parts[0].Trim();
-                int count = parts.Length > 1 ? int.Parse(parts[1].Trim()) : 1;
+                int count = 1;
+                if (parts.Length > 1 && !int.TryParse(parts[1].Trim(), out count))
+                {
+                    FastStartPlugin.LogWarn($"Invalid extra item count in config entry '{trimmed}'.");
+                    continue;
+                }
 
                 EClass.player.DropReward(ThingGen.Create(id).SetNum(count));
                 FastStartPlugin.Log($"  Extra item: {id} x{count}");
             }
-
-            FastStartPlugin.Log("Granted extra items from config.");
         }
     }
 }
