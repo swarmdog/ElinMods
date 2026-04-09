@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Meta>
+  <title>Fast Start</title>
+  <id>mrmeagle.elin.faststart</id>
+  <author>mrmeagle</author>
+  <loadPriority>100</loadPriority>
+  <version>0.23.50</version>
+  <tags>QoL</tags>
+  <description>Adds a "Fast Start" option to the new game screen that skips the tutorial and Vernis questlines, granting all their rewards immediately. Start with your home claimed, NPCs recruited, and recipes unlocked..</description>
+  <builtin>false</builtin>
+</Meta>
