@@ -20,6 +20,10 @@
     <Compile Include="TraitAstrologicalCodex.cs" />
     <Compile Include="TraitMeteorCore.cs" />
     <Compile Include="TraitStarImbuement.cs" />
+    <Compile Include="TraitAstralExtractor.cs" />
+    <Compile Include="TraitAstralPortal.cs" />
+    <Compile Include="TraitBossScroll.cs" />
+    <Compile Include="TraitArchivistScroll.cs" />
   </ItemGroup>
 
   <!-- BepInEx -->

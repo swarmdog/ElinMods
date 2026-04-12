@@ -9,20 +9,26 @@ public class TraitMeteorCore : TraitItem
     {
         SkyreaderGuild.SkyreaderGuild.Log("Player interacting with meteor core.");
 
-        int sourceCount = 1 + EClass.rnd(4);
+        QuestSkyreader quest = EClass.game.quests.Get<QuestSkyreader>();
+        float rewardMultiplier = quest?.GetMeteorRewardMultiplier() ?? 1f;
+        if (quest == null)
+        {
+            SkyreaderGuild.SkyreaderGuild.Log("Meteor core used without QuestSkyreader; progression benefits skipped.");
+        }
+
+        int sourceCount = Mathf.RoundToInt((1 + EClass.rnd(4)) * rewardMultiplier);
         for (int i = 0; i < sourceCount; i++)
         {
             c.Pick(ThingGen.Create("srg_meteorite_source"));
         }
 
-        int treasureCount = 2 + EClass.rnd(3);
+        int treasureCount = Mathf.RoundToInt((2 + EClass.rnd(3)) * rewardMultiplier);
         for (int i = 0; i < treasureCount; i++)
         {
             Thing t = ThingGen.CreateFromCategory("junk", EClass._zone.DangerLv);
             c.Pick(t);
         }
 
-        QuestSkyreader quest = EClass.game.quests.Get<QuestSkyreader>();
         if (quest != null)
         {
             quest.meteors_found++;
@@ -30,19 +36,19 @@ public class TraitMeteorCore : TraitItem
         }
 
         Msg.SayRaw("You extract fragments from the meteor core. The starlight dims.");
-        RollPostEvent(c);
+        RollPostEvent(c, rewardMultiplier);
         owner.ModNum(-1, true);
         return true;
     }
 
-    private static void RollPostEvent(Chara c)
+    private static void RollPostEvent(Chara c, float rewardMultiplier)
     {
         int roll = EClass.rnd(100);
 
         if (roll < 25)
         {
             Msg.SayRaw("Insight floods your mind. Extra fragments gather in your hands.");
-            int bonus = 1 + EClass.rnd(3);
+            int bonus = Mathf.RoundToInt((1 + EClass.rnd(3)) * rewardMultiplier);
             for (int i = 0; i < bonus; i++)
             {
                 c.Pick(ThingGen.Create("srg_meteorite_source"));

@@ -41,7 +41,8 @@ public class InvOwnerStarImbuement : InvOwnerEffect
 
         if (mode == "forge")
         {
-            return t.IsWeapon || t.IsRangedWeapon || t.IsThrownWeapon || t.IsAmmo;
+            return t.IsWeapon || t.IsRangedWeapon || t.IsThrownWeapon || t.IsAmmo
+                || t.category?.IsChildOf("accessory") == true;
         }
 
         return t.IsEquipment && !t.IsWeapon && !t.IsRangedWeapon && !t.IsAmmo;
