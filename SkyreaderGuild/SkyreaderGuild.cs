@@ -55,9 +55,18 @@ namespace SkyreaderGuild {
             //The message on the quest board.
             //For multistep quests, each step's description is separated by pipes.
             quest.detail =
-                "#pc, you've joined the astrological society.  This will be the status display.";
+                "The Skyreader's Guild is an ancient order of scholars and stargazers who track the fall of celestial bodies. "
+                + "Founded by Arkyn, Keeper of Stars, the guild studies the cosmic energies carried within meteors, "
+                + "believing them to be fragments of a greater astral design. Members analyze impact sites, cleanse "
+                + "beings touched by meteoric radiation, and craft instruments to harness starlight. "
+                + "Those who rise through the ranks gain deeper insight into the cosmos — and the power to summon "
+                + "the very entities that dwell between the stars.";
             quest.detail_JP =
-                "#pc、あなたは天文学会に入会しました。これがギルドの状況表示です。";
+                "星読みのギルドは、天体の落下を追跡する学者と星見の古代結社です。"
+                + "星の守護者アーキンによって設立されたこのギルドは、隕石に宿る宇宙のエネルギーを研究し、"
+                + "それらがより大きな星界の設計の断片であると信じています。会員は衝突地点を分析し、"
+                + "隕石の放射に触れた存在を浄化し、星光を利用する道具を作ります。"
+                + "階級が上がるにつれ、宇宙への洞察が深まり、星々の狭間に住む存在を召喚する力を得ます。";
             quest.drama = new string[] { "skyreader_guild", "main" };
             sources.quests.rows.RemoveAll(row => row.id == quest.id);
             sources.quests.rows.Add(quest);
@@ -731,7 +740,7 @@ namespace SkyreaderGuild {
             GuildRank? nextRank = GetNextRank();
 
             text += "\n\n";
-            text += "Skyreader's Guild".TagColor(FontColor.Topic) + "\n";
+            text += "Standing".TagColor(FontColor.Topic) + "\n";
             text += $"Rank: {FormatRankName(rank)}\n";
 
             if (nextRank != null)
@@ -745,35 +754,64 @@ namespace SkyreaderGuild {
             }
 
             text += "\n";
-            text += "Activity".TagColor(FontColor.Topic) + "\n";
+            text += "Field Record".TagColor(FontColor.Topic) + "\n";
             text += $"Meteors Analyzed: {meteors_found}\n";
             text += $"Touched Cleansed: {touched_cleansed}\n";
+
             text += "\n";
-            text += "Current Benefits".TagColor(FontColor.Topic) + "\n";
-            text += "- Basic meteor detection\n";
+            text += "Capabilities".TagColor(FontColor.Topic) + "\n";
+            text += "- Meteor detection and site analysis\n";
             if (rank >= GuildRank.Seeker)
             {
-                text += "- Weave the Stars and Starforge crafting\n";
+                text += "- Weave the Stars: imbue armor with starlight\n";
+                text += "- Starforge: temper weapons and jewelry with cosmic fire\n";
             }
             if (rank >= GuildRank.Researcher)
             {
-                text += "- Closer meteor reports\n";
+                text += "- Enhanced cartography: meteors fall closer\n";
             }
             if (rank >= GuildRank.CosmosAddled)
             {
-                text += "- Deeper cosmic disturbances\n";
+                text += "- Attunement to deeper cosmic disturbances\n";
             }
             if (rank >= GuildRank.CosmosApplied)
             {
-                text += "- Ultima Projection boss scrolls\n";
+                text += "- Ultima Projection: summon cosmic entities\n";
             }
             if (rank >= GuildRank.Understander)
             {
-                text += "- Astral Convergence Archivist scroll\n";
+                text += "- Astral Convergence: call forth the Archivist\n";
             }
             if (rank >= GuildRank.PrincipalStarseeker)
             {
-                text += "- Doubled meteor core item rewards\n";
+                text += "- Principal's Insight: doubled meteor core yields\n";
+            }
+
+            text += "\n";
+            text += "Lore".TagColor(FontColor.Topic) + "\n";
+            switch (rank)
+            {
+                case GuildRank.Wanderer:
+                    text += "You have taken your first steps among the Skyreaders. The stars are vast and indifferent, but the guild's teachings will show you how to read their language.";
+                    break;
+                case GuildRank.Seeker:
+                    text += "The guild has acknowledged your dedication. Srikkther's journals speak of artisans who wove raw starlight into steel and silk — their techniques are now yours to attempt.";
+                    break;
+                case GuildRank.Researcher:
+                    text += "Your growing familiarity with celestial trajectories allows you to anticipate where meteors will strike. Arkyn once wrote: 'The sky does not fall at random. It falls where it is needed.'";
+                    break;
+                case GuildRank.CosmosAddled:
+                    text += "Long study has left its mark. You perceive patterns others cannot — spirals in the dust, harmonics in the silence. Fellow scholars say this phase passes. Some say it deepens.";
+                    break;
+                case GuildRank.CosmosApplied:
+                    text += "You have mastered enough of the astral lexicon to address the entities that ride the meteor trails. The Ultima Projection technique was forbidden for centuries. The guild's current leadership considers the ban... outdated.";
+                    break;
+                case GuildRank.Understander:
+                    text += "To Understand is to accept that the cosmos is not merely observed — it observes in return. The Astral Archivist, keeper of the guild's deepest records, will answer your summons now.";
+                    break;
+                case GuildRank.PrincipalStarseeker:
+                    text += "You stand at the pinnacle of the Skyreader's Guild. The stars know your name. Meteors yield their secrets to you more readily, and the cosmic entities regard you as a peer rather than a curiosity.";
+                    break;
             }
 
             return text;

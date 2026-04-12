@@ -16,10 +16,10 @@ namespace SkyreaderGuild
         public const int MAX_ACTIVE_METEOR_SITES = 2;
         public const int MAX_ACTIVE_RIFT_SITES = 1;
 
-        public string[] meteorFallQuips = new string[]
+        public static readonly string[] meteorFallQuips = new string[]
         {
             "Great Scott!", "Christ on a crutch!"
-        }
+        };
 
         /// <summary>
         /// Attempts to spawn a meteor impact site on the overworld near the player.
@@ -64,7 +64,7 @@ namespace SkyreaderGuild
             {
                 return false;
             }
-            string m = meteorFallQuips[rgen.Next(meteorFallQuips.Length)];
+            string m = meteorFallQuips[EClass.rnd(meteorFallQuips.Length)];
             EClass.pc.TalkRaw(m);
             Msg.SayRaw("A streak of light crosses the sky! A meteor has fallen nearby.");
             SkyreaderGuild.Log($"Spawned meteor site at ({zone.x},{zone.y}), DangerLv={zone.DangerLv}.");
