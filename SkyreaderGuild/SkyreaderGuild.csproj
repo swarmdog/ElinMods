@@ -1,0 +1,73 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>SkyreaderGuild</AssemblyName>
+    <RootNamespace>SkyreaderGuild</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+    <!-- Elin install path -->
+    <ElinDir>D:\Steam\steamapps\common\Elin</ElinDir>
+    <ManagedDir>$(ElinDir)\Elin_Data\Managed</ManagedDir>
+    <BepInExDir>$(ElinDir)\BepInEx\core</BepInExDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="SkyreaderGuild.cs" />
+    <Compile Include="MeteorManager.cs" />
+    <Compile Include="TraitAstrologicalCodex.cs" />
+    <Compile Include="TraitMeteorCore.cs" />
+    <Compile Include="TraitStarImbuement.cs" />
+  </ItemGroup>
+
+  <!-- BepInEx -->
+  <ItemGroup>
+    <Reference Include="BepInEx.Core">
+      <HintPath>$(BepInExDir)\BepInEx.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="BepInEx.Unity">
+      <HintPath>$(BepInExDir)\BepInEx.Unity.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(BepInExDir)\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Unity / Game -->
+  <ItemGroup>
+    <Reference Include="UnityEngine">
+      <HintPath>$(ManagedDir)\UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(ManagedDir)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Elin">
+      <HintPath>$(ManagedDir)\Elin.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Plugins.BaseCore">
+      <HintPath>$(ManagedDir)\Plugins.BaseCore.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Plugins.Modding">
+      <HintPath>$(ManagedDir)\Plugins.Modding.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(ManagedDir)\Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Plugins.UI">
+      <HintPath>$(ManagedDir)\Plugins.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

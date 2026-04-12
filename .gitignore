@@ -3,6 +3,11 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+# Elin data from a) spreadsheets b) decompiled Elin on github c) modding docs from github
+Elin.Docs*
+Elin-Decomp*
+elin_readable_game_data
+agents.md
 # User-specific files
 *.rsuser
 *.suo
