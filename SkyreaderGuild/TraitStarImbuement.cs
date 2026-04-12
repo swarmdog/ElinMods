@@ -18,6 +18,7 @@ public class TraitStarImbuement : TraitItem
 
 public class InvOwnerStarImbuement : InvOwnerEffect
 {
+    public const int StarImbuementCountKey = 9002;
     public string mode = "weave";
 
     public override bool CanTargetAlly => true;
@@ -39,10 +40,15 @@ public class InvOwnerStarImbuement : InvOwnerEffect
             return false;
         }
 
+        if (t.GetInt(StarImbuementCountKey) >= SkyreaderGuild.SkyreaderGuild.ConfigMaxStarImbuements.Value)
+        {
+            return false;
+        }
+
         if (mode == "forge")
         {
             return t.IsWeapon || t.IsRangedWeapon || t.IsThrownWeapon || t.IsAmmo
-                || t.category?.IsChildOf("accessory") == true;
+                || t.category?.IsChildOf("ring") == true || t.category?.IsChildOf("neck") == true;
         }
 
         return t.IsEquipment && !t.IsWeapon && !t.IsRangedWeapon && !t.IsAmmo;
@@ -58,6 +64,7 @@ public class InvOwnerStarImbuement : InvOwnerEffect
         }
 
         Msg.SayRaw($"Starlight settles into {t.Name}.");
+        t.SetInt(StarImbuementCountKey, t.GetInt(StarImbuementCountKey) + 1);
         SkyreaderGuild.SkyreaderGuild.Log($"Applied star imbuement '{mode}' to {t.id}: element={element.id}, value={element.vBase + element.vSource}.");
         owner.ModNum(-1, true);
     }

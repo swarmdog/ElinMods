@@ -13,36 +13,45 @@ public class TraitAstralExtractor : TraitItem
         return TagMeteorTouchedOnCivilizedVisit.IsTouched(c) ? Emo2.hint : Emo2.none;
     }
 
+    public override string LangUse => "Extract Starlight";
+
+    public override bool CanUse(Chara c, Card tg)
+    {
+        return EClass.game.quests.IsStarted<QuestSkyreader>();
+    }
+
+    public override bool OnUse(Chara c, Card tg)
+    {
+        PerformExtraction(c, tg);
+        return true;
+    }
+
+    public override bool CanUse(Chara c, Point p)
+    {
+        return EClass.game.quests.IsStarted<QuestSkyreader>();
+    }
+
+    public override bool OnUse(Chara c, Point p)
+    {
+        foreach (Chara chara in p.Charas) 
+        {
+            if (TagMeteorTouchedOnCivilizedVisit.IsTouched(chara)) { PerformExtraction(c, chara); return true; }
+        }
+        foreach (Thing thing in p.Things) 
+        {
+            if (TagMeteorTouchedOnCivilizedVisit.IsTouched(thing)) { PerformExtraction(c, thing); return true; }
+        }
+        
+        Msg.SayRaw("There is no cosmic energy here.");
+        return true;
+    }
+
     public override bool OnUse(Chara c)
     {
         Msg.SayRaw("Hold the astral extractor and right-click a meteor-touched person or object.");
         return false;
     }
 
-    public override void TrySetHeldAct(ActPlan p)
-    {
-        foreach (Chara chara in p.pos.Charas)
-        {
-            if (!TagMeteorTouchedOnCivilizedVisit.IsTouched(chara)) continue;
-            Chara target = chara;
-            p.TrySetAct("Extract Starlight", delegate
-            {
-                PerformExtraction(EClass.pc, target);
-                return true;
-            }, target);
-        }
-
-        foreach (Thing thing in p.pos.Things)
-        {
-            if (!TagMeteorTouchedOnCivilizedVisit.IsTouched(thing)) continue;
-            Thing target = thing;
-            p.TrySetAct("Extract Starlight", delegate
-            {
-                PerformExtraction(EClass.pc, target);
-                return true;
-            }, target);
-        }
-    }
 
     private void PerformExtraction(Chara user, Card target)
     {
@@ -70,7 +79,6 @@ public class TraitAstralExtractor : TraitItem
         }
 
         RollSkysignEffect(user, target);
-        owner.ModNum(-1, true);
     }
 
     private static int CalculateGuildPoints(Card target)
@@ -155,7 +163,7 @@ public class TraitAstralExtractor : TraitItem
         Msg.SayRaw("Cosmic alignment sharpens your understanding of difficult texts.");
         user.AddCondition(Condition.Create<ConBuffStats>(500, delegate(ConBuffStats con)
         {
-            con.SetRefVal(285, (int)EffectId.BuffStats);
+            con.SetRefVal(74, (int)EffectId.BuffStats);
         }));
     }
 

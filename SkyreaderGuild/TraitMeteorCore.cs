@@ -16,7 +16,8 @@ public class TraitMeteorCore : TraitItem
             SkyreaderGuild.SkyreaderGuild.Log("Meteor core used without QuestSkyreader; progression benefits skipped.");
         }
 
-        int sourceCount = Mathf.RoundToInt((1 + EClass.rnd(4)) * rewardMultiplier);
+        int cosmosBonus = quest != null && quest.GetCurrentRank() >= GuildRank.CosmosAddled ? 1 : 0;
+        int sourceCount = Mathf.RoundToInt((1 + EClass.rnd(4) + cosmosBonus) * rewardMultiplier);
         for (int i = 0; i < sourceCount; i++)
         {
             c.Pick(ThingGen.Create("srg_meteorite_source"));

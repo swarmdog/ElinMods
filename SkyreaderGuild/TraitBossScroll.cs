@@ -11,6 +11,51 @@ public class TraitBossScroll : TraitScroll
         { "srg_scroll_nova", "srg_quasarix" },
     };
 
+    public override int GetActDuration(Chara c)
+    {
+        return 15;
+    }
+
+    private int lastStage = -1;
+
+    private static readonly string[][] stageMessages = new string[][]
+    {
+        new string[] {
+            "The sigils on the scroll writhe and shift. Reality bends at the edges of your vision.",
+            "Ink bleeds upward from the parchment, forming shapes that should not exist.",
+            "Your hands tremble as the scroll grows warm. The air thickens with cosmic pressure.",
+        },
+        new string[] {
+            "A rift of pale light tears open beside you. Something stirs within.",
+            "The ground beneath your feet vibrates. Stars appear where there should be stone.",
+            "Thunder without sound shakes your bones. The summoning circle burns bright.",
+        },
+        new string[] {
+            "A shape coalesces in the rift — vast and terrible and beautiful.",
+            "The air screams silently as the entity forces its way into this plane.",
+            "Gravity lurches. The creature's presence warps the fabric of the zone.",
+        },
+    };
+
+    public override bool TryProgress(AIProgress p)
+    {
+        var custom = p as Progress_Custom;
+        if (custom == null) return true;
+
+        float progress = (float)custom.progress / custom.maxProgress;
+        int stage = progress < 0.33f ? 0 : progress < 0.66f ? 1 : 2;
+
+        if (stage != lastStage)
+        {
+            lastStage = stage;
+            string[] pool = stageMessages[stage];
+            Msg.SayRaw(pool[EClass.rnd(pool.Length)]);
+        }
+
+        return true;
+    }
+
+
     public override void OnRead(Chara c)
     {
         string scrollId = owner.id;

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 
 using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using Newtonsoft.Json;
@@ -29,6 +30,12 @@ namespace SkyreaderGuild {
     [BepInPlugin(ModInfo.Guid, ModInfo.Name, ModInfo.Version)]
     internal class SkyreaderGuild : BaseUnityPlugin
     {
+        public static ConfigEntry<int> ConfigMaxStarImbuements;
+        public static ConfigEntry<int> ConfigYithGrowthSpawnChance;
+        public static ConfigEntry<int> ConfigArkynTownVisitChance;
+        public static ConfigEntry<int> ConfigMeteorSpawnChance;
+        public static ConfigEntry<int> ConfigMeteorTouchedTagChance;
+
         /// <summary>
         /// Set to false to suppress all debug logging.
         /// </summary>
@@ -49,7 +56,7 @@ namespace SkyreaderGuild {
             //Sets up the quest's information so it can be instantiated later
             var quest = sources.quests.CreateRow();
             quest.id = "skyreader_guild";
-            quest.name = "the skyreader's guild";
+            quest.name = "The Skyreader's Guild";
             quest.name_JP = "星読みのギルド";
             quest.type = "SkyreaderGuild.QuestSkyreader";
             //The message on the quest board.
@@ -60,7 +67,7 @@ namespace SkyreaderGuild {
                 + "believing them to be fragments of a greater astral design. Members analyze impact sites, cleanse "
                 + "beings touched by meteoric radiation, and craft instruments to harness starlight. "
                 + "Those who rise through the ranks gain deeper insight into the cosmos — and the power to summon "
-                + "the very entities that dwell between the stars.";
+                + "the entities that dwell between the stars.";
             quest.detail_JP =
                 "星読みのギルドは、天体の落下を追跡する学者と星見の古代結社です。"
                 + "星の守護者アーキンによって設立されたこのギルドは、隕石に宿る宇宙のエネルギーを研究し、"
@@ -91,7 +98,7 @@ namespace SkyreaderGuild {
             zone.value = 0;
             zone.idProfile = "Lesimas";
             zone.idFile = new string[0];
-            zone.idBiome = "Plain";
+            zone.idBiome = "";
             zone.idGen = "";
             zone.idPlaylist = "Field";
             zone.tag = new string[0]; // NOT "random" — we control spawning
@@ -154,6 +161,13 @@ namespace SkyreaderGuild {
         private void Awake()
         {
             LogSource = Logger;
+            
+            ConfigMaxStarImbuements = Config.Bind("General", "MaxStarImbuements", 1, "The maximum number of times starlight can be imbued into a single item.");
+            ConfigYithGrowthSpawnChance = Config.Bind("General", "YithGrowthSpawnChance", 20, "Percentage chance for a Yith Growth to spawn in high danger Nefias.");
+            ConfigArkynTownVisitChance = Config.Bind("General", "ArkynTownVisitChance", 10, "Percentage chance for Arkyn to appear when visiting civilized zones.");
+            ConfigMeteorSpawnChance = Config.Bind("General", "MeteorSpawnChance", 15, "Base percentage chance for a meteor to spawn on a new day.");
+            ConfigMeteorTouchedTagChance = Config.Bind("General", "MeteorTouchedTagChance", 30, "Percentage chance to tag entities as meteor-touched per civilized zone visit.");
+
             ModUtil.RegisterSerializedTypeFallback("SkyreaderGuild", "SkyreaderGuild.QuestSkyreader", "QuestDummy");
             Harmony harmony = new Harmony(ModInfo.Guid);
             harmony.PatchAll();
@@ -222,6 +236,96 @@ namespace SkyreaderGuild {
             
         }  
         
+    }
+
+    [HarmonyPatch(typeof(CalcMoney), nameof(CalcMoney.Identify))]
+    public static class ArchivistDiscountPatch
+    {
+        public static void Postfix(ref int __result)
+        {
+            if (DramaManager.TG != null && DramaManager.TG.id == "srg_archivist")
+            {
+                __result = UnityEngine.Mathf.RoundToInt(__result * 0.8f);
+                if (__result < 1) __result = 1;
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(Player), nameof(Player.EndTurn))]
+    public static class MeteorTouchedProximityPatch
+    {
+        private static readonly System.Collections.Generic.HashSet<int> sensedThingUids = new System.Collections.Generic.HashSet<int>();
+
+        private static readonly string[] approachMessages = new string[]
+        {
+            "A faint echo of celestial energy pulses nearby...",
+            "You sense the lingering resonance of a fallen star.",
+            "Something here still hums with meteoric light.",
+            "The extractor trembles — cosmic residue is close.",
+            "A whisper of starlight brushes your awareness."
+        };
+
+        private const string leaveMessage = "The celestial presence fades from your senses.";
+        private const int PROXIMITY_RANGE = 3;
+
+        public static void Postfix()
+        {
+            if (!EClass.game.quests.IsStarted<QuestSkyreader>()) return;
+            if (EClass._map == null) return;
+
+            Thing heldExtractor = GetHeldExtractor();
+            if (heldExtractor == null)
+            {
+                if (sensedThingUids.Count > 0)
+                {
+                    Msg.SayRaw(leaveMessage);
+                    sensedThingUids.Clear();
+                }
+                return;
+            }
+
+            var currentNearby = new System.Collections.Generic.HashSet<int>();
+
+            foreach (Thing thing in EClass._map.things)
+            {
+                if (thing == null || thing.isDestroyed) continue;
+                if (!TagMeteorTouchedOnCivilizedVisit.IsTouched(thing)) continue;
+                if (EClass.pc.pos.Distance(thing.pos) > PROXIMITY_RANGE) continue;
+                currentNearby.Add(thing.uid);
+            }
+
+            foreach (int uid in currentNearby)
+            {
+                if (!sensedThingUids.Contains(uid))
+                {
+                    Msg.SayRaw(approachMessages[EClass.rnd(approachMessages.Length)]);
+                    break;
+                }
+            }
+
+            foreach (int uid in sensedThingUids)
+            {
+                if (!currentNearby.Contains(uid))
+                {
+                    Msg.SayRaw(leaveMessage);
+                    break;
+                }
+            }
+
+            sensedThingUids.Clear();
+            foreach (int uid in currentNearby)
+            {
+                sensedThingUids.Add(uid);
+            }
+        }
+
+        private static Thing GetHeldExtractor()
+        {
+            var hotItem = EClass.player.currentHotItem;
+            if (hotItem == null || hotItem.Thing == null) return null;
+            if (hotItem.Thing.trait is TraitAstralExtractor) return hotItem.Thing;
+            return null;
+        }
     }
 
     // Unified loot handler for Yith Growth starchart drop and boss kill rewards
@@ -303,7 +407,7 @@ namespace SkyreaderGuild {
                     EClass.game.quests.IsStarted<QuestSkyreader>()) return;
 
             SkyreaderGuild.Log($"Nefia DangerLv={__instance.DangerLv}, rolling for Yith spawn");
-            if (EClass.rnd(100) >= 20) return; // 20% chance to spawn one
+            if (EClass.rnd(100) >= SkyreaderGuild.ConfigYithGrowthSpawnChance.Value) return; // chance to spawn one
 
             // Ensure the specific Chara does not already exist in the zone
             Chara existingChara = __instance.FindChara("srg_growth");
@@ -321,8 +425,6 @@ namespace SkyreaderGuild {
     [HarmonyPatch(typeof(Zone), "OnVisit")]
     public static class ArkynTownVisitPatch
     {
-        public const int VISIT_CHANCE_PERCENT = 10;
-
         public static void Postfix(Zone __instance)
         {
             if (!(__instance is Zone_Civilized)) return;
@@ -340,7 +442,7 @@ namespace SkyreaderGuild {
                     return;
             }
 
-            if (EClass.rnd(100) >= VISIT_CHANCE_PERCENT) return;
+            if (EClass.rnd(100) >= SkyreaderGuild.ConfigArkynTownVisitChance.Value) return;
 
             Point spawnPoint = __instance.GetRandomVisitPos(EClass.pc);
             if (spawnPoint == null || !spawnPoint.IsValid) return;
@@ -350,7 +452,6 @@ namespace SkyreaderGuild {
         }
     }
 
-    // ─── Phase 2 Patches ────────────────────────────────────────────────
 
     // Trigger meteor spawn check on each new day
     [HarmonyPatch(typeof(GameDate), "AdvanceDay")]
@@ -389,7 +490,6 @@ namespace SkyreaderGuild {
         }
     }
 
-    // ─── Phase 4 Patches ─────────────────────────────────────────────────
 
     [HarmonyPatch(typeof(Zone), "OnVisit")]
     public static class TagMeteorTouchedOnCivilizedVisit
@@ -402,63 +502,108 @@ namespace SkyreaderGuild {
             if (!(__instance is Zone_Civilized)) return;
             if (!EClass.game.quests.IsStarted<QuestSkyreader>()) return;
             if (EClass._map == null) return;
-            if (EClass.rnd(100) >= 30) return;
+            
+            SkyreaderGuild.Log($"Meteor Touch evaluation started for {__instance.Name}.");
 
-            int alreadyTouched = 0;
-            var eligibleCharas = new List<Chara>();
-            var eligibleThings = new List<Thing>();
-
+            // Count pre-existing touched entities before potentially adding more
+            int preTouchedCharas = 0;
+            int preTouchedThings = 0;
             foreach (Chara chara in EClass._map.charas)
             {
-                if (chara.GetInt(MeteorTouchedKey) > 0)
-                {
-                    alreadyTouched++;
-                    continue;
-                }
-                if (IsEligibleTouchedChara(chara))
-                {
-                    eligibleCharas.Add(chara);
-                }
+                if (chara.GetInt(MeteorTouchedKey) > 0) preTouchedCharas++;
             }
-
             foreach (Thing thing in EClass._map.things)
             {
-                if (thing.GetInt(MeteorTouchedKey) > 0)
-                {
-                    alreadyTouched++;
-                    continue;
-                }
-                if (IsEligibleTouchedThing(thing))
-                {
-                    eligibleThings.Add(thing);
-                }
+                if (thing.GetInt(MeteorTouchedKey) > 0) preTouchedThings++;
             }
+            int alreadyTouched = preTouchedCharas + preTouchedThings;
 
-            int remaining = MaxTouchedPerZone - alreadyTouched;
-            if (remaining <= 0) return;
+            // Try to tag new entities
+            int chance = SkyreaderGuild.ConfigMeteorTouchedTagChance.Value;
+            int roll = EClass.rnd(100);
+            bool rolledSuccess = roll < chance;
 
-            int eligibleCount = eligibleCharas.Count + eligibleThings.Count;
-            if (eligibleCount == 0) return;
-
-            int count = Math.Min(1 + EClass.rnd(2), remaining);
-            for (int i = 0; i < count && eligibleCount > 0; i++)
+            if (!rolledSuccess)
             {
-                bool pickChara = eligibleCharas.Count > 0 && (eligibleThings.Count == 0 || EClass.rnd(eligibleCount) < eligibleCharas.Count);
-                if (pickChara)
+                SkyreaderGuild.Log($"Evaluation skipped: Failed chance roll (Rolled {roll}, needed < {chance}).");
+            }
+            else
+            {
+                var eligibleCharas = new List<Chara>();
+                var eligibleThings = new List<Thing>();
+
+                foreach (Chara chara in EClass._map.charas)
                 {
-                    Chara target = eligibleCharas.RandomItem();
-                    target.SetInt(MeteorTouchedKey, 1);
-                    eligibleCharas.Remove(target);
-                    SkyreaderGuild.Log($"Tagged {target.Name} as Meteor Touched in {__instance.Name}.");
+                    if (chara.GetInt(MeteorTouchedKey) > 0) continue;
+                    if (IsEligibleTouchedChara(chara)) eligibleCharas.Add(chara);
+                }
+                foreach (Thing thing in EClass._map.things)
+                {
+                    if (thing.GetInt(MeteorTouchedKey) > 0) continue;
+                    if (IsEligibleTouchedThing(thing)) eligibleThings.Add(thing);
+                }
+
+                int remaining = MaxTouchedPerZone - alreadyTouched;
+                if (remaining <= 0)
+                {
+                    SkyreaderGuild.Log($"Evaluation skipped: Zone is at maximum capacity ({alreadyTouched}/{MaxTouchedPerZone} touched).");
                 }
                 else
                 {
-                    Thing target = eligibleThings.RandomItem();
-                    target.SetInt(MeteorTouchedKey, 1);
-                    eligibleThings.Remove(target);
-                    SkyreaderGuild.Log($"Tagged {target.Name} as Meteor Touched in {__instance.Name}.");
+                    int eligibleCount = eligibleCharas.Count + eligibleThings.Count;
+                    if (eligibleCount == 0)
+                    {
+                        SkyreaderGuild.Log($"Evaluation skipped: Found no eligible targets.");
+                    }
+                    else
+                    {
+                        SkyreaderGuild.Log($"Applying touches: Found {eligibleCharas.Count} eligible characters, {eligibleThings.Count} eligible items. Space for {remaining}.");
+
+                        int count = Math.Min(1 + EClass.rnd(2), remaining);
+                        for (int i = 0; i < count && eligibleCount > 0; i++)
+                        {
+                            bool pickChara = eligibleCharas.Count > 0 && (eligibleThings.Count == 0 || EClass.rnd(eligibleCount) < eligibleCharas.Count);
+                            if (pickChara)
+                            {
+                                Chara target = eligibleCharas.RandomItem();
+                                target.SetInt(MeteorTouchedKey, 1);
+                                eligibleCharas.Remove(target);
+                                preTouchedCharas++;
+                                SkyreaderGuild.Log($"Tagged {target.Name} as Meteor Touched in {__instance.Name}.");
+                            }
+                            else
+                            {
+                                Thing target = eligibleThings.RandomItem();
+                                target.SetInt(MeteorTouchedKey, 1);
+                                eligibleThings.Remove(target);
+                                preTouchedThings++;
+                                SkyreaderGuild.Log($"Tagged {target.Name} as Meteor Touched in {__instance.Name}.");
+                            }
+                            eligibleCount = eligibleCharas.Count + eligibleThings.Count;
+                        }
+                    }
                 }
-                eligibleCount = eligibleCharas.Count + eligibleThings.Count;
+            }
+
+            // Notify the player about the total touched entities in this zone
+            int totalCharas = preTouchedCharas;
+            int totalThings = preTouchedThings;
+            int totalTouched = totalCharas + totalThings;
+
+            if (totalTouched > 0)
+            {
+                if (totalCharas > 0 && totalThings > 0)
+                {
+                    Msg.SayRaw("<color=#b3e0ff>You sense faint traces of starlight clinging to both people and objects here.</color>");
+                }
+                else if (totalCharas > 0)
+                {
+                    Msg.SayRaw("<color=#b3e0ff>You sense faint traces of starlight clinging to someone in this area.</color>");
+                }
+                else
+                {
+                    Msg.SayRaw("<color=#b3e0ff>You sense faint traces of starlight emanating from something nearby.</color>");
+                }
             }
         }
 
@@ -589,6 +734,12 @@ namespace SkyreaderGuild {
 
     public class QuestSkyreader : QuestSequence
     {
+
+        public override bool IsVisibleOnQuestBoard()
+        {
+            return false;
+        }
+        
         private static readonly GuildRank[] RankOrder =
         {
             GuildRank.Wanderer,
@@ -668,7 +819,7 @@ namespace SkyreaderGuild {
                     msg += " Meteor reports now land closer to your position.";
                     break;
                 case GuildRank.CosmosAddled:
-                    msg += " Deeper cosmic disturbances answer your study.";
+                    msg += " Deeper cosmic disturbances answer your study, and meteor cores yield +1 source.";
                     break;
                 case GuildRank.CosmosApplied:
                     msg += " You can now craft Ultima Projection boss scrolls.";
@@ -773,6 +924,7 @@ namespace SkyreaderGuild {
             if (rank >= GuildRank.CosmosAddled)
             {
                 text += "- Attunement to deeper cosmic disturbances\n";
+                text += "- +1 meteorite source from meteor cores\n";
             }
             if (rank >= GuildRank.CosmosApplied)
             {

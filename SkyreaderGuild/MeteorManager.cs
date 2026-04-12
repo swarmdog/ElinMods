@@ -8,7 +8,6 @@ namespace SkyreaderGuild
     /// </summary>
     public static class MeteorManager
     {
-        public const int BASE_SPAWN_CHANCE_PERCENT = 15;
         public const int RESEARCHER_BONUS_PERCENT = 5;
         public const int BASE_SPAWN_RADIUS = 12;
         public const int SITE_EXPIRE_HOURS = 10080;
@@ -42,7 +41,7 @@ namespace SkyreaderGuild
                 return false;
             }
 
-            int chance = BASE_SPAWN_CHANCE_PERCENT;
+            int chance = SkyreaderGuild.ConfigMeteorSpawnChance.Value;
             if (quest.GetCurrentRank() >= GuildRank.Researcher)
             {
                 chance += RESEARCHER_BONUS_PERCENT;
