@@ -24,6 +24,7 @@
     <Compile Include="TraitAstralPortal.cs" />
     <Compile Include="TraitBossScroll.cs" />
     <Compile Include="TraitArchivistScroll.cs" />
+    <Compile Include="TraitSrgDebris.cs" />
   </ItemGroup>
 
   <!-- BepInEx -->
@@ -73,5 +74,10 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
+
+  <!-- Post-build deployment to Elin directory -->
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="$(ElinDir)\Package\$(AssemblyName)\" />
+  </Target>
 
 </Project>

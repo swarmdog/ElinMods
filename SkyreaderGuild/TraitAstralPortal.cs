@@ -4,7 +4,7 @@ public class TraitAstralPortal : TraitNewZone
 {
     public override bool IsTeleport => true;
 
-    public override bool AutoEnter => true;
+    public override bool AutoEnter => false;
 
     public override int UseDist => 1;
     // these rift portals will get cleaned up by town reset but we could consider despawning them after a single use.  Not urgent

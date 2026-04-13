@@ -115,7 +115,7 @@ public class TraitAstralExtractor : TraitItem
             return;
         }
 
-        if (!isCharaTarget || roll == 2 && target is Thing)
+        if (!isCharaTarget)
         {
             TriggerAstralExposure(user, target as Thing);
             return;
@@ -189,14 +189,31 @@ public class TraitAstralExtractor : TraitItem
         Thing target = preferredTarget;
         if (target == null || target.isDestroyed)
         {
-            foreach (Thing thing in EClass._map.things) // is this random enough?
+            System.Collections.Generic.List<Thing> candidates = new System.Collections.Generic.List<Thing>();
+            foreach (Thing thing in EClass._map.things) 
             {
                 if (thing == null || thing.isDestroyed) continue;
-                if (user.pos.Distance(thing.pos) > 3) continue;
-                if (!TagMeteorTouchedOnCivilizedVisit.IsEligibleTouchedThing(thing)) continue;
-                target = thing;
-                break;
+                if (user.pos.Distance(thing.pos) > 5) continue;
+                if (thing.c_isImportant || thing.isMasked || thing.isHidden) continue;
+                if (thing.id == "srg_astral_portal") continue;
+                if (thing.trait is TraitTeleporter || thing.trait is TraitStairs) continue;
+                
+                candidates.Add(thing);
             }
+
+            if (candidates.Count > 0)
+            {
+                target = candidates.RandomItem();
+                SkyreaderGuild.SkyreaderGuild.Log($"Astral Exposure: Selected target {target.Name} ({target.id}) from {candidates.Count} candidates within radius 5.");
+            }
+            else
+            {
+                SkyreaderGuild.SkyreaderGuild.Log($"Astral Exposure: Found no valid candidates within radius 5 of {user.Name}.");
+            }
+        }
+        else
+        {
+            SkyreaderGuild.SkyreaderGuild.Log($"Astral Exposure: Using preferred target {target.Name}.");
         }
 
         if (target == null)
@@ -206,7 +223,12 @@ public class TraitAstralExtractor : TraitItem
         }
 
         string oldName = target.Name;
-        target.ChangeMaterial(MATERIAL.GetRandomMaterial(Mathf.Max(1, target.LV + 5)));
+        int targetMatLv = Mathf.Max(1, target.LV + 5);
+        SourceMaterial.Row newMaterial = MATERIAL.GetRandomMaterial(targetMatLv);
+        
+        SkyreaderGuild.SkyreaderGuild.Log($"Astral Exposure: Transforming {target.Name} (Material: {target.material.name}) to {newMaterial.name} (LV {targetMatLv}).");
+        
+        target.ChangeMaterial(newMaterial);
         Msg.SayRaw($"{oldName} shimmers and transforms into {target.Name}!");
     }
 }

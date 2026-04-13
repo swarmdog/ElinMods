@@ -1,0 +1,990 @@
+[
+  {
+    "id": "srg_astral_extractor",
+    "category": "item",
+    "prompt": "Generate an image of one isolated RPG asset: 2D top-down RPG game tool icon, a golden sextant-like astronomical device with crystal lenses and delicate brass gears, glowing faintly with pale blue starlight, pixel art style, gold and deep blue color palette, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, no frame, game asset. Requirements: create exactly one isolated game sprite. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta.",
+    "preview_size": [
+      48,
+      48
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T14:49:00.493896+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_astral_extractor_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_astral_extractor_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_astral_extractor_nobg.png",
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "preview_size": [
+        48,
+        48
+      ]
+    },
+    "canvas_size": [
+      32,
+      32
+    ],
+    "visible_size": [
+      30,
+      30
+    ],
+    "anchor": "center",
+    "render_data": "@obj_S flat",
+    "ground_lift_px": 0,
+    "aspect_ratio": "1:1"
+  },
+  {
+    "id": "srg_meteorite_source",
+    "category": "item",
+    "prompt": "Generate an image of one isolated RPG asset: 2D top-down RPG game crafting material icon, an ethereal and mystical fragment of a star safely secured inside an ornate, man-made brass containment lantern or vial, giving off an otherworldly glow, not star-shaped, pixel art style, iridescent gold and white palette, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, no frame, game asset. Requirements: create exactly one isolated game sprite. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta.",
+    "preview_size": [
+      48,
+      48
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T06:18:41.027262+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_meteorite_source_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_meteorite_source_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_meteorite_source_nobg.png",
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "preview_size": [
+        48,
+        48
+      ]
+    },
+    "canvas_size": [
+      32,
+      32
+    ],
+    "visible_size": [
+      30,
+      30
+    ],
+    "anchor": "center",
+    "render_data": "@obj_S flat",
+    "ground_lift_px": 0,
+    "aspect_ratio": "1:1"
+  },
+  {
+    "id": "srg_meteor_core",
+    "category": "item",
+    "prompt": "Generate an image of one isolated RPG asset: 2D top-down RPG game item icon, a glowing, irregularly shaped meteorite core half-buried in cracked scorched earth, not a perfect sphere, cracks revealing molten cosmic energy inside, dark iron and glowing orange-red palette, pixel art style, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, no frame, game asset. Requirements: create exactly one isolated game sprite. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta.",
+    "preview_size": [
+      48,
+      48
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T06:19:29.101673+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_meteor_core_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_meteor_core_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_meteor_core_nobg.png",
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "preview_size": [
+        48,
+        48
+      ]
+    },
+    "canvas_size": [
+      32,
+      32
+    ],
+    "visible_size": [
+      30,
+      30
+    ],
+    "anchor": "center",
+    "render_data": "@obj_S",
+    "ground_lift_px": 0,
+    "aspect_ratio": "1:1"
+  },
+  {
+    "id": "srg_debris",
+    "category": "item",
+    "prompt": "Generate an image of one isolated RPG asset: 2D top-down RPG game rubble icon, a blackened scorch mark on the ground with glowing embers and scattered ash radiating outward, completely flat, not a spherical pile, pixel art style, charcoal grey and faint orange palette, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, no frame, game asset. Requirements: create exactly one isolated game sprite. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta.",
+    "preview_size": [
+      48,
+      48
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T06:19:50.026856+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_debris_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_debris_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_debris_nobg.png",
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "preview_size": [
+        48,
+        48
+      ]
+    },
+    "canvas_size": [
+      32,
+      32
+    ],
+    "visible_size": [
+      30,
+      30
+    ],
+    "anchor": "center",
+    "render_data": "@obj_S",
+    "ground_lift_px": 0,
+    "aspect_ratio": "1:1"
+  },
+  {
+    "id": "srg_weave_stars",
+    "category": "item",
+    "prompt": "Generate an image of one isolated RPG asset: 2D top-down RPG game enchantment icon, a folded piece of shimmering star-fabric imbued with captured starlight, constellation patterns woven into gossamer cloth, pixel art style, deep indigo and bright star-white palette, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, no frame, game asset. Requirements: create exactly one isolated game sprite. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta.",
+    "preview_size": [
+      48,
+      48
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T06:20:26.274676+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_weave_stars_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_weave_stars_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_weave_stars_nobg.png",
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "preview_size": [
+        48,
+        48
+      ]
+    },
+    "canvas_size": [
+      32,
+      32
+    ],
+    "visible_size": [
+      30,
+      30
+    ],
+    "anchor": "center",
+    "render_data": "@obj_S flat",
+    "ground_lift_px": 0,
+    "aspect_ratio": "1:1"
+  },
+  {
+    "id": "srg_starforge",
+    "category": "item",
+    "prompt": "Generate an image of one isolated RPG asset: 2D top-down RPG game enchantment icon, a bright shard of crystallized stellar fire shaped like a small forge spark, radiating intense golden-white energy, pixel art style, blazing gold and white palette, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, no frame, game asset. Requirements: create exactly one isolated game sprite. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta.",
+    "preview_size": [
+      48,
+      48
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T06:20:52.506021+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_starforge_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_starforge_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_starforge_nobg.png",
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "preview_size": [
+        48,
+        48
+      ]
+    },
+    "canvas_size": [
+      32,
+      32
+    ],
+    "visible_size": [
+      30,
+      30
+    ],
+    "anchor": "center",
+    "render_data": "@obj_S flat",
+    "ground_lift_px": 0,
+    "aspect_ratio": "1:1"
+  },
+  {
+    "id": "srg_codex",
+    "category": "item",
+    "prompt": "Generate an image of one isolated RPG asset: 2D top-down RPG game furniture icon, a large ornate open book on a wooden lectern with pages covered in moving constellation maps and glowing astronomical diagrams, brass astrolabe beside it, pixel art style, dark leather brown and glowing gold palette, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, no frame, game asset. Requirements: create exactly one isolated game sprite. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta.",
+    "preview_size": [
+      64,
+      64
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T06:21:12.954762+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_codex_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_codex_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_codex_nobg.png",
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "preview_size": [
+        64,
+        64
+      ]
+    },
+    "canvas_size": [
+      64,
+      64
+    ],
+    "visible_size": [
+      60,
+      60
+    ],
+    "anchor": "center",
+    "render_data": "@obj",
+    "ground_lift_px": 0,
+    "aspect_ratio": "1:1"
+  },
+  {
+    "id": "srg_scroll_twilight",
+    "category": "item",
+    "prompt": "Generate an image of one isolated RPG asset: 2D top-down RPG game scroll icon, a rolled magical scroll with deep midnight blue paper, sealed with a silver wax seal shaped like a crescent moon, faint purple glow emanating from within, pixel art style, deep blue and silver palette, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, no frame, game asset. Requirements: create exactly one isolated game sprite. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta.",
+    "preview_size": [
+      48,
+      48
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T06:21:34.244659+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_scroll_twilight_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_scroll_twilight_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_scroll_twilight_nobg.png",
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "preview_size": [
+        48,
+        48
+      ]
+    },
+    "canvas_size": [
+      32,
+      32
+    ],
+    "visible_size": [
+      30,
+      30
+    ],
+    "anchor": "center",
+    "render_data": "@obj_S flat",
+    "ground_lift_px": 0,
+    "aspect_ratio": "1:1"
+  },
+  {
+    "id": "srg_scroll_radiance",
+    "category": "item",
+    "prompt": "Generate an image of one isolated RPG asset: 2D top-down RPG game scroll icon, a rolled magical scroll with radiant golden-white paper, sealed with a sun-shaped golden wax seal, warm glowing light emanating from within, pixel art style, gold and warm white palette, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, no frame, game asset. Requirements: create exactly one isolated game sprite. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta.",
+    "preview_size": [
+      48,
+      48
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T06:22:04.858451+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_scroll_radiance_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_scroll_radiance_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_scroll_radiance_nobg.png",
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "preview_size": [
+        48,
+        48
+      ]
+    },
+    "canvas_size": [
+      32,
+      32
+    ],
+    "visible_size": [
+      30,
+      30
+    ],
+    "anchor": "center",
+    "render_data": "@obj_S flat",
+    "ground_lift_px": 0,
+    "aspect_ratio": "1:1"
+  },
+  {
+    "id": "srg_scroll_abyss",
+    "category": "item",
+    "prompt": "Generate an image of one isolated RPG asset: 2D top-down RPG game scroll icon, a rolled magical scroll with dark void-black paper that seems to absorb light, sealed with an obsidian seal, tendrils of dark purple energy leaking out, pixel art style, void black and dark purple palette, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, no frame, game asset. Requirements: create exactly one isolated game sprite. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta.",
+    "preview_size": [
+      48,
+      48
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T06:22:37.617407+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_scroll_abyss_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_scroll_abyss_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_scroll_abyss_nobg.png",
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "preview_size": [
+        48,
+        48
+      ]
+    },
+    "canvas_size": [
+      32,
+      32
+    ],
+    "visible_size": [
+      30,
+      30
+    ],
+    "anchor": "center",
+    "render_data": "@obj_S flat",
+    "ground_lift_px": 0,
+    "aspect_ratio": "1:1"
+  },
+  {
+    "id": "srg_scroll_nova",
+    "category": "item",
+    "prompt": "Generate an image of one isolated RPG asset: 2D top-down RPG game scroll icon, a rolled magical scroll with shimmering chromatic paper that shifts between colors, sealed with a starburst seal, prismatic sparks emanating from it, pixel art style, rainbow chromatic palette, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, no frame, game asset. Requirements: create exactly one isolated game sprite. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta.",
+    "preview_size": [
+      48,
+      48
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T06:23:10.143808+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_scroll_nova_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_scroll_nova_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_scroll_nova_nobg.png",
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "preview_size": [
+        48,
+        48
+      ]
+    },
+    "canvas_size": [
+      32,
+      32
+    ],
+    "visible_size": [
+      30,
+      30
+    ],
+    "anchor": "center",
+    "render_data": "@obj_S flat",
+    "ground_lift_px": 0,
+    "aspect_ratio": "1:1"
+  },
+  {
+    "id": "srg_scroll_convergence",
+    "category": "item",
+    "prompt": "Generate an image of one isolated RPG asset: 2D top-down RPG game scroll icon, a rolled magical scroll with pale silver paper covered in tiny glowing runes, sealed with a star-constellation wax seal, soft celestial glow, pixel art style, silver and soft blue palette, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, no frame, game asset. Requirements: create exactly one isolated game sprite. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta.",
+    "preview_size": [
+      48,
+      48
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T06:23:37.382330+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_scroll_convergence_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_scroll_convergence_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_scroll_convergence_nobg.png",
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "preview_size": [
+        48,
+        48
+      ]
+    },
+    "canvas_size": [
+      32,
+      32
+    ],
+    "visible_size": [
+      30,
+      30
+    ],
+    "anchor": "center",
+    "render_data": "@obj_S flat",
+    "ground_lift_px": 0,
+    "aspect_ratio": "1:1"
+  },
+  {
+    "id": "srg_starchart",
+    "category": "item",
+    "prompt": "Generate an image of one isolated RPG asset: 2D top-down RPG game map icon, a large unfurled treasure map made of aged parchment showing hand-drawn constellations and glowing impact zones marked with red circles, compass rose in corner, pixel art style, parchment tan and glowing blue-gold palette, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, no frame, game asset. Requirements: create exactly one isolated game sprite. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta.",
+    "preview_size": [
+      96,
+      96
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T06:24:10.212469+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_starchart_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_starchart_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_starchart_nobg.png",
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "preview_size": [
+        96,
+        96
+      ]
+    },
+    "canvas_size": [
+      64,
+      64
+    ],
+    "visible_size": [
+      60,
+      60
+    ],
+    "anchor": "center",
+    "render_data": "@obj_S flat",
+    "ground_lift_px": 0,
+    "aspect_ratio": "1:1"
+  },
+  {
+    "id": "srg_astral_portal",
+    "category": "item",
+    "prompt": "Generate an image of one isolated RPG asset: 2D front-view RPG game portal sprite, a tall swirling rift torn in reality revealing a cosmic starscape beyond, framed by floating stone fragments, spiraling blue-silver energy vortex, pixel art style, deep blue and bright silver palette, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, no frame, game asset. Requirements: create exactly one isolated game sprite. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta.",
+    "preview_size": [
+      128,
+      160
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T14:49:31.268674+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_astral_portal_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_astral_portal_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\items\\srg_astral_portal_nobg.png",
+      "raw_size": [
+        928,
+        1152
+      ],
+      "preview_size": [
+        128,
+        160
+      ]
+    },
+    "canvas_size": [
+      128,
+      160
+    ],
+    "visible_size": [
+      128,
+      160
+    ],
+    "anchor": "center",
+    "render_data": "@obj tall",
+    "ground_lift_px": 0,
+    "aspect_ratio": "4:5"
+  },
+  {
+    "id": "srg_arkyn",
+    "category": "chara",
+    "prompt": "Generate an image of one isolated RPG sprite: 2D front-facing RPG character sprite, an eccentric elven scholar with wild silver hair, wearing dark blue star-embroidered robes, holding a brass telescope, bright curious eyes, cosmic motifs on clothing, fantasy pixel art style, standing pose, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, game character sprite. Requirements: create exactly one isolated full-body game sprite with the feet or lowest body contact clearly visible, a complete silhouette, and no cropping. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta. Preserve black outlines, near-black detail, void-dark features, and dark shadows inside the sprite.",
+    "preview_size": [
+      64,
+      96
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T06:25:09.303340+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_arkyn_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_arkyn_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_arkyn_nobg.png",
+      "raw_size": [
+        848,
+        1264
+      ],
+      "preview_size": [
+        64,
+        96
+      ]
+    },
+    "canvas_size": [
+      128,
+      192
+    ],
+    "visible_size": [
+      72,
+      108
+    ],
+    "anchor": "bottom_center",
+    "render_data": "@chara",
+    "ground_lift_px": 16,
+    "aspect_ratio": "2:3"
+  },
+  {
+    "id": "srg_archivist",
+    "category": "chara",
+    "prompt": "Generate an image of one isolated RPG sprite: 2D front-facing RPG character sprite, a serene mystical elven sage wearing flowing celestial white-and-gold robes, holding an unfurled star map that glows softly, wise and calm expression, ethereal appearance, fantasy pixel art style, standing pose, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, game character sprite. Requirements: create exactly one isolated full-body game sprite with the feet or lowest body contact clearly visible, a complete silhouette, and no cropping. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta. Preserve black outlines, near-black detail, void-dark features, and dark shadows inside the sprite.",
+    "preview_size": [
+      64,
+      96
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T06:25:30.858733+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_archivist_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_archivist_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_archivist_nobg.png",
+      "raw_size": [
+        848,
+        1264
+      ],
+      "preview_size": [
+        64,
+        96
+      ]
+    },
+    "canvas_size": [
+      128,
+      192
+    ],
+    "visible_size": [
+      72,
+      108
+    ],
+    "anchor": "bottom_center",
+    "render_data": "@chara",
+    "ground_lift_px": 16,
+    "aspect_ratio": "2:3"
+  },
+  {
+    "id": "srg_growth",
+    "category": "chara",
+    "prompt": "Generate an image of one isolated RPG sprite: 2D front-facing RPG monster sprite, an intermediate alien creature between hound and humanoid, semi-translucent cosmic flesh with visible constellation patterns beneath the skin, multiple vestigial limbs, unsettling and otherworldly, Lovecraftian horror style, fantasy pixel art, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, game monster sprite. Requirements: create exactly one isolated full-body game sprite with the feet or lowest body contact clearly visible, a complete silhouette, and no cropping. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta. Preserve black outlines, near-black detail, void-dark features, and dark shadows inside the sprite.",
+    "preview_size": [
+      64,
+      96
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T14:50:04.426427+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_growth_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_growth_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_growth_nobg.png",
+      "raw_size": [
+        848,
+        1264
+      ],
+      "preview_size": [
+        64,
+        96
+      ]
+    },
+    "canvas_size": [
+      128,
+      192
+    ],
+    "visible_size": [
+      80,
+      120
+    ],
+    "anchor": "bottom_center",
+    "render_data": "@chara_L",
+    "ground_lift_px": 0,
+    "aspect_ratio": "2:3"
+  },
+  {
+    "id": "srg_yith_hound",
+    "category": "chara",
+    "prompt": "Generate an image of one isolated RPG sprite: 2D front-facing RPG monster sprite, a small alien hound-like creature with dark iridescent skin, three glowing purple eyes, tentacle-like whiskers, low to the ground stalking pose, cosmic horror aesthetic, fantasy pixel art style, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, game monster sprite. Requirements: create exactly one isolated full-body game sprite with the feet or lowest body contact clearly visible, a complete silhouette, and no cropping. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta. Preserve black outlines, near-black detail, void-dark features, and dark shadows inside the sprite.",
+    "preview_size": [
+      48,
+      64
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T06:26:53.317465+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_yith_hound_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_yith_hound_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_yith_hound_nobg.png",
+      "raw_size": [
+        848,
+        1264
+      ],
+      "preview_size": [
+        48,
+        64
+      ]
+    },
+    "canvas_size": [
+      128,
+      192
+    ],
+    "visible_size": [
+      64,
+      80
+    ],
+    "anchor": "bottom_center",
+    "render_data": "@chara",
+    "ground_lift_px": 14,
+    "aspect_ratio": "2:3"
+  },
+  {
+    "id": "srg_yith_drone",
+    "category": "chara",
+    "prompt": "Generate an image of one isolated RPG sprite: 2D front-facing RPG monster sprite, a hovering alien drone organism with a bulbous translucent head revealing a pulsing brain, spindly limbs, bioluminescent nerve-green markings, insectoid features, cosmic horror aesthetic, fantasy pixel art style, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, game monster sprite. Requirements: create exactly one isolated full-body game sprite with the feet or lowest body contact clearly visible, a complete silhouette, and no cropping. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta. Preserve black outlines, near-black detail, void-dark features, and dark shadows inside the sprite.",
+    "preview_size": [
+      48,
+      64
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T06:27:12.986346+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_yith_drone_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_yith_drone_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_yith_drone_nobg.png",
+      "raw_size": [
+        848,
+        1264
+      ],
+      "preview_size": [
+        48,
+        64
+      ]
+    },
+    "canvas_size": [
+      128,
+      192
+    ],
+    "visible_size": [
+      64,
+      80
+    ],
+    "anchor": "bottom_center",
+    "render_data": "@chara",
+    "ground_lift_px": 14,
+    "aspect_ratio": "2:3"
+  },
+  {
+    "id": "srg_yith_weaver",
+    "category": "chara",
+    "prompt": "Generate an image of one isolated RPG sprite: 2D front-facing RPG monster sprite, a large arachnid-like cosmic horror with multiple segmented legs, weaving strands of chaotic energy between its claws, shifting iridescent carapace, multiple compound eyes glowing with chaos energy, fantasy pixel art style, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, game monster sprite. Requirements: create exactly one isolated full-body game sprite with the feet or lowest body contact clearly visible, a complete silhouette, and no cropping. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta. Preserve black outlines, near-black detail, void-dark features, and dark shadows inside the sprite.",
+    "preview_size": [
+      128,
+      192
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T14:50:36.828442+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_yith_weaver_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_yith_weaver_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_yith_weaver_nobg.png",
+      "raw_size": [
+        848,
+        1264
+      ],
+      "preview_size": [
+        128,
+        192
+      ]
+    },
+    "canvas_size": [
+      128,
+      192
+    ],
+    "visible_size": [
+      128,
+      192
+    ],
+    "anchor": "bottom_center",
+    "render_data": "@chara_L",
+    "ground_lift_px": 0,
+    "aspect_ratio": "2:3"
+  },
+  {
+    "id": "srg_yith_ancient",
+    "category": "chara",
+    "prompt": "Generate an image of one isolated RPG sprite: 2D front-facing RPG monster sprite, a massive ancient Lovecraftian entity with a towering hunched form, tattered cosmic robes revealing void-dark flesh, crown of broken stars floating above its head, hollow glowing eye sockets, radiating darkness, fantasy pixel art style, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, game monster sprite. Requirements: create exactly one isolated full-body game sprite with the feet or lowest body contact clearly visible, a complete silhouette, and no cropping. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta. Preserve black outlines, near-black detail, void-dark features, and dark shadows inside the sprite.",
+    "preview_size": [
+      128,
+      192
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T14:51:51.533801+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_yith_ancient_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_yith_ancient_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_yith_ancient_nobg.png",
+      "raw_size": [
+        848,
+        1264
+      ],
+      "preview_size": [
+        128,
+        192
+      ]
+    },
+    "canvas_size": [
+      128,
+      192
+    ],
+    "visible_size": [
+      128,
+      154
+    ],
+    "anchor": "bottom_center",
+    "render_data": "@chara_L",
+    "ground_lift_px": 0,
+    "aspect_ratio": "2:3"
+  },
+  {
+    "id": "srg_yith_behemoth",
+    "category": "chara",
+    "prompt": "Generate an image of one isolated RPG sprite: 2D front-facing RPG monster sprite, an enormous eldritch behemoth with a mountain-like body covered in eyes and mouths, writhing tentacles, chaotic energy crackling across its surface, reality distorting around it, ultimate cosmic horror, fantasy pixel art style, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, game monster sprite. Requirements: create exactly one isolated full-body game sprite with the feet or lowest body contact clearly visible, a complete silhouette, and no cropping. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta. Preserve black outlines, near-black detail, void-dark features, and dark shadows inside the sprite.",
+    "preview_size": [
+      128,
+      192
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T14:52:23.496067+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_yith_behemoth_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_yith_behemoth_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_yith_behemoth_nobg.png",
+      "raw_size": [
+        848,
+        1264
+      ],
+      "preview_size": [
+        128,
+        192
+      ]
+    },
+    "canvas_size": [
+      128,
+      192
+    ],
+    "visible_size": [
+      128,
+      192
+    ],
+    "anchor": "bottom_center",
+    "render_data": "@chara_L",
+    "ground_lift_px": 0,
+    "aspect_ratio": "2:3"
+  },
+  {
+    "id": "srg_umbryon",
+    "category": "chara",
+    "prompt": "Generate an image of one isolated RPG sprite: 2D front-facing RPG boss monster sprite, an undead lich wreathed in dark necrotic energy, skeletal face with glowing green eye sockets, wearing tattered royal robes, surrounded by swirling darkness and decay, fantasy pixel art style, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, game boss sprite. Requirements: create exactly one isolated full-body game sprite with the feet or lowest body contact clearly visible, a complete silhouette, and no cropping. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta. Preserve black outlines, near-black detail, void-dark features, and dark shadows inside the sprite.",
+    "preview_size": [
+      128,
+      192
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T14:53:12.987748+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_umbryon_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_umbryon_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_umbryon_nobg.png",
+      "raw_size": [
+        848,
+        1264
+      ],
+      "preview_size": [
+        128,
+        192
+      ]
+    },
+    "canvas_size": [
+      128,
+      192
+    ],
+    "visible_size": [
+      128,
+      192
+    ],
+    "anchor": "bottom_center",
+    "render_data": "@chara",
+    "ground_lift_px": 0,
+    "aspect_ratio": "2:3"
+  },
+  {
+    "id": "srg_solaris",
+    "category": "chara",
+    "prompt": "Generate an image of one isolated RPG sprite: 2D front-facing RPG boss monster sprite, a blazing fire spirit entity made of living solar flame, humanoid form composed entirely of swirling fire and plasma, corona of solar flares around its head, molten golden eyes, fantasy pixel art style, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, game boss sprite. Requirements: create exactly one isolated full-body game sprite with the feet or lowest body contact clearly visible, a complete silhouette, and no cropping. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta. Preserve black outlines, near-black detail, void-dark features, and dark shadows inside the sprite.",
+    "preview_size": [
+      128,
+      192
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T06:31:04.448802+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_solaris_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_solaris_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_solaris_nobg.png",
+      "raw_size": [
+        848,
+        1264
+      ],
+      "preview_size": [
+        128,
+        192
+      ]
+    },
+    "canvas_size": [
+      128,
+      192
+    ],
+    "visible_size": [
+      128,
+      192
+    ],
+    "anchor": "bottom_center",
+    "render_data": "@chara",
+    "ground_lift_px": 0,
+    "aspect_ratio": "2:3"
+  },
+  {
+    "id": "srg_erevor",
+    "category": "chara",
+    "prompt": "Generate an image of one isolated RPG sprite: 2D front-facing RPG boss monster sprite, a colossal dragon-like abyssal creature with void-black scales, massive jaws that warp gravity around them, floating debris orbiting its body, cosmic nebula patterns visible in its wingspan, isolated full-body dragon boss sprite, complete silhouette, wings and lower body visible, not cropped, fantasy pixel art style, uniform flat fuchsia/magenta screen background only, no white backdrop, no scene, no floor, no logo, no words, no letters, no UI, no banner, no poster, centered, clean edges, no text, game boss sprite. Requirements: create exactly one isolated full-body game sprite with the feet or lowest body contact clearly visible, a complete silhouette, and no cropping. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta. Preserve black outlines, near-black detail, void-dark features, and dark shadows inside the sprite.",
+    "preview_size": [
+      128,
+      192
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T06:31:28.764615+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_erevor_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_erevor_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_erevor_nobg.png",
+      "raw_size": [
+        848,
+        1264
+      ],
+      "preview_size": [
+        128,
+        192
+      ]
+    },
+    "canvas_size": [
+      128,
+      192
+    ],
+    "visible_size": [
+      128,
+      192
+    ],
+    "anchor": "bottom_center",
+    "render_data": "@chara_L",
+    "ground_lift_px": 0,
+    "aspect_ratio": "2:3"
+  },
+  {
+    "id": "srg_quasarix",
+    "category": "chara",
+    "prompt": "Generate an image of one isolated RPG sprite: 2D front-facing RPG boss monster sprite, a divine cosmic entity that devours light, a tall elegant figure whose body is a living black hole silhouette outlined by brilliant accretion disc light, tendrils of consumed starlight trailing from its form, fantasy pixel art style, uniform flat fuchsia/magenta screen background, centered, clean edges, no text, game boss sprite. Requirements: create exactly one isolated full-body game sprite with the feet or lowest body contact clearly visible, a complete silhouette, and no cropping. Fill the entire background outside the sprite with one uniform flat fuchsia/magenta screen color close to #ff00ff RGB(255,0,255). The background is a removable color key, not part of the artwork: keep it flat, opaque, and free of gradients, scenery, floor, cast shadow, border, frame, card, text, logo, UI, or poster elements. The sprite itself must contain no fuchsia or magenta. Preserve black outlines, near-black detail, void-dark features, and dark shadows inside the sprite.",
+    "preview_size": [
+      128,
+      192
+    ],
+    "model": "gemini-3.1-flash-image-preview",
+    "timestamp": "2026-04-13T14:53:46.175945+00:00",
+    "success": true,
+    "error": null,
+    "files": {
+      "raw": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_quasarix_raw.png",
+      "preview": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_quasarix_preview.png",
+      "nobg": "C:\\Users\\mcounts\\Documents\\ElinMods\\SkyreaderGuild\\worklog\\generated_assets\\charas\\srg_quasarix_nobg.png",
+      "raw_size": [
+        848,
+        1264
+      ],
+      "preview_size": [
+        128,
+        192
+      ]
+    },
+    "canvas_size": [
+      128,
+      192
+    ],
+    "visible_size": [
+      128,
+      192
+    ],
+    "anchor": "bottom_center",
+    "render_data": "@chara",
+    "ground_lift_px": 0,
+    "aspect_ratio": "2:3"
+  }
+]

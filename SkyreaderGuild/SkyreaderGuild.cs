@@ -35,6 +35,8 @@ namespace SkyreaderGuild {
         public static ConfigEntry<int> ConfigArkynTownVisitChance;
         public static ConfigEntry<int> ConfigMeteorSpawnChance;
         public static ConfigEntry<int> ConfigMeteorTouchedTagChance;
+        public static ConfigEntry<int> ConfigMinAstralRiftYiths;
+        public static ConfigEntry<int> ConfigMaxAstralRiftYiths;
 
         /// <summary>
         /// Set to false to suppress all debug logging.
@@ -140,7 +142,7 @@ namespace SkyreaderGuild {
             zone.cost = 0;
             zone.dev = 0;
             zone.image = "";
-            zone.pos = new int[] { 0, 0, 395 }; // tower icon — astral rift energy column
+            zone.pos = new int[] { 0, 0, 343 }; // tower icon (Void/Lesimas) 
             zone.questTag = new string[0];
             zone.textFlavor_JP = "次元の裂け目から異界のエネルギーが漏れ出ている。";
             zone.textFlavor = "Otherworldly energy bleeds from a dimensional rift.";
@@ -167,6 +169,8 @@ namespace SkyreaderGuild {
             ConfigArkynTownVisitChance = Config.Bind("General", "ArkynTownVisitChance", 10, "Percentage chance for Arkyn to appear when visiting civilized zones.");
             ConfigMeteorSpawnChance = Config.Bind("General", "MeteorSpawnChance", 15, "Base percentage chance for a meteor to spawn on a new day.");
             ConfigMeteorTouchedTagChance = Config.Bind("General", "MeteorTouchedTagChance", 30, "Percentage chance to tag entities as meteor-touched per civilized zone visit.");
+            ConfigMinAstralRiftYiths = Config.Bind("Astral Rift", "MinYithSpawns", 1, "Minimum number of extra Yith monsters spawned per Astral Rift floor.");
+            ConfigMaxAstralRiftYiths = Config.Bind("Astral Rift", "MaxYithSpawns", 3, "Maximum number of extra Yith monsters spawned per Astral Rift floor.");
 
             ModUtil.RegisterSerializedTypeFallback("SkyreaderGuild", "SkyreaderGuild.QuestSkyreader", "QuestDummy");
             Harmony harmony = new Harmony(ModInfo.Guid);
@@ -649,13 +653,45 @@ namespace SkyreaderGuild {
                 }
             }
 
-            int extraMobs = 1 + EClass.rnd(3);
-            for (int i = 0; i < extraMobs; i++)
+            SpawnYithPack(__instance);
+
+            SkyreaderGuild.Log($"Astral rift floor themed: lv={__instance.lv}, meteorite={placedLoot}.");
+        }
+
+        private static void SpawnYithPack(Zone zone)
+        {
+            int minSpawns = SkyreaderGuild.ConfigMinAstralRiftYiths.Value;
+            int maxSpawns = Math.Max(minSpawns, SkyreaderGuild.ConfigMaxAstralRiftYiths.Value);
+            int yithCount = minSpawns + EClass.rnd(Math.Max(1, maxSpawns - minSpawns + 1));
+
+            int danger = zone.DangerLv;
+
+            var eligible = new System.Collections.Generic.List<string> { "srg_yith_hound" };
+            if (danger >= 15) eligible.Add("srg_yith_drone"); 
+            if (danger >= 30) eligible.Add("srg_yith_weaver"); 
+            if (danger >= 50) eligible.Add("srg_yith_ancient"); 
+            if (danger >= 75) eligible.Add("srg_yith_behemoth");
+
+            int spawned = 0;
+            for (int i = 0; i < yithCount; i++)
             {
-                __instance.SpawnMob();
+                string id = eligible.RandomItem();
+                // Bias the first spawn to the highest eligible tier to act as a "pack leader"
+                if (i == 0) id = eligible[eligible.Count - 1];
+
+                Point p = EClass._map.bounds.GetRandomSurface();
+                if (p != null && p.IsValid && !p.HasBlock && !p.HasObj)
+                {
+                    Chara c = CharaGen.Create(id);
+                    if (c != null)
+                    {
+                        zone.AddCard(c, p);
+                        spawned++;
+                    }
+                }
             }
 
-            SkyreaderGuild.Log($"Astral rift floor themed: lv={__instance.lv}, meteorite={placedLoot}, extraMobs={extraMobs}.");
+            SkyreaderGuild.Log($"Spawned {spawned}/{yithCount} Yiths in astral rift at danger {danger}.");
         }
     }
 
@@ -689,7 +725,8 @@ namespace SkyreaderGuild {
                 Point p = map.bounds.GetRandomSurface(center.x, center.z, 6);
                 if (p != null && !p.HasBlock && !p.HasThing)
                 {
-                    zone.AddThing("srg_debris", p);
+                    Card debris = zone.AddThing("srg_debris", p);
+                    debris.SetPlaceState(PlaceState.installed);
                 }
             }
 

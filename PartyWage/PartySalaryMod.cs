@@ -1,4 +1,4 @@
-﻿using BepInEx;
+using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
 using System;
@@ -12,6 +12,14 @@ namespace PartySalaryMod
         private static ConfigEntry<float> SalaryPercentage;
         private static ConfigEntry<string> SalaryFreq;
         private static ConfigEntry<bool> NYB;
+
+        private static ConfigEntry<int> MinimumSafeMoney;
+        private static ConfigEntry<float> SalaryPercentage;
+        private static ConfigEntry<string> SalaryFreq;
+        private static ConfigEntry<bool> NYB;
+        private static ConfigEntry<bool> UseBankReserve;
+        private static ConfigEntry<int> MinimumBankReserve;
+
 
         private void Awake()
         {
@@ -35,7 +43,21 @@ namespace PartySalaryMod
 
             SalaryFreq = Config.Bind("General", "SalaryFreq", "monthly", "How often to pay salaries. (daily, weekly, monthly)");
             NYB = Config.Bind("General", "SalaryBonus", false, "Pay a bonus on new years.");
-        } 
+            
+            UseBankReserve = Config.Bind(
+                "General",
+                "UseBankReserve",
+                true,
+                "If true, automatically draw wages from the bank deposit box first."
+            );
+
+            MinimumBankReserve = Config.Bind(
+                "General",
+                "MinimumBankReserve",
+                10000,
+                "Minimum amount to keep in the bank after drawing for wages. 0 = no limit."
+            );
+        }
 
         public static int GetMinimumSafeMoney() => MinimumSafeMoney.Value;
         public static float GetSalaryPercentage() => SalaryPercentage.Value / 100.0f;
@@ -43,6 +65,9 @@ namespace PartySalaryMod
         public static string GetSalaryFreq() => SalaryFreq.Value;
 
         public static bool GetNYB() => NYB.Value;
+        
+        public static bool GetUseBankReserve() => UseBankReserve.Value;
+        public static int GetMinimumBankReserve() => MinimumBankReserve.Value;
 
         public static void Log(string message)
         {
@@ -57,38 +82,62 @@ namespace PartySalaryMod
             string s_term = "salary";
             if (bonus) { s_term = "bonus"; };
 
+            // Silent if the player has no active party
+            if (playerParty == null || playerParty.members == null || playerParty.members.Count < 2)
+                return;
+
             // Get the player's current Orens
             int playerOrens = EClass.pc.GetCurrency("money");
             int minimumSafeMoney = SalaryMod.GetMinimumSafeMoney();
             float salaryPercentage = SalaryMod.GetSalaryPercentage();
 
-            // Calculate the total salary pool
-            int totalSalaryPool = (int)(playerOrens * salaryPercentage);
+            int bankBalance = 0;
+            int minimumBankReserve = 0;
+
+            if (GetUseBankReserve() && EClass.game.cards.container_deposit != null)
+            {
+                bankBalance = EClass.game.cards.container_deposit.GetCurrency();
+                minimumBankReserve = GetMinimumBankReserve();
+            }
+
+            // Calculate the total salary pool from combined wealth
+            long totalWealth = playerOrens + bankBalance;
+            int totalSalaryPool = (int)(totalWealth * salaryPercentage);
 
             // Calculate individual salary share
             int partySize = playerParty.members.Count - 1;
-            int individualShare = totalSalaryPool / partySize;
 
-            // Silent if the player has no active party
-            if (playerParty == null || playerParty.members == null || playerParty.members.Count < 2)
-                return;
+            int playerAvailable = Math.Max(0, playerOrens - minimumSafeMoney);
+            int bankAvailable = Math.Max(0, bankBalance - minimumBankReserve);
 
-            // Ensure the player retains the minimum safe money
-            if (playerOrens - totalSalaryPool < minimumSafeMoney)
+            // Ensure the player retains the minimum safe money across all accessible funds
+            if (playerAvailable + bankAvailable < totalSalaryPool)
             {
-                Msg.SayRaw($"Having a mere ${playerOrens} on hand you decide not to distribute any ${s_term}, since it would take you below your limit of ${minimumSafeMoney}..");
-                // say funny thing about not being able to afford
+                Msg.SayRaw($"Having only ${playerOrens} on hand and insufficient bank reserves, you decide not to distribute any ${s_term}...");
                 EClass.pc.TalkRaw(pws.wizardPaymentExcuses[rgen.Next(pws.wizardPaymentExcuses.Length)]);
                 return;
             }
+
+            int individualShare = totalSalaryPool / partySize;
+
+            int amountToDrawFromBank = Math.Min(totalSalaryPool, bankAvailable);
+            int amountToDrawFromInv = totalSalaryPool - amountToDrawFromBank;
 
             string m = pws.wizardPaymentPhrases[rgen.Next(pws.wizardPaymentPhrases.Length)];
             if (bonus)
                 m = pws.wizardBonusQuips[rgen.Next(pws.wizardBonusQuips.Length)];
             EClass.pc.TalkRaw(m);
             Msg.SayRaw($"You pay a total of ${totalSalaryPool} in ${s_term} to {partySize} party members.");
-            // Deduct the total salary pool from the player's Orens
-            EClass.pc.ModCurrency(-totalSalaryPool, "money");
+
+            if (amountToDrawFromBank > 0)
+            {
+                EClass.game.cards.container_deposit.ModCurrency(-amountToDrawFromBank, "money");
+            }
+            if (amountToDrawFromInv > 0)
+            {
+                EClass.pc.ModCurrency(-amountToDrawFromInv, "money");
+            }
+
             bool squawk = false;
             // Distribute salaries to party members
             foreach (var member in playerParty.members)

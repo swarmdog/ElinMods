@@ -46,7 +46,7 @@ public class TraitMeteorCore : TraitItem
     {
         int roll = EClass.rnd(100);
 
-        if (roll < 25)
+        if (roll < 20)
         {
             Msg.SayRaw("Insight floods your mind. Extra fragments gather in your hands.");
             int bonus = Mathf.RoundToInt((1 + EClass.rnd(3)) * rewardMultiplier);
@@ -57,7 +57,7 @@ public class TraitMeteorCore : TraitItem
             return;
         }
 
-        if (roll < 50)
+        if (roll < 40)
         {
             Msg.SayRaw("The meteor's energy lashes out. Something emerges from the fragments.");
             Chara boss = EClass._zone.SpawnMob(null, SpawnSetting.Boss(EClass._zone.DangerLv, EClass._zone.DangerLv));
@@ -73,7 +73,7 @@ public class TraitMeteorCore : TraitItem
             return;
         }
 
-        if (roll < 75)
+        if (roll < 60)
         {
             Msg.SayRaw("Reality shimmers. The ground becomes unstable.");
             for (int i = 0; i < 3 + EClass.rnd(3); i++)
@@ -89,14 +89,39 @@ public class TraitMeteorCore : TraitItem
             return;
         }
 
-        Msg.SayRaw("A group of mercenaries emerges, drawn by the meteor's energy.");
-        for (int i = 0; i < 3 + EClass.rnd(3); i++)
+        if (roll < 80)
         {
-            Chara merc = EClass._zone.SpawnMob();
-            if (merc != null)
+            Msg.SayRaw("A group of mercenaries emerges, drawn by the meteor's energy.");
+            for (int i = 0; i < 3 + EClass.rnd(3); i++)
             {
-                merc.hostility = Hostility.Enemy;
-                merc.c_originalHostility = Hostility.Enemy;
+                Chara merc = EClass._zone.SpawnMob();
+                if (merc != null)
+                {
+                    merc.hostility = Hostility.Enemy;
+                    merc.c_originalHostility = Hostility.Enemy;
+                }
+            }
+            return;
+        }
+
+        // 80-99
+        Msg.SayRaw("A tear in reality opens! Star-spawned entities arrive to reclaim the meteor.");
+        
+        Point dp = EClass._map.bounds.GetRandomSurface(c.pos.x, c.pos.z, 5);
+        if (dp != null && dp.IsValid && !dp.HasBlock && !dp.HasObj)
+        {
+            EClass._zone.AddCard(CharaGen.Create("srg_yith_drone"), dp);
+        }
+
+        if (EClass.rnd(2) == 0)
+        {
+            for(int i = 0; i < 2; i++)
+            {
+                Point hp = EClass._map.bounds.GetRandomSurface(c.pos.x, c.pos.z, 5);
+                if (hp != null && hp.IsValid && !hp.HasBlock && !hp.HasObj)
+                {
+                    EClass._zone.AddCard(CharaGen.Create("srg_yith_hound"), hp);
+                }
             }
         }
     }
