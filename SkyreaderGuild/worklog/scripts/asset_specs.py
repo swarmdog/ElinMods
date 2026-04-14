@@ -99,6 +99,7 @@ ASSET_SCALE_SPECS: dict[str, AssetScaleSpec] = {
 
     # Furniture: sized for Elin's tile grid with mod-texture override.
     "srg_aurora_lamp": furniture("@obj_S"),
+    "srg_ladder_plaque": AssetScaleSpec("item", (64, 64), (42, 48), ANCHOR_CENTER, "@obj tall"),
     "srg_constellation_rug": furniture("@obj flat"),
     "srg_starfall_table": furniture("@obj"),
     "srg_lunar_armchair": furniture("@obj"),
@@ -133,4 +134,3 @@ def get_asset_spec(asset_id: str) -> AssetScaleSpec:
         return ASSET_SCALE_SPECS[asset_id]
     except KeyError as exc:
         raise KeyError(f"No deployment scale spec defined for {asset_id}") from exc
-

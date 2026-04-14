@@ -1,0 +1,375 @@
+# SkyreaderGuild Async Multiplayer – Focused Feature Design
+
+## 1. Scope and Constraints
+
+This document refines the SkyreaderGuild async multiplayer design to focus on five feature clusters the player found compelling: a global Skyreader ladder, constellation allegiances and seasons, astral-geometry observation, a comet‑touched heatmap, guild HQ research logs, and seasonal sky phenomena. Marketplace-style trading, boss rituals, and complex co-op systems are intentionally excluded to keep the backend simple and the fantasy centered on shared discovery rather than economy.[^1][^2]
+
+Key constraints:
+
+- **Purely asynchronous, HTTP-based backend** as in the Underworld Startup/Drug Empire design: a thin Elin client, stateless REST API, small database, and periodic cron jobs.[^2][^1]
+- **Authentication is entirely invisible to the player.** The mod auto-registers and auto-authenticates in the background; there are no login prompts or credentials.
+- **Low server load:** clients poll infrequently (primarily once per in-game week for seasonal data) and batch writes where possible.[^1]
+- **Lore-first UX:** all networked features are surfaced through Skyreader Guild HQ furniture and dialogs rather than generic menus.
+
+
+## 2. Invisible Authentication and Account Model
+
+### 2.1 Guild account lifecycle
+
+The existing Underworld design uses explicit register/login endpoints with player-visible prompts. For SkyreaderGuild, the same concepts are simplified and hidden.[^2][^1]
+
+**Data model (server):**
+
+- `GuildAccount`
+  - `id`: UUID primary key.
+  - `installKey`: string, opaque, unique per installation (see below).
+  - `displayName`: nullable string; optional if you later want cosmetic names.
+  - `highestRank`: int (numeric encoding of Skyreader guild rank).
+  - `createdAt`, `lastSeenAt`: timestamps.
+
+**Client-side identity:**
+
+- On first load of a save where the player joins the Skyreader Guild, the plugin checks for an existing `installKey` in a small config file under the mod folder.
+- If none exists, it generates a random GUID and stores it locally as `installKey`.
+- The client calls `POST /guild/register-anon` with `{ installKey, gameVersion, modVersion }` once; server returns `{ authToken, accountId }`.
+- `authToken` is saved in the same local config and attached as a header (e.g., `Authorization: Bearer <token>`) on all subsequent requests.
+
+### 2.2 Authentication endpoints
+
+- `POST /guild/register-anon`
+  - Request: `{ installKey, gameVersion, modVersion }`.
+  - Behavior: if `installKey` exists, return existing `GuildAccount` and new `authToken`; else create and return a new account.
+
+- `POST /guild/refresh-token`
+  - Used rarely if the server invalidates tokens; the client can supply its `installKey` and receive a fresh `authToken` without player interaction.
+
+The plugin wraps these flows in a small `SkyreaderAuthManager` class; if any request returns `401 Unauthorized`, it silently calls `refresh-token` and retries the original request once.
+
+
+## 3. Shared Data Model Overview
+
+The following shared entities support all chosen features:
+
+- `GuildAccount` – identity and highest rank attained (Section 2).
+- `AstralContribution` – normalized "starlight" contributions used to build ladders and constellation progress.
+- `Constellation` and `ConstellationProgress` – seasonal allegiance system and cooperative goals.
+- `SkySeason` – global seasonal sky phenomena and modifiers.
+- `GeometrySample` – observations of Astral Rift geometry.
+- `CometHeatBucket` – coarse heatmap representation of comet‑touched activity across the world.
+- `ResearchNote` – short player-authored lore snippets for the guild library.
+
+Each section below details how individual features map onto these entities.
+
+
+## 4. Feature A – Global Skyreader Ladder (Refined)
+
+### 4.1 Concept
+
+The ladder mirrors the Underworld mod’s global reputation tracking but uses a single normalized "Starlight Score" derived from guild points, rift clears, meteor core harvests, and related actions. The ladder is non-intrusive and purely comparative; it does not gate content.[^1]
+
+### 4.2 Data model
+
+- `AstralContribution`
+  - `id`: UUID.
+  - `playerId`: foreign key to `GuildAccount`.
+  - `type`: enum (`Extraction`, `RiftClear`, `BossKill`, `MeteorCoreHarvest`).
+  - `amount`: int (server interprets this as starlight units; client simply sends raw guild point equivalents).
+  - `createdAt`: timestamp.
+
+- `LadderSnapshot` (materialized view or periodically updated table)
+  - `playerId`, `totalScore`, `lastUpdatedAt`.
+
+### 4.3 API endpoints
+
+- `POST /contributions/batch`
+  - Body: `{ contributions: [{ type, amount, localEventId, timestamp }] }`.
+  - Auth via header.
+  - Server validates ranges (e.g., clamps any `amount` above a configured ceiling) and inserts records.
+
+- `GET /ladder/global?limit=50`
+  - Returns top N players (`displayName` or anonymized ID plus `totalScore`).
+
+- `GET /ladder/self`
+  - Returns the caller’s rank, total score, and percentile.
+
+### 4.4 Elin-side integration
+
+- **Buffering:** the plugin maintains a small in-memory queue of `AstralContribution` entries and periodically flushes them:
+  - Flush trigger: player rests at an inn or at the Guild HQ; or every in-game week if the player never rests.
+- **Sources:** whenever the player earns guild points for:
+  - Using the Astral Extractor on meteor‑touched targets.
+  - Clearing Astral Rifts.
+  - Defeating astral bosses.
+  the plugin enqueues a contribution with the matching type/amount.
+- **UI:**
+  - In the Guild HQ, add a "Skyreader Ladder" plaque or wall chart.
+  - Interacting opens a simple list menu displaying:
+    - Player’s current score and percentile.
+    - Top 20 entries.
+  - If network is unavailable, display "The stars are quiet today" and skip display logic.
+
+
+## 5. Feature B – Constellation Allegiances and Seasons
+
+### 5.1 Concept
+
+Constellations act as light-weight, lore-friendly "teams" for each real-time season. Contributions already sent to the ladder are also grouped by the patron constellation of each account, driving cooperative goals like "The Hound constellation seeks 200,000 starlight in Rift clears this season."[^1]
+
+### 5.2 Data model
+
+- `Constellation`
+  - `id`: UUID.
+  - `seasonId`: foreign key to `SkySeason`.
+  - `name`, `description`.
+  - `goalConfig`: JSON, example:
+    - `{ "Extraction": 150000, "RiftClear": 80000 }`.
+
+- `ConstellationMembership`
+  - `playerId`, `constellationId`, `joinedAt`.
+
+- `ConstellationProgress`
+  - `constellationId`, `metricType`, `currentAmount`.
+
+### 5.3 API endpoints
+
+- `GET /constellations/current`
+  - Returns all constellations active in the current `SkySeason`, plus their goal config and current progress.
+
+- `POST /constellations/join`
+  - Body: `{ constellationId }`.
+  - Server ensures the account either has no constellation for the current season or changing is disallowed after a grace period.
+
+Server-side, a background job periodically aggregates contributions into `ConstellationProgress` based on each contributor’s current membership.
+
+### 5.4 Elin-side integration
+
+- **Unlock moment:** upon reaching rank `Seeker`, Arkyn fires a one-time dialog event presenting 3–5 patron constellations with short descriptions.
+- **Choice UI:** choosing one calls `POST /constellations/join` and stores the selected `constellationId` locally as well.
+- **Guild HQ UI:**
+  - A "Constellation Board" in the Observatory displays:
+    - The player’s chosen constellation, its symbol, and flavor text.
+    - Seasonal goals and progress bars for that constellation.
+    - Relative progress of other constellations as small bars or percentages (optional).
+- **Rewards:** when the server marks a constellation’s goals as met for the season, it exposes a flag in `GET /constellations/current`. The plugin checks this and, if the player is a member, grants small client-side rewards:
+  - Cosmetic titles.
+  - Decorative furniture recipes.
+  - A small one-time buff item.
+
+
+## 6. Feature C – Astral Geometry Observation Network
+
+### 6.1 Concept
+
+Instead of a rift layout library, Astral Rift geometry is distilled into simple shape tags that contribute to a shared "geometry sky map". Globally, players push and pull the balance of shapes (Circles, Stars, Crescents, etc.), and the Guild HQ’s Observatory displays which geometries are currently ascendant.
+
+### 6.2 Data model
+
+- `GeometrySample`
+  - `id`.
+  - `playerId`.
+  - `dangerBand`: small int bucket (e.g., 1 for Danger 1–10, 2 for 11–20, etc.).
+  - `shapeType`: enum (`Circle`, `Ellipse`, `Diamond`, `Crescent`, `Cross`, `Star`).
+  - `roomCount`: int.
+  - `sampledAt`: timestamp.
+
+- `GeometryAggregate`
+  - `seasonId`.
+  - `dangerBand`.
+  - `shapeType`.
+  - `count`: int.
+
+A cron job periodically recomputes percentages per band and shape for the current `SkySeason`.
+
+### 6.3 API endpoints
+
+- `POST /geometry/sample`
+  - Body: `{ dangerBand, shapeType, roomCount }`.
+
+- `GET /geometry/summary?seasonId=current`
+  - Returns aggregate percentages, e.g.: `{ "1": { "Circle": 0.4, "Star": 0.2, ... }, ... }`.
+
+### 6.4 Elin-side integration
+
+- **Sampling:**
+  - When generating an Astral Rift, the custom map generator already determines a primary shape (circle/star/diamond/etc.).
+  - After generation, the plugin computes `dangerBand` and `roomCount`, then enqueues one `GeometrySample`.
+  - Samples are batched and sent alongside contributions at rest or weekly.
+
+- **Observatory UI:**
+  - Add a "Geometry Orrery" in the Observatory.
+  - Interacting calls `GET /geometry/summary` (if cached data is older than one in-game week) and displays:
+    - For each shape: a bar or value indicating global share this season.
+    - Flavor text, e.g., "Star-shaped rifts blaze across the firmament this season" when `Star` exceeds a threshold.
+
+- **Minor gameplay hooks (optional):**
+  - If a shape’s global share crosses e.g. 50% in a danger band relevant to the player’s current rift, the plugin can slightly bias Skysign effects or Yith spawn mixes in that rift, framed as "geometry resonance".
+
+
+## 7. Feature D – Comet‑Touched Heatmap and Cleanup Indicator
+
+### 7.1 Concept
+
+Meteor/comet-touched entities already exist via the Astral Extractor system. The async layer aggregates how much comet‑touch remains globally by coarse region, and how much players are cleaning up. The Guild HQ displays a **heatmap** of comet activity; as the player and others cleanse more, the map cools.
+
+### 7.2 Data model
+
+- `CometRegion`
+  - Static table defining coarse regions (e.g., `Northlands`, `Coastal Belt`, `Forest Ring`, etc.). Each region maps to a world-coordinate band and possibly a town archetype.
+
+- `CometHeatBucket`
+  - `seasonId`.
+  - `regionId`.
+  - `touchedReports`: int (how many comet‑touched entities were detected).
+  - `cleansedReports`: int (how many were cleansed).
+
+### 7.3 API endpoints
+
+- `POST /comet/report`
+  - Body: `{ regionId, touchedCount, cleansedCount }`.
+
+- `GET /comet/heatmap?seasonId=current`
+  - Returns heat ratios per region, e.g. `{ regionId: { touched: 1000, cleansed: 800 } }`.
+
+Server logic may decay counts slowly over real time to keep the heatmap responsive and prevent saturation.
+
+### 7.4 Elin-side integration
+
+- **Tracking:**
+  - The plugin determines `regionId` from the current overworld position or town archetype.
+  - While in a region, it tracks two counters for the current session:
+    - `touchedSeen`: counts newly spawned or discovered meteor‑touched NPCs/items.
+    - `touchedCleansed`: counts successful Astral Extractor cleanses.
+  - On leaving the region, resting, or after an in-game day, the plugin posts a `comet/report` with the delta values and resets local counters.
+
+- **Heatmap visualization:**
+  - In the Guild HQ Atrium, add a giant star chart or world map table.
+  - Interacting calls `GET /comet/heatmap` if cached data is older than an in-game week.
+  - The UI shades each region in 3–4 discrete levels (e.g., Calm, Stirring, Troubled, Overrun) based on the ratio `cleansed / max(touched, 1)` and/or total touched volume.
+  - Player-local contributions can be slightly up-weighted so that cleaning efforts feel immediately reflected.
+
+- **Feedback hooks:**
+  - When entering a region considered "Calm" globally, Arkyn or a system message notes the player is walking in "well-tended skies".
+  - Conversely, "Overrun" regions occasionally spawn extra meteor‑touched targets, giving players more opportunities to improve the map.
+
+
+## 8. Feature E – Star Papers and Guild HQ Library
+
+### 8.1 Concept
+
+Star Papers are short, player-authored research notes about phenomena encountered while playing (Skysign interactions, odd Yith behavior, rare meteor events). They are uploaded anonymously and re‑distributed as physical documents in the Guild HQ library, adding asynchronous lore flavor.
+
+### 8.2 Data model
+
+- `ResearchNote`
+  - `id`.
+  - `playerId`.
+  - `title`: short string.
+  - `body`: markdown or plain text, length-limited (e.g., 500–800 characters).
+  - `createdAt`.
+  - `rating`: aggregate of up/down votes.
+
+### 8.3 API endpoints
+
+- `POST /research-notes/create`
+  - Body: `{ title, body }`.
+  - Server performs profanity filtering and length validation.
+
+- `GET /research-notes/pull?limit=K`
+  - Returns K notes not previously pulled by this account, or rotates periodically.
+
+- `POST /research-notes/rate`
+  - Body: `{ noteId, value }` where `value` is `+1` or `-1`.
+
+### 8.4 Elin-side integration
+
+- **Writing papers:**
+  - Unlock a "Submit Star Paper" option once the player reaches rank `Understander` and has observed at least N Skysign events.
+  - Activating this option opens a simple text-entry UI limited to title and short body.
+  - On submission, the plugin sends a `create` request; if successful, the player receives a small amount of guild points and an in-world `Star Paper (Copy)` item.
+
+- **Library distribution:**
+  - Periodically (e.g., once per in-game week when the player visits the HQ), the plugin calls `GET /research-notes/pull` and stores 3–5 notes locally.
+  - It then spawns corresponding `Star Paper (Research)` items on library shelves; each paper, when read, displays the note’s content.
+
+- **Rating:**
+  - After reading a paper, the player can choose "Mark as Insightful" or "Discard"; these map to a `rate` call with `+1` or `0` (only positive feedback is sent if you want to keep the system simple).
+  - The server can eventually prefer higher-rated notes when choosing which to distribute.
+
+
+## 9. Feature F – Seasonal Sky Phenomena with Weekly Polling
+
+### 9.1 Concept
+
+The world operates under a global `SkySeason` (e.g., "Season of Crimson Showers"), each with its own modifiers and flavor. Seasons last for a real-time duration (e.g., weeks or months) and are evaluated entirely server-side. Clients only need to check in occasionally, roughly once per in-game week, to synchronize the active season and its modifiers.
+
+### 9.2 Data model
+
+- `SkySeason`
+  - `id`.
+  - `name`.
+  - `description`.
+  - `startsAt`, `endsAt` (UTC timestamps).
+  - `modifiers`: JSON, such as:
+    - `{ "meteorChanceMultiplier": 1.3, "skysignDimensionalGatewayWeight": 1.5, "yithSpawnBonus": { "Weaver": 0.2 } }`.
+
+Server jobs ensure exactly one active season at any given time.
+
+### 9.3 API endpoint
+
+- `GET /sky-season/current`
+  - Returns the active `SkySeason` object (or a default season if none configured).
+
+### 9.4 Elin-side integration and polling cadence
+
+- **Polling cadence:**
+  - The plugin caches the active `SkySeason` plus its `endsAt` field locally.
+  - It only calls `GET /sky-season/current` when:
+    - No cached season exists, or
+    - In-game time has advanced by at least one in-game week since the last successful fetch, or
+    - The cached `endsAt` time has passed in real time.
+  - This reduces server load while ensuring that long-running saves still adapt to new seasons.
+
+- **Applying modifiers:**
+  - At the start of each in-game day, the plugin reads the cached season modifiers and applies them to local systems:
+    - Multiply the base meteor shower daily chance by `meteorChanceMultiplier` (capped to avoid absurd values).
+    - Adjust Skysign RNG weighting according to configured weights.
+    - Slightly adjust Yith spawn composition in Astral Rifts using `yithSpawnBonus` percentages.
+  - These changes require only local tuning of existing probability tables.
+
+- **Visual and narrative cues:**
+  - Upon first entering the Guild HQ under a new season, fire a short Arkyn dialog summarizing the current sky condition.
+  - Toggle decorations (banners, crystals) in HQ based on `SkySeason.id` if you wish to give a visual indicator.
+
+
+## 10. Network and Implementation Notes
+
+### 10.1 Client architecture
+
+The Elin mod follows the same architecture as the Underworld/Drug Empire mod:
+
+- Implemented as a BepInEx plugin compiled against Elin’s assemblies and 0Harmony, with CWL sheets for data-driven content such as items and furniture.[^2][^1]
+- Uses .NET’s `HttpClient` (or UnityWebRequest if preferred) in background tasks to send and receive JSON over HTTPS, with basic error handling and retry logic.[^1]
+- UI is built via patched existing panels and new guild HQ furniture interactions.
+
+### 10.2 Offline tolerance
+
+- If any request fails, the plugin should:
+  - Cache contributions locally (in memory or a small save fragment) and retry on the next trigger.
+  - Display flavor text instead of hard errors for read operations ("The stars aren’t speaking right now").
+- No critical gameplay should depend on server responses; everything degrades gracefully to a pure single-player experience.
+
+### 10.3 Rate limiting and payload size
+
+- All write operations (`/contributions/batch`, `/geometry/sample`, `/comet/report`, `/research-notes/create`) are batched and infrequent, usually tied to rest events or in-game week boundaries.
+- Read operations (`/ladder/global`, `/constellations/current`, `/geometry/summary`, `/comet/heatmap`, `/research-notes/pull`, `/sky-season/current`) use cached results and only refresh when local time thresholds expire.
+
+With these focused, low-friction systems, SkyreaderGuild gains a sense of a living, shared sky—players collectively shape ladders, constellations, geometry balances, comet‑touched heatmaps, and a guild library—while retaining the simplicity and robustness of the Underworld async architecture and avoiding complex markets or synchronous coordination.[^2][^1]
+
+---
+
+## References
+
+1. [perplexity_elin_underworld_research.md](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/142700969/89bdfa27-cd04-4adb-9e86-20357b401e77/perplexity_elin_underworld_research.md?AWSAccessKeyId=ASIA2F3EMEYE4CYZERZ7&Signature=u44bg9mBAuVbJZTeOHkxRV%2FzOYE%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEMz%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJHMEUCICjuTmh%2Fb9UG8nrbSHdXyczGfRJtf0j7kx%2BS4tyogEd4AiEAxsnQnu5e2alEVO%2FqVxX7II21OQJy1jMNc2qOdYE6FD4q%2FAQIlP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARABGgw2OTk3NTMzMDk3MDUiDAOZvb0ygOZPA1ZbKSrQBGS3YwhFaV5MrwPFcGQd4jifpMO4OEPRcR1JHdWifq9lQrfx4JMCybnJd5%2FEfGNJMs5TX68OB33%2FHs8Z7ORkMyfEex6jNOsNMKJPPHIc41cFTIpYbFpOPfkiZ9SL2QoPWvSmxbyR2H%2Ft5SpvpPqdl58jtieHshtxHxjm5tQpIWAZ8LYd9WEjcTrAO8l2nyImaIdTKr0jK9jewEVyuRcAk7NNe8n8evVvio5llQE0%2FMCaM0RDBGhroKt8Ms6nSrXCuKGUYxt8zDGYHend7HpS7iF4QIjwnvJxkhViNc2Dd5oxzXOQBMbBBIYJ%2F97S1xT7H6Azr41lHLS5ubqZSR0jaZNC272B74r%2BW%2FgkHAvol0Jr3SVF09LaFNSANlT01LnJGKWglLVBMR0w4Uj0Spd7ETRR%2FPih7r3lEMhfbAmUxZFPzFJw1D5DqGAiCS5hq419oHVeZQ3WRm1%2Fx1e1iqoa%2BYLcEdcr%2Fi6JEHvGQNm0ySmhogyyw9KI4GwMWpoa2EF4ki1z2MjULaPa4QL1MfXgC1vA34Udh4PlAwRWmLY1cnSvzyU5IlI2yf4V1hcUvALuYwPqihAxVhMHLwf5RnBqVQKZAw6NwFEqW2gbLyLxLVCy2LyCFzbix0zT5RK%2F8O7xZrN7nUY15y7Ay5%2FQNbiLG396I%2FLVVZlsQe0vvloboQsMLQKleA%2B%2BXHWQPpp98%2BFX1lLCwJwoFqirQqFuPgBvAVgqBFAyH6CLF9Zkcymn4qKUUavEqf6NNQHcAogfyZSZYrUvWHLTsExmysygZOpXdkUwy6X6zgY6mAGE%2FdcbPPPRV6DjCLPv4%2F4Z2qcbeTQboLrdeJZi0QuTxyZyxW%2FGVK5b4cMAv5cVYx0Hrq86OAo4eKM08E%2FGLrtctZHwnXV5fAI7th7rbpkqwXrd5hCmecGcaFWzsDF6OEbo6U7D6NYYBIHwc1ZFU0h%2Bkn%2FsUEf0nBtI9VTMtfm54%2FlgbJhHvPTJdE687Fz%2FehYNv%2BSNi6A7Fg%3D%3D&Expires=1776197790) - This document describes a mod for Elin that adds a new starting option focused on crafting, base bui...
+
+2. [chatgpt_elin_underworld_Research.md-2.md](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/142700969/5acd1d33-2909-43f3-b6fd-1ba42d271c13/chatgpt_elin_underworld_Research.md-2.md?AWSAccessKeyId=ASIA2F3EMEYE4CYZERZ7&Signature=Vye7fm83XRpHC6IzFlWhi7%2Fulps%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEMz%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJHMEUCICjuTmh%2Fb9UG8nrbSHdXyczGfRJtf0j7kx%2BS4tyogEd4AiEAxsnQnu5e2alEVO%2FqVxX7II21OQJy1jMNc2qOdYE6FD4q%2FAQIlP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARABGgw2OTk3NTMzMDk3MDUiDAOZvb0ygOZPA1ZbKSrQBGS3YwhFaV5MrwPFcGQd4jifpMO4OEPRcR1JHdWifq9lQrfx4JMCybnJd5%2FEfGNJMs5TX68OB33%2FHs8Z7ORkMyfEex6jNOsNMKJPPHIc41cFTIpYbFpOPfkiZ9SL2QoPWvSmxbyR2H%2Ft5SpvpPqdl58jtieHshtxHxjm5tQpIWAZ8LYd9WEjcTrAO8l2nyImaIdTKr0jK9jewEVyuRcAk7NNe8n8evVvio5llQE0%2FMCaM0RDBGhroKt8Ms6nSrXCuKGUYxt8zDGYHend7HpS7iF4QIjwnvJxkhViNc2Dd5oxzXOQBMbBBIYJ%2F97S1xT7H6Azr41lHLS5ubqZSR0jaZNC272B74r%2BW%2FgkHAvol0Jr3SVF09LaFNSANlT01LnJGKWglLVBMR0w4Uj0Spd7ETRR%2FPih7r3lEMhfbAmUxZFPzFJw1D5DqGAiCS5hq419oHVeZQ3WRm1%2Fx1e1iqoa%2BYLcEdcr%2Fi6JEHvGQNm0ySmhogyyw9KI4GwMWpoa2EF4ki1z2MjULaPa4QL1MfXgC1vA34Udh4PlAwRWmLY1cnSvzyU5IlI2yf4V1hcUvALuYwPqihAxVhMHLwf5RnBqVQKZAw6NwFEqW2gbLyLxLVCy2LyCFzbix0zT5RK%2F8O7xZrN7nUY15y7Ay5%2FQNbiLG396I%2FLVVZlsQe0vvloboQsMLQKleA%2B%2BXHWQPpp98%2BFX1lLCwJwoFqirQqFuPgBvAVgqBFAyH6CLF9Zkcymn4qKUUavEqf6NNQHcAogfyZSZYrUvWHLTsExmysygZOpXdkUwy6X6zgY6mAGE%2FdcbPPPRV6DjCLPv4%2F4Z2qcbeTQboLrdeJZi0QuTxyZyxW%2FGVK5b4cMAv5cVYx0Hrq86OAo4eKM08E%2FGLrtctZHwnXV5fAI7th7rbpkqwXrd5hCmecGcaFWzsDF6OEbo6U7D6NYYBIHwc1ZFU0h%2Bkn%2FsUEf0nBtI9VTMtfm54%2FlgbJhHvPTJdE687Fz%2FehYNv%2BSNi6A7Fg%3D%3D&Expires=1776197790) - Overview Elin formerly Elins Inn is a single-player settlement-building RPG with a built-in mod fram...
+

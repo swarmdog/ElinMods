@@ -38,6 +38,11 @@ namespace SkyreaderGuild {
         public static ConfigEntry<int> ConfigMinAstralRiftYiths;
         public static ConfigEntry<int> ConfigMaxAstralRiftYiths;
         public static ConfigEntry<bool> ConfigEnableGuildHQ;
+        public static ConfigEntry<bool> ConfigEnableRiftLayouts;
+        public static ConfigEntry<bool> ConfigEnableOnlineFeatures;
+        public static ConfigEntry<string> ConfigLadderServerUrl;
+        internal static SkyreaderAuthManager LadderAuthManager;
+        internal static SkyreaderLadderClient LadderClient;
 
         /// <summary>
         /// Set to false to suppress all debug logging.
@@ -53,6 +58,7 @@ namespace SkyreaderGuild {
             this.RegisterMeteorZone(s);
             this.RegisterAstralRiftZone(s);
             this.RegisterGuildHQZone(s);
+            this.RegisterGuildHQSpawnList(s);
         }
 
         private void AddQuest(SourceManager sources)
@@ -197,6 +203,31 @@ namespace SkyreaderGuild {
             sources.zones.map[zone.id] = zone;
         }
 
+        private void RegisterGuildHQSpawnList(SourceManager sources)
+        {
+            var row = new SourceSpawnList.Row();
+            row.id = "SkyreaderHQ";
+            row.parent = "chara";
+            row.type = "chara";
+            row.category = new string[0];
+            row.idCard = new[]
+            {
+                "artist",
+                "mage_app",
+                "citizen_elea",
+                "tourist",
+                "fisher",
+            };
+            row.tag = new string[0];
+            row.filter = new string[0];
+
+            sources.spawnLists.rows.RemoveAll(existing => existing.id == row.id);
+            sources.spawnLists.rows.Add(row);
+            sources.spawnLists.map[row.id] = row;
+            SpawnList.allList.Remove(row.id);
+            Log("Registered SkyreaderHQ spawn list.");
+        }
+
         private void Awake()
         {
             LogSource = Logger;
@@ -209,11 +240,95 @@ namespace SkyreaderGuild {
             ConfigMinAstralRiftYiths = Config.Bind("Astral Rift", "MinYithSpawns", 1, "Minimum number of extra Yith monsters spawned per Astral Rift floor.");
             ConfigMaxAstralRiftYiths = Config.Bind("Astral Rift", "MaxYithSpawns", 3, "Maximum number of extra Yith monsters spawned per Astral Rift floor.");
             ConfigEnableGuildHQ = Config.Bind("General", "EnableGuildHQ", false, "Set to true to spawn the Skyreader Observatory guild hall entrance in Derphy.");
+            ConfigEnableRiftLayouts = Config.Bind("Astral Rift", "EnableCustomLayouts", true, "When enabled, Astral Rift dungeon rooms are reshaped into non-rectangular forms (circles, crescents, stars, etc.).");
+            ConfigEnableOnlineFeatures = Config.Bind("Online", "EnableOnlineFeatures", false, "Enable connection to the Skyreader ladder server for global rankings.");
+            ConfigLadderServerUrl = Config.Bind("Online", "LadderServerUrl", "http://localhost:8000", "URL of the Skyreader ladder server.");
+
+            LadderAuthManager = new SkyreaderAuthManager(() => ConfigLadderServerUrl.Value);
+            LadderClient = new SkyreaderLadderClient(() => ConfigLadderServerUrl.Value, LadderAuthManager);
 
             ModUtil.RegisterSerializedTypeFallback("SkyreaderGuild", "SkyreaderGuild.QuestSkyreader", "QuestDummy");
             Harmony harmony = new Harmony(ModInfo.Guid);
             harmony.PatchAll();
             Log("Harmony patches installed.");
+        }
+
+        internal static bool IsOnlineLadderReady()
+        {
+            return ConfigEnableOnlineFeatures != null
+                && ConfigEnableOnlineFeatures.Value
+                && EClass.game?.quests != null
+                && EClass.game.quests.IsStarted<QuestSkyreader>()
+                && LadderClient != null;
+        }
+
+        internal static void EnqueueLadderContribution(string type, int amount)
+        {
+            if (!IsOnlineLadderReady()) return;
+            LadderClient.EnqueueContribution(type, amount);
+        }
+
+        internal static void FlushLadderContributions(string reason)
+        {
+            if (!IsOnlineLadderReady()) return;
+            LadderClient.FlushContributions(reason);
+        }
+
+        internal static void ShowLadderPlaque()
+        {
+            SkyreaderLadderDialog.Open();
+        }
+
+        internal static void RefreshLadderPlaque(bool force = false, Action onUpdated = null)
+        {
+            if (!IsOnlineLadderReady()) return;
+            LadderClient.RefreshLadder(force, onUpdated);
+        }
+
+        internal static SkyreaderLadderClient.LadderPlaqueView GetLadderPlaqueView()
+        {
+            if (LadderClient == null)
+            {
+                return new SkyreaderLadderClient.LadderPlaqueView
+                {
+                    IsOnlineReady = false,
+                    Entries = new List<SkyreaderLadderClient.LadderPlaqueEntry>(),
+                };
+            }
+
+            return LadderClient.GetPlaqueView();
+        }
+
+        internal static string GetLadderUnavailableText()
+        {
+            if (ConfigEnableOnlineFeatures == null || !ConfigEnableOnlineFeatures.Value)
+            {
+                return "The Starlight Ladder is dark. Enable online features to read the guild rankings.";
+            }
+
+            if (EClass.game?.quests == null || !EClass.game.quests.IsStarted<QuestSkyreader>())
+            {
+                return "The plaque is blank. Join the Skyreader Guild before reading the Starlight Ladder.";
+            }
+
+            return "The Starlight Ladder is not ready yet.";
+        }
+
+        internal static string GetLadderPlaqueText()
+        {
+            if (LadderClient == null) return "The stars are quiet today.";
+            return LadderClient.FormatCachedLadderText();
+        }
+
+        internal static string GetPlayerDisplayName()
+        {
+            return EClass.pc?.NameTitled ?? "Unknown Skyreader";
+        }
+
+        internal static int GetCurrentRankValue()
+        {
+            QuestSkyreader quest = EClass.game?.quests?.Get<QuestSkyreader>();
+            return quest == null ? 0 : (int)quest.GetCurrentRank();
         }
 
         internal static void Log(string payload)
@@ -392,6 +507,8 @@ namespace SkyreaderGuild {
                 HandleYithGrowthDrop(__instance);
             else if (BossIds.Contains(chara.id))
                 HandleBossKillReward(__instance, chara);
+
+            HandleAstralRiftClear(chara);
         }
 
         private static void HandleYithGrowthDrop(Card __instance)
@@ -418,6 +535,7 @@ namespace SkyreaderGuild {
             {
                 int gpReward = chara.LV * 10;
                 quest.AddGuildPoints(gpReward);
+                SkyreaderGuild.EnqueueLadderContribution("BossKill", gpReward);
             }
             else
             {
@@ -433,6 +551,21 @@ namespace SkyreaderGuild {
             }
 
             Msg.SayRaw($"The cosmic energy of {chara.Name} dissipates, leaving fragments of meteoric ore.");
+        }
+
+        private static void HandleAstralRiftClear(Chara chara)
+        {
+            Zone zone = EClass._zone;
+            if (zone == null || zone.id != "srg_astral_rift") return;
+            if (zone.Boss != chara && chara.c_bossType != BossType.Boss) return;
+
+            QuestSkyreader quest = EClass.game.quests.Get<QuestSkyreader>();
+            if (quest == null) return;
+
+            int gpReward = 250 + Math.Max(0, zone.DangerLv) * 10;
+            quest.AddGuildPoints(gpReward);
+            SkyreaderGuild.EnqueueLadderContribution("RiftClear", gpReward);
+            SkyreaderGuild.Log($"Astral rift clear rewarded: danger={zone.DangerLv}, gp={gpReward}.");
         }
     }
 
@@ -502,6 +635,10 @@ namespace SkyreaderGuild {
         public static void Postfix()
         {
             MeteorManager.TrySpawnMeteor();
+            if (EClass.player?.stats != null && EClass.player.stats.days % 7 == 0)
+            {
+                SkyreaderGuild.FlushLadderContributions("weekly");
+            }
         }
     }
 
@@ -678,6 +815,10 @@ namespace SkyreaderGuild {
         public static void Postfix(Zone_RandomDungeon __instance)
         {
             if (__instance.id != "srg_astral_rift") return;
+
+            // Reshape rooms into non-rectangular forms BEFORE placing loot/spawns
+            // so that spawns land on valid reshaped floor tiles
+            RiftLayoutShaper.Reshape(__instance);
 
             int lootCount = 2 + EClass.rnd(3);
             int placedLoot = 0;
@@ -1202,6 +1343,7 @@ namespace SkyreaderGuild {
             {
                 if (__instance.id != "srg_guild_hq") return;
                 if (EClass._map == null) return;
+                SkyreaderGuild.FlushLadderContributions("guild_hq_visit");
                 GuildLayoutBuilder.UpdateUnlockedLayout(__instance);
             }
             catch (Exception ex)

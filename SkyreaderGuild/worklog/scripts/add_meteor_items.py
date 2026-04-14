@@ -458,6 +458,25 @@ EXPECTED_THINGS = {
         "detail_JP": "",
         "detail": "A shimmering astral gate leading back to Derphy.",
     },
+    "srg_ladder_plaque": {
+        "name_JP": "",
+        "name": "Starlight Ladder plaque",
+        "category": "deco",
+        "_tileType": "",
+        "_idRenderData": "@obj tall",
+        "tiles": 1552,
+        "defMat": "gold",
+        "value": 1600,
+        "LV": 1,
+        "chance": 0,
+        "quality": 3,
+        "weight": 2800,
+        "trait": "LadderPlaque",
+        "tag": "noShop,noWish",
+        "roomName": "Starlight Ladder",
+        "detail_JP": "",
+        "detail": "A guild plaque covered with carefully updated rankings.",
+    },
     "srg_scroll_twilight": {
         "category": "scroll",
         "sort": "book_scroll",
@@ -1474,24 +1493,27 @@ def main():
     target_package_dir = Path(r"D:\Steam\steamapps\common\Elin\Package\SkyreaderGuild")
     texture_dest = target_package_dir / "Texture"
     
-    # Deploy Texture dir
-    if texture_src.exists():
-        if texture_dest.exists():
-            shutil.rmtree(texture_dest)
-        shutil.copytree(texture_src, texture_dest)
-        print(f"Deployed {texture_src.name} to {texture_dest}")
-    else:
-        print(f"No {texture_src.name} directory found, skipping texture deployment.")
-        
-    # Deploy SourceCard
-    source_card_src = root_dir / "LangMod" / "EN" / "SourceCard.xlsx"
-    source_card_dest_dir = target_package_dir / "LangMod" / "EN"
-    if source_card_src.exists():
-        source_card_dest_dir.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source_card_src, source_card_dest_dir / "SourceCard.xlsx")
-        print(f"Deployed SourceCard.xlsx to {source_card_dest_dir}")
-    else:
-        print(f"No SourceCard.xlsx found at {source_card_src}, skipping.")
+    try:
+        # Deploy Texture dir
+        if texture_src.exists():
+            if texture_dest.exists():
+                shutil.rmtree(texture_dest)
+            shutil.copytree(texture_src, texture_dest)
+            print(f"Deployed {texture_src.name} to {texture_dest}")
+        else:
+            print(f"No {texture_src.name} directory found, skipping texture deployment.")
+
+        # Deploy SourceCard
+        source_card_src = root_dir / "LangMod" / "EN" / "SourceCard.xlsx"
+        source_card_dest_dir = target_package_dir / "LangMod" / "EN"
+        if source_card_src.exists():
+            source_card_dest_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source_card_src, source_card_dest_dir / "SourceCard.xlsx")
+            print(f"Deployed SourceCard.xlsx to {source_card_dest_dir}")
+        else:
+            print(f"No SourceCard.xlsx found at {source_card_src}, skipping.")
+    except PermissionError as exc:
+        print(f"Deployment skipped: {exc}")
 
 if __name__ == "__main__":
     main()

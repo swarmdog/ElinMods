@@ -74,6 +74,7 @@ public class TraitAstralExtractor : TraitItem
         {
             int gpReward = CalculateGuildPoints(target);
             quest.AddGuildPoints(gpReward);
+            SkyreaderGuild.SkyreaderGuild.EnqueueLadderContribution("Extraction", gpReward);
             quest.touched_cleansed++;
             SkyreaderGuild.SkyreaderGuild.Log($"Skysign extraction complete: target={target.id}, gp={gpReward}.");
         }

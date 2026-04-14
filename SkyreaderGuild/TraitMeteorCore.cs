@@ -33,7 +33,9 @@ public class TraitMeteorCore : TraitItem
         if (quest != null)
         {
             quest.meteors_found++;
-            quest.AddGuildPoints(100 + EClass.rnd(51));
+            int gpReward = 100 + EClass.rnd(51);
+            quest.AddGuildPoints(gpReward);
+            SkyreaderGuild.SkyreaderGuild.EnqueueLadderContribution("MeteorCoreHarvest", gpReward);
         }
 
         Msg.SayRaw("You extract fragments from the meteor core. The starlight dims.");

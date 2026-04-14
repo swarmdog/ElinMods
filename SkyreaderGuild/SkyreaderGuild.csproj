@@ -27,8 +27,13 @@
     <Compile Include="TraitBossScroll.cs" />
     <Compile Include="TraitArchivistScroll.cs" />
     <Compile Include="TraitSrgDebris.cs" />
+    <Compile Include="SkyreaderAuthManager.cs" />
+    <Compile Include="SkyreaderLadderClient.cs" />
+    <Compile Include="SkyreaderLadderDialog.cs" />
+    <Compile Include="TraitLadderPlaque.cs" />
     <Compile Include="Zone_SkyreaderGuild.cs" />
     <Compile Include="GuildLayoutBuilder.cs" />
+    <Compile Include="RiftLayoutShaper.cs" />
   </ItemGroup>
 
   <!-- BepInEx -->
@@ -45,6 +50,7 @@
       <HintPath>$(BepInExDir)\0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
   <!-- Unity / Game -->
@@ -55,6 +61,10 @@
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>$(ManagedDir)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(ManagedDir)\UnityEngine.UI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Elin">
@@ -80,7 +90,7 @@
   </ItemGroup>
 
   <!-- Post-build deployment to Elin directory -->
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(DeployToElin)' != 'false'">
     <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="$(ElinDir)\Package\$(AssemblyName)\" />
   </Target>
 

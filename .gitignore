@@ -8,9 +8,10 @@ Elin.Docs*
 Elin-Decomp*
 elin_readable_game_data
 agents.md
-Screenshots
 SkyreaderGuild/worklog/reports/*
-
+Screenshots
+SkyreaderGuildServer/*.db
+SkyreaderGuildServer/.venv
 # User-specific files
 *.rsuser
 *.suo

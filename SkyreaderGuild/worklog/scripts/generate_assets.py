@@ -292,6 +292,22 @@ ITEM_ASSETS = [
         ),
     },
     {
+        "id": "srg_ladder_plaque",
+        "preview_size": (64, 64),
+        "prompt": (
+            "2D isometric RPG game furniture sprite, three-quarter top-down view "
+            "angled from upper-right, a compact freestanding guild notice board "
+            "for a leaderboard, muted dark wood frame with worn brass trim, short "
+            "wooden legs aligned to an isometric floor grid, angled board face with "
+            "a tiny engraved star crest and subtle ladder motif, readable as an "
+            "in-world object rather than a UI panel, no bright colored bars, no "
+            "front-facing rectangle, pixel art style, dark teal parchment and muted "
+            "gold-brown palette, uniform flat fuchsia/magenta screen background, "
+            "centered with transparent-safe padding, clean edges, no text, no frame, "
+            "game asset"
+        ),
+    },
+    {
         "id": "srg_constellation_rug",
         "preview_size": (48, 48),
         "prompt": (

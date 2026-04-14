@@ -105,108 +105,109 @@ namespace SkyreaderGuild
                 "entry",
                 new[]
                 {
-                    new Placement("srg_guild_exit", 5, 24, true),
-                    new Placement("srg_aurora_lamp", 13, 21, true),
-                    new Placement("srg_aurora_lamp", 13, 27, true),
-                    new Placement("srg_constellation_rug", 9, 24, true),
-                    new Placement("pot_plantSmall", 5, 27, true, -1, false, false, "entry_plant_1"),
-                    new Placement("candle_stand", 6, 21, true, -1, false, false, "entry_candelabrum"),
+                    new Placement("srg_guild_exit", 5, 24, true, "entry_exit"),
+                    new Placement("srg_aurora_lamp", 13, 21, true, "entry_lamp_north"),
+                    new Placement("srg_aurora_lamp", 13, 27, true, "entry_lamp_south"),
+                    new Placement("srg_constellation_rug", 9, 24, true, "entry_constellation_rug"),
+                    new Placement("pot_plantSmall", 5, 27, true, "entry_plant_1"),
+                    new Placement("candle_stand", 6, 21, true, "entry_candelabrum"),
                 }
             },
             {
                 "atrium",
                 new[]
                 {
-                    new Placement("srg_nexus_core", 25, 25, true),
-                    new Placement("telescope", 25, 31, true, 2, false, false, "atrium_telescope_north"),
-                    new Placement("telescope", 25, 19, true, 0, false, false, "atrium_telescope_south"),
-                    new Placement("srg_codex", 31, 25, true, 3, false, false, "atrium_codex_east"),
-                    new Placement("srg_celestial_globe", 19, 25, true, 1, false, false, "atrium_globe_west"),
-                    new Placement("srg_aurora_lamp", 21, 29, true),
-                    new Placement("srg_aurora_lamp", 29, 29, true),
-                    new Placement("srg_aurora_lamp", 21, 21, true),
-                    new Placement("srg_aurora_lamp", 29, 21, true),
-                    new Placement("bookshelf", 22, 30, true),
-                    new Placement("bookshelf", 28, 30, true),
-                    new Placement("bookshelf", 22, 20, true),
-                    new Placement("bookshelf", 28, 20, true),
-                    new Placement("carpet", 25, 30, true, 0, false, false, "atrium_carpet_n"),
-                    new Placement("carpet", 25, 20, true, 0, false, false, "atrium_carpet_s"),
-                    new Placement("pot_plantBig", 23, 31, true, 0, false, false, "atrium_plant_nw"),
-                    new Placement("pot_plantBig", 27, 31, true, 0, false, false, "atrium_plant_ne"),
-                    new Placement("candle_stand", 22, 25, true, -1, false, false, "atrium_candle_west"),
-                    new Placement("candle_stand", 28, 25, true, -1, false, false, "atrium_candle_east"),
-                    new Placement("chair", 24, 30, true, -1, false, false, "atrium_chair_n"),
-                    new Placement("chair", 30, 25, true, -1, false, false, "atrium_chair_e"),
-                    new Placement("cushion", 20, 25, true, -1, false, false, "atrium_cushion_w"),
+                    new Placement("srg_nexus_core", 25, 25, true, "atrium_nexus_core"),
+                    new Placement("telescope", 25, 31, true, "atrium_telescope_north", 2),
+                    new Placement("telescope", 25, 19, true, "atrium_telescope_south", 0),
+                    new Placement("srg_codex", 31, 25, true, "atrium_codex_east", 3),
+                    new Placement("srg_celestial_globe", 19, 25, true, "atrium_globe_west", 1),
+                    new Placement("srg_ladder_plaque", 31, 23, true, "atrium_ladder_plaque"),
+                    new Placement("srg_aurora_lamp", 21, 29, true, "atrium_lamp_nw"),
+                    new Placement("srg_aurora_lamp", 29, 29, true, "atrium_lamp_ne"),
+                    new Placement("srg_aurora_lamp", 21, 21, true, "atrium_lamp_sw"),
+                    new Placement("srg_aurora_lamp", 29, 21, true, "atrium_lamp_se"),
+                    new Placement("bookshelf", 22, 30, true, "atrium_bookshelf_nw"),
+                    new Placement("bookshelf", 28, 30, true, "atrium_bookshelf_ne"),
+                    new Placement("bookshelf", 22, 20, true, "atrium_bookshelf_sw"),
+                    new Placement("bookshelf", 28, 20, true, "atrium_bookshelf_se"),
+                    new Placement("carpet", 25, 30, true, "atrium_carpet_n", 0),
+                    new Placement("carpet", 25, 20, true, "atrium_carpet_s", 0),
+                    new Placement("pot_plantBig", 23, 31, true, "atrium_plant_nw", 0),
+                    new Placement("pot_plantBig", 27, 31, true, "atrium_plant_ne", 0),
+                    new Placement("candle_stand", 22, 25, true, "atrium_candle_west"),
+                    new Placement("candle_stand", 28, 25, true, "atrium_candle_east"),
+                    new Placement("chair", 24, 30, true, "atrium_chair_n"),
+                    new Placement("chair", 30, 25, true, "atrium_chair_e"),
+                    new Placement("cushion", 20, 25, true, "atrium_cushion_w"),
                 }
             },
             {
                 "study",
                 new[]
                 {
-                    new Placement("srg_starfall_table", 12, 13, true),
-                    new Placement("srg_lunar_armchair", 11, 13, true),
-                    new Placement("srg_lunar_armchair", 13, 13, true),
-                    new Placement("tool_writting", 12, 14, true),
-                    new Placement("wall_shelf", 10, 16, true, -1, true, true, "study_shelf"),
-                    new Placement("map_big", 10, 11, true, 0, false, false, "study_big_map"),
-                    new Placement("terra_globe", 14, 11, true, 0, false, false, "study_globe"),
-                    new Placement("candle8", 12, 15, true, -1, false, false, "study_candle"),
-                    new Placement("carpet", 12, 13, true, -1, false, false, "study_carpet"),
+                    new Placement("srg_starfall_table", 12, 13, true, "study_starfall_table"),
+                    new Placement("srg_lunar_armchair", 11, 13, true, "study_armchair_west"),
+                    new Placement("srg_lunar_armchair", 13, 13, true, "study_armchair_east"),
+                    new Placement("tool_writting", 12, 14, true, "study_writing_tool"),
+                    new Placement("wall_shelf", 10, 16, true, "study_shelf", -1, true, true),
+                    new Placement("map_big", 10, 11, true, "study_big_map", 0),
+                    new Placement("terra_globe", 14, 11, true, "study_globe", 0),
+                    new Placement("candle8", 12, 15, true, "study_candle"),
+                    new Placement("carpet", 12, 13, true, "study_carpet"),
                 }
             },
             {
                 "observatory",
                 new[]
                 {
-                    new Placement("srg_zodiac_dresser", 25, 43, true),
-                    new Placement("srg_cosmic_mirror", 23, 41, true),
-                    new Placement("srg_planisphere_cabinet", 27, 41, true),
-                    new Placement("srg_celestial_globe", 25, 39, true),
-                    new Placement("telescope", 23, 37, true, 1, false, false, "obs_tele_w"),
-                    new Placement("telescope", 27, 37, true, 3, false, false, "obs_tele_e"),
-                    new Placement("candle8b", 25, 41, true, -1, false, false, "obs_candle"),
-                    new Placement("carpet", 25, 40, true, -1, false, false, "obs_carpet"),
-                    new Placement("chest_stone", 25, 43, true, -1, false, false, "obs_chest"),
-                    new Placement("pot_plantBig", 28, 42, true, -1, false, false, "obs_plant"),
-                    new Placement("stand_armor", 22, 42, true, -1, false, false, "obs_armor"),
+                    new Placement("srg_zodiac_dresser", 25, 43, true, "obs_zodiac_dresser"),
+                    new Placement("srg_cosmic_mirror", 23, 41, true, "obs_cosmic_mirror"),
+                    new Placement("srg_planisphere_cabinet", 27, 41, true, "obs_planisphere_cabinet"),
+                    new Placement("srg_celestial_globe", 25, 39, true, "obs_celestial_globe"),
+                    new Placement("telescope", 23, 37, true, "obs_tele_w", 1),
+                    new Placement("telescope", 27, 37, true, "obs_tele_e", 3),
+                    new Placement("candle8b", 25, 41, true, "obs_candle"),
+                    new Placement("carpet", 25, 40, true, "obs_carpet"),
+                    new Placement("chest_stone", 25, 43, true, "obs_chest"),
+                    new Placement("pot_plantBig", 28, 42, true, "obs_plant"),
+                    new Placement("stand_armor", 22, 42, true, "obs_armor"),
                 }
             },
             {
                 "forge",
                 new[]
                 {
-                    new Placement("srg_astral_chandelier", 40, 25, true),
-                    new Placement("srg_stardust_bed", 43, 27, true),
-                    new Placement("anvil", 40, 23, true),
-                    new Placement("srg_meteorite_statue", 43, 23, true),
-                    new Placement("wall_shelf", 44, 25, true, -1, true, true, "forge_shelf"),
-                    new Placement("candle_stand", 39, 27, true, -1, false, false, "forge_candle"),
-                    new Placement("barrel", 41, 24, true, -1, false, false, "forge_barrel"),
-                    new Placement("carpet", 40, 25, true, -1, false, false, "forge_carpet"),
-                    new Placement("table", 38, 26, true, -1, false, false, "forge_table"),
+                    new Placement("srg_astral_chandelier", 40, 25, true, "forge_chandelier"),
+                    new Placement("srg_stardust_bed", 43, 27, true, "forge_stardust_bed"),
+                    new Placement("anvil", 40, 23, true, "forge_anvil"),
+                    new Placement("srg_meteorite_statue", 43, 23, true, "forge_meteorite_statue"),
+                    new Placement("wall_shelf", 44, 25, true, "forge_shelf", -1, true, true),
+                    new Placement("candle_stand", 39, 27, true, "forge_candle"),
+                    new Placement("barrel", 41, 24, true, "forge_barrel"),
+                    new Placement("carpet", 40, 25, true, "forge_carpet"),
+                    new Placement("table", 38, 26, true, "forge_table"),
                 }
             },
             {
                 "sanctum",
                 new[]
                 {
-                    new Placement("srg_eclipse_hearth", 25, 8, true),
-                    new Placement("srg_meteorite_statue", 23, 10, true),
-                    new Placement("srg_astral_chandelier", 25, 11, true),
-                    new Placement("terra_globe", 27, 10, true, 0, false, false, "sanctum_globe"),
-                    new Placement("candle_stand", 23, 9, true, -1, false, false, "sanctum_candle_w"),
-                    new Placement("candle_stand", 27, 9, true, -1, false, false, "sanctum_candle_e"),
-                    new Placement("carpet", 25, 12, true, -1, false, false, "sanctum_carpet"),
-                    new Placement("vase", 28, 10, true, -1, false, false, "sanctum_vase"),
+                    new Placement("srg_eclipse_hearth", 25, 8, true, "sanctum_eclipse_hearth"),
+                    new Placement("srg_meteorite_statue", 23, 10, true, "sanctum_meteorite_statue"),
+                    new Placement("srg_astral_chandelier", 25, 11, true, "sanctum_chandelier"),
+                    new Placement("terra_globe", 27, 10, true, "sanctum_globe", 0),
+                    new Placement("candle_stand", 23, 9, true, "sanctum_candle_w"),
+                    new Placement("candle_stand", 27, 9, true, "sanctum_candle_e"),
+                    new Placement("carpet", 25, 12, true, "sanctum_carpet"),
+                    new Placement("vase", 28, 10, true, "sanctum_vase"),
                 }
             },
             {
                 "corridor",
                 new[]
                 {
-                    new Placement("candle2", 16, 24, true, -1, true, false, "corridor_lamp_1"),
+                    new Placement("candle2", 16, 24, true, "corridor_lamp_1", -1, true),
                 }
             },
         };
@@ -618,25 +619,49 @@ namespace SkyreaderGuild
                 return;
             }
 
-            // Check for existing item
             foreach (Thing thing in map.things)
             {
                 if (thing.isDestroyed) continue;
-                if (!placement.UniqueKey.IsEmpty() && thing.GetStr(LayoutKeyStr) == placement.UniqueKey)
+                if (thing.GetStr(LayoutKeyStr) == placement.UniqueKey)
+                {
+                    SyncExistingUniqueThing(zone, thing, placement, dir);
                     return;
-                if (thing.id == placement.Id && thing.pos.x == placement.X && thing.pos.z == placement.Z)
-                    return;
+                }
             }
 
             Thing t = ThingGen.Create(placement.Id);
-            if (!placement.UniqueKey.IsEmpty())
-                t.SetStr(LayoutKeyStr, placement.UniqueKey);
+            t.SetStr(LayoutKeyStr, placement.UniqueKey);
 
             Card card = zone.AddCard(t, placement.X, placement.Z);
             card.isNPCProperty = true;
 
             if (dir >= 0) card.dir = dir;
             if (placement.Install) card.Install();
+        }
+
+        private static void SyncExistingUniqueThing(Zone zone, Thing thing, Placement placement, int dir)
+        {
+            thing.isNPCProperty = true;
+
+            if (dir >= 0 && thing.dir != dir)
+                thing.dir = dir;
+
+            bool shouldMove = thing.pos == null || thing.pos.x != placement.X || thing.pos.z != placement.Z;
+            if (shouldMove)
+            {
+                if (thing.placeState == PlaceState.installed)
+                    thing.SetPlaceState(PlaceState.none);
+
+                zone.AddCard(thing, placement.X, placement.Z);
+                if (placement.Install)
+                    thing.Install();
+
+                SkyreaderGuild.Log($"Moved {placement.Id} to ({placement.X},{placement.Z}) for layout key {placement.UniqueKey}.");
+            }
+            else if (placement.Install && thing.placeState != PlaceState.installed)
+            {
+                thing.Install();
+            }
         }
 
         // ===================== Lighting =====================
@@ -811,6 +836,19 @@ namespace SkyreaderGuild
         private static void ValidateRequiredSourceRows()
         {
             List<string> missing = new List<string>();
+            HashSet<string> layoutKeys = new HashSet<string>();
+            foreach (Placement placement in RoomFurniture.Values.SelectMany(p => p))
+            {
+                if (placement.UniqueKey.IsEmpty())
+                {
+                    missing.Add("Layout key for " + placement.Id);
+                }
+                else if (!layoutKeys.Add(placement.UniqueKey))
+                {
+                    missing.Add("Duplicate layout key:" + placement.UniqueKey);
+                }
+            }
+
             foreach (string id in RoomFurniture.Values.SelectMany(p => p).Select(p => p.Id).Distinct())
             {
                 CardRow row;
@@ -888,9 +926,12 @@ namespace SkyreaderGuild
             public readonly bool WallMounted;
             public readonly string UniqueKey;
 
-            public Placement(string id, int x, int z, bool install, int dir = -1,
-                bool requiresAdjacentBlock = false, bool wallMounted = false, string uniqueKey = null)
+            public Placement(string id, int x, int z, bool install, string uniqueKey, int dir = -1,
+                bool requiresAdjacentBlock = false, bool wallMounted = false)
             {
+                if (uniqueKey.IsEmpty())
+                    throw new InvalidOperationException("Skyreader guild placement missing layout key: " + id);
+
                 Id = id; X = x; Z = z; Install = install; Dir = dir;
                 RequiresAdjacentBlock = requiresAdjacentBlock;
                 WallMounted = wallMounted;
