@@ -37,6 +37,7 @@ namespace SkyreaderGuild {
         public static ConfigEntry<int> ConfigMeteorTouchedTagChance;
         public static ConfigEntry<int> ConfigMinAstralRiftYiths;
         public static ConfigEntry<int> ConfigMaxAstralRiftYiths;
+        public static ConfigEntry<bool> ConfigEnableGuildHQ;
 
         /// <summary>
         /// Set to false to suppress all debug logging.
@@ -51,6 +52,7 @@ namespace SkyreaderGuild {
             this.AddQuest(s);
             this.RegisterMeteorZone(s);
             this.RegisterAstralRiftZone(s);
+            this.RegisterGuildHQZone(s);
         }
 
         private void AddQuest(SourceManager sources)
@@ -153,6 +155,41 @@ namespace SkyreaderGuild {
             Log("Registered srg_astral_rift zone type.");
         }
 
+        /// <summary>
+        /// Registers the srg_guild_hq zone type in SourceZone.
+        /// </summary>
+        private void RegisterGuildHQZone(SourceManager sources)
+        {
+            var zone = new SourceZone.Row();
+            zone.id = "srg_guild_hq";
+            zone.parent = "";
+            zone.name_JP = "星読みの天文台";
+            zone.name = "Skyreader Observatory";
+            zone.type = "Zone_SkyreaderGuild";
+            zone.LV = 1;
+            zone.chance = 100;
+            zone.faction = "";
+            zone.value = 0;
+            zone.idProfile = "";
+            zone.idFile = new string[0];
+            zone.idBiome = "Plain";
+            zone.idGen = "";
+            zone.idPlaylist = "Town";
+            zone.tag = new string[0];
+            zone.cost = 0;
+            zone.dev = 0;
+            zone.image = "";
+            zone.pos = new int[0];
+            zone.questTag = new string[0];
+            zone.textFlavor_JP = "星の光が石壁に踊る静かな天文台。";
+            zone.textFlavor = "A hushed observatory where starlight dances across stone walls.";
+            zone.detail_JP = "";
+            zone.detail = "";
+
+            UpsertZone(sources, zone);
+            Log("Registered srg_guild_hq zone type.");
+        }
+
         private static void UpsertZone(SourceManager sources, SourceZone.Row zone)
         {
             sources.zones.rows.RemoveAll(row => row.id == zone.id);
@@ -171,6 +208,7 @@ namespace SkyreaderGuild {
             ConfigMeteorTouchedTagChance = Config.Bind("General", "MeteorTouchedTagChance", 30, "Percentage chance to tag entities as meteor-touched per civilized zone visit.");
             ConfigMinAstralRiftYiths = Config.Bind("Astral Rift", "MinYithSpawns", 1, "Minimum number of extra Yith monsters spawned per Astral Rift floor.");
             ConfigMaxAstralRiftYiths = Config.Bind("Astral Rift", "MaxYithSpawns", 3, "Maximum number of extra Yith monsters spawned per Astral Rift floor.");
+            ConfigEnableGuildHQ = Config.Bind("General", "EnableGuildHQ", false, "Set to true to spawn the Skyreader Observatory guild hall entrance in Derphy.");
 
             ModUtil.RegisterSerializedTypeFallback("SkyreaderGuild", "SkyreaderGuild.QuestSkyreader", "QuestDummy");
             Harmony harmony = new Harmony(ModInfo.Guid);
@@ -1029,6 +1067,147 @@ namespace SkyreaderGuild {
 
     }
 
-    
+    [HarmonyPatch(typeof(Zone), "SpawnMob", typeof(Point), typeof(SpawnSetting))]
+    public static class OverrideGuildSpawns
+    {
+        public static void Prefix(Zone __instance, ref SpawnSetting setting)
+        {
+            if (__instance.id == "srg_guild_hq")
+            {
+                if (setting == null) setting = new SpawnSetting();
+                setting.idSpawnList = "SkyreaderHQ";
+            }
+        }
+    }
 
+    // Keep Derphy linked to the Skyreader Observatory, even after town map regeneration.
+    [HarmonyPatch(typeof(Zone), "OnVisit")]
+    public static class SkyreaderGuildPortalInjectionPatch
+    {
+        public static void Postfix(Zone __instance)
+        {
+            try
+            {
+                if (__instance.id != "derphy" || __instance.lv != 0) return;
+                if (!SkyreaderGuild.ConfigEnableGuildHQ.Value) return;
+                if (!EClass.game.quests.IsStarted<QuestSkyreader>()) return;
+                if (EClass._map == null) return;
+                if (HasGuildEntrance()) return;
+                if (!CanCreateGuildEntrance()) return;
+
+                Thing board = FindEastmostQuestBoard();
+                if (board == null)
+                {
+                    SkyreaderGuild.Log("Skyreader guild entrance not placed: no Derphy quest board found.");
+                    return;
+                }
+
+                Point point = FindPortalPointNear(board);
+                if (point == null || !point.IsValid)
+                {
+                    SkyreaderGuild.Log($"Skyreader guild entrance not placed: no valid tile near Derphy quest board at ({board.pos.x},{board.pos.z}).");
+                    return;
+                }
+
+                Thing portal = ThingGen.Create("srg_guild_entrance");
+                __instance.AddCard(portal, point).Install();
+                SkyreaderGuild.Log($"Skyreader guild entrance placed near Derphy quest board at ({point.x},{point.z}); board=({board.pos.x},{board.pos.z}).");
+                Msg.SayRaw("<color=#b3e0ff>A shimmering astral gateway materializes. The Skyreader's Guild beckons.</color>");
+            }
+            catch (Exception ex)
+            {
+                SkyreaderGuild.Log("Skyreader guild entrance placement failed: " + ex);
+            }
+        }
+
+        private static bool HasGuildEntrance()
+        {
+            foreach (Thing thing in EClass._map.things)
+            {
+                if (thing != null && !thing.isDestroyed && thing.id == "srg_guild_entrance")
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static bool CanCreateGuildEntrance()
+        {
+            CardRow row;
+            if (!EClass.sources.cards.map.TryGetValue("srg_guild_entrance", out row))
+            {
+                SkyreaderGuild.Log("Skyreader guild entrance not placed: SourceCard row srg_guild_entrance is missing.");
+                return false;
+            }
+
+            if (row.category.IsEmpty() || !EClass.sources.categories.map.ContainsKey(row.category))
+            {
+                SkyreaderGuild.Log($"Skyreader guild entrance not placed: SourceCard row srg_guild_entrance has invalid category '{row.category}'.");
+                return false;
+            }
+
+            return true;
+        }
+
+        private static Thing FindEastmostQuestBoard()
+        {
+            Thing bestBoard = null;
+            foreach (Thing thing in EClass._map.things)
+            {
+                if (thing == null || thing.isDestroyed) continue;
+                if (thing.trait is TraitQuestBoard)
+                {
+                    if (bestBoard == null || thing.pos.x > bestBoard.pos.x)
+                        bestBoard = thing;
+                }
+            }
+            return bestBoard;
+        }
+
+        private static Point FindPortalPointNear(Thing board)
+        {
+            int bx = board.pos.x, bz = board.pos.z;
+            int[][] offsets = new int[][]
+            {
+                new[] { 0, -1 }, new[] { -1, 0 }, new[] { 1, 0 }, new[] { 0, 1 },
+                new[] { -1, -1 }, new[] { 1, -1 }, new[] { -1, 1 }, new[] { 1, 1 },
+                new[] { 0, -2 }, new[] { -2, 0 }, new[] { 2, 0 }, new[] { 0, 2 },
+            };
+
+            foreach (int[] off in offsets)
+            {
+                Point p = new Point(bx + off[0], bz + off[1]);
+                if (IsValidPortalPoint(p)) return p;
+            }
+            return null;
+        }
+
+        private static bool IsValidPortalPoint(Point p)
+        {
+            if (p == null || !p.IsValid || !p.IsInBounds) return false;
+            if (!p.HasFloor || p.HasBlock || p.HasChara) return false;
+            if (p.Installed != null || p.cell.impassable || p.cell.blocked || p.cell.hasDoor) return false;
+            return true;
+        }
+    }
+
+    // Update persistent Observatory rooms when the player's guild rank changes.
+    [HarmonyPatch(typeof(Zone), "OnVisit")]
+    public static class SkyreaderGuildLayoutUpdatePatch
+    {
+        public static void Postfix(Zone __instance)
+        {
+            try
+            {
+                if (__instance.id != "srg_guild_hq") return;
+                if (EClass._map == null) return;
+                GuildLayoutBuilder.UpdateUnlockedLayout(__instance);
+            }
+            catch (Exception ex)
+            {
+                SkyreaderGuild.Log("Skyreader Observatory layout update failed: " + ex);
+            }
+        }
+    }
 }

@@ -190,11 +190,13 @@ ITEM_ASSETS = [
         "id": "srg_codex",
         "preview_size": (64, 64),
         "prompt": (
-            "2D top-down RPG game furniture icon, a large ornate open book on a "
-            "wooden lectern with pages covered in moving constellation maps and "
-            "glowing astronomical diagrams, brass astrolabe beside it, pixel art "
-            "style, dark leather brown and glowing gold palette, uniform flat fuchsia/magenta screen "
-            "background, centered, clean edges, no text, no frame, game asset"
+            "2D isometric RPG game furniture sprite, three-quarter top-down view "
+            "angled from upper-right, a large ornate open book on a wooden lectern "
+            "with pages covered in constellation maps and glowing astronomical "
+            "diagrams, brass astrolabe beside it, showing top face and front-left "
+            "face, pixel art style, dark leather brown and glowing gold palette, "
+            "uniform flat fuchsia/magenta screen background, centered, clean edges, "
+            "no text, no frame, game asset"
         ),
     },
     {
@@ -254,13 +256,14 @@ ITEM_ASSETS = [
     },
     {
         "id": "srg_starchart",
-        "preview_size": (96, 96),
+        "preview_size": (48, 48),
         "prompt": (
-            "2D top-down RPG game map icon, a large unfurled treasure map made of "
-            "aged parchment showing hand-drawn constellations and glowing impact "
-            "zones marked with red circles, compass rose in corner, pixel art style, "
-            "parchment tan and glowing blue-gold palette, uniform flat fuchsia/magenta screen background, "
-            "centered, clean edges, no text, no frame, game asset"
+            "2D isometric RPG game item sprite, three-quarter top-down view angled "
+            "from upper-right, a small unfurled parchment map lying on a surface "
+            "showing hand-drawn constellations and glowing star markers, compass "
+            "rose in corner, pixel art style, parchment tan and glowing blue-gold "
+            "palette, uniform flat fuchsia/magenta screen background, centered, "
+            "clean edges, no text, no frame, game asset"
         ),
     },
     {
@@ -272,6 +275,160 @@ ITEM_ASSETS = [
             "fragments, spiraling blue-silver energy vortex, pixel art style, "
             "deep blue and bright silver palette, uniform flat fuchsia/magenta screen background, centered, "
             "clean edges, no text, no frame, game asset"
+        ),
+    },
+    # ── Furniture assets (isometric ¾-view matching Elin's camera) ──────
+    {
+        "id": "srg_aurora_lamp",
+        "preview_size": (48, 48),
+        "prompt": (
+            "2D isometric RPG game furniture sprite, three-quarter top-down view "
+            "angled from upper-right, a small decorative glass lamp on a thin "
+            "metal stand, glowing with soft aurora-like green-blue-purple shimmering "
+            "light, meteorite fragment visible inside the glass globe, showing top "
+            "and front-left faces, pixel art style, blue-green and purple palette, "
+            "uniform flat fuchsia/magenta screen background, centered, clean edges, "
+            "no text, no frame, game asset"
+        ),
+    },
+    {
+        "id": "srg_constellation_rug",
+        "preview_size": (48, 48),
+        "prompt": (
+            "2D isometric RPG game furniture sprite, three-quarter top-down view "
+            "angled from upper-right, a diamond-shaped woven rug lying flat on the "
+            "floor in deep indigo and midnight blue with thin gold constellation "
+            "line patterns connecting small star dots, isometric floor textile, "
+            "pixel art style, indigo and gold palette, uniform flat fuchsia/magenta "
+            "screen background, centered, clean edges, no text, no frame, game asset"
+        ),
+    },
+    {
+        "id": "srg_starfall_table",
+        "preview_size": (48, 48),
+        "prompt": (
+            "2D isometric RPG game furniture sprite, three-quarter top-down view "
+            "angled from upper-right, a sturdy wooden table with dark oak legs, "
+            "polished tabletop inlaid with glowing meteorite fragments in a star "
+            "pattern, showing top surface and front-left legs, pixel art style, "
+            "dark wood and cosmic purple palette, uniform flat fuchsia/magenta "
+            "screen background, centered, clean edges, no text, no frame, game asset"
+        ),
+    },
+    {
+        "id": "srg_lunar_armchair",
+        "preview_size": (48, 48),
+        "prompt": (
+            "2D isometric RPG game furniture sprite, three-quarter top-down view "
+            "angled from upper-right, a plush upholstered armchair with dark blue "
+            "star-patterned fabric, silver crescent moon motif on the high backrest, "
+            "wooden legs visible, showing seat cushion top and front-left armrest, "
+            "pixel art style, dark blue and silver palette, uniform flat "
+            "fuchsia/magenta screen background, centered, clean edges, no text, "
+            "no frame, game asset"
+        ),
+    },
+    {
+        "id": "srg_celestial_globe",
+        "preview_size": (48, 48),
+        "prompt": (
+            "2D isometric RPG game furniture sprite, three-quarter top-down view "
+            "angled from upper-right, a translucent glass sphere on a polished "
+            "brass tripod stand, glowing constellation lines visible inside the "
+            "sphere, tiny stars dotted throughout, pixel art style, brass gold and "
+            "glowing blue palette, uniform flat fuchsia/magenta screen background, "
+            "centered, clean edges, no text, no frame, game asset"
+        ),
+    },
+    {
+        "id": "srg_zodiac_dresser",
+        "preview_size": (48, 48),
+        "prompt": (
+            "2D isometric RPG game furniture sprite, three-quarter top-down view "
+            "angled from upper-right, a wooden dresser with four drawers, each "
+            "drawer front carved with zodiac constellation symbols, golden drawer "
+            "handles, dark oak wood, showing top surface and front-left drawer "
+            "face, pixel art style, dark wood and gold accent palette, uniform flat "
+            "fuchsia/magenta screen background, centered, clean edges, no text, "
+            "no frame, game asset"
+        ),
+    },
+    {
+        "id": "srg_cosmic_mirror",
+        "preview_size": (48, 48),
+        "prompt": (
+            "2D isometric RPG game furniture sprite, three-quarter top-down view "
+            "angled from upper-right, a tall standing mirror with an ornate silver "
+            "frame shaped like crescent moons, the mirror surface shows a rippling "
+            "starfield reflection, viewed at an angle showing frame depth and "
+            "reflective face, pixel art style, silver and deep blue palette, "
+            "uniform flat fuchsia/magenta screen background, centered, clean edges, "
+            "no text, no frame, game asset"
+        ),
+    },
+    {
+        "id": "srg_planisphere_cabinet",
+        "preview_size": (64, 64),
+        "prompt": (
+            "2D isometric RPG game furniture sprite, three-quarter top-down view "
+            "angled from upper-right, a tall wooden bookshelf-cabinet with glass-paned "
+            "doors, star charts and scrolls visible on shelves inside, brass "
+            "planisphere mechanism mounted on top, showing top surface and front-left "
+            "face with shelves, pixel art style, warm oak and brass palette, uniform "
+            "flat fuchsia/magenta screen background, centered, clean edges, no text, "
+            "no frame, game asset"
+        ),
+    },
+    {
+        "id": "srg_stardust_bed",
+        "preview_size": (48, 48),
+        "prompt": (
+            "2D isometric RPG game furniture sprite, three-quarter top-down view "
+            "angled from upper-right, an ornate bed with dark wooden frame, blue "
+            "and silver sheets that shimmer with tiny star sparkles, showing the "
+            "mattress top and headboard from an angle, pillow visible, pixel art "
+            "style, dark wood and blue-silver palette, uniform flat fuchsia/magenta "
+            "screen background, centered, clean edges, no text, no frame, game asset"
+        ),
+    },
+    {
+        "id": "srg_astral_chandelier",
+        "preview_size": (48, 48),
+        "prompt": (
+            "2D isometric RPG game furniture sprite, three-quarter top-down view "
+            "angled from upper-right, a floating chandelier made of interlocking "
+            "crystal prisms and gold metalwork, each crystal emitting soft starlight "
+            "glow, chains leading upward, viewed from slightly below at isometric "
+            "angle, pixel art style, gold and glowing crystal white palette, uniform "
+            "flat fuchsia/magenta screen background, centered, clean edges, no text, "
+            "no frame, game asset"
+        ),
+    },
+    {
+        "id": "srg_meteorite_statue",
+        "preview_size": (64, 96),
+        "prompt": (
+            "2D isometric RPG game tall furniture sprite, three-quarter top-down "
+            "view angled from upper-right, a humanoid figure carved from dark "
+            "meteorite stone on a stone pedestal, cosmic cracks running through "
+            "the body glowing with blue-white captured starlight, dignified pose, "
+            "showing front-left face and depth, pixel art style, dark grey stone "
+            "and glowing blue-white palette, uniform flat fuchsia/magenta screen "
+            "background, centered, clean edges, no text, no frame, game asset"
+        ),
+    },
+    {
+        "id": "srg_eclipse_hearth",
+        "preview_size": (48, 48),
+        "prompt": (
+            "2D isometric RPG game furniture sprite, three-quarter top-down view "
+            "angled from upper-right, a grand stone fireplace with a dark eclipse "
+            "sun-and-moon motif carved above the mantle, glowing embers and "
+            "flickering flame inside the firebox, heavy granite construction, "
+            "showing mantle top and firebox opening from an angle, pixel art style, "
+            "dark stone grey and warm ember orange palette, uniform flat "
+            "fuchsia/magenta screen background, centered, clean edges, no text, "
+            "no frame, game asset"
         ),
     },
 ]

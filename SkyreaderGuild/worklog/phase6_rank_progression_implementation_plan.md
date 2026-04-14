@@ -142,7 +142,7 @@ Solution: move the log after the `srg_growth` id check, or remove it entirely un
 - Save and reload, then confirm GP, rank, meteors analyzed, and touched cleansed persist.
 - Check both runtime logs after load and testing:
   - `D:\Steam\steamapps\common\Elin\BepInEx\LogOutput.log`
-  - `C:\Users\mcounts\AppData\LocalLow\Lafrontier\Elin\Player.log`
+  - `C:\Users\someuser\AppData\LocalLow\Lafrontier\Elin\Player.log`
 
 ## Files Expected To Change During Implementation
 

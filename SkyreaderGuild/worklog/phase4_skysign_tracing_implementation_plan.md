@@ -10,13 +10,13 @@ Skysign Tracing adds a discovery mechanic to town/overworld exploration. When gu
 
 | File | Status | Issue |
 |------|--------|-------|
-| [TraitAstrologicalCodex.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/TraitAstrologicalCodex.cs) | ✅ OK | Extends `TraitWorkbench`, rank-gates recipes correctly |
-| [TraitStarImbuement.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/TraitStarImbuement.cs) | ✅ OK | `InvOwnerStarImbuement` applies enchantments via `AddEnchant` |
-| [TraitMeteorCore.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/TraitMeteorCore.cs) | ✅ OK | Post-event rolls work correctly |
-| [MeteorManager.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/MeteorManager.cs) | ⚠️ Needs cap | No active meteor cap — needs `CountSites()` guard |
-| [SkyreaderGuild.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs) | ⚠️ Needs rift reg | `OnStartCore` only registers meteor zone; needs rift zone + portal item |
+| [TraitAstrologicalCodex.cs](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/TraitAstrologicalCodex.cs) | ✅ OK | Extends `TraitWorkbench`, rank-gates recipes correctly |
+| [TraitStarImbuement.cs](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/TraitStarImbuement.cs) | ✅ OK | `InvOwnerStarImbuement` applies enchantments via `AddEnchant` |
+| [TraitMeteorCore.cs](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/TraitMeteorCore.cs) | ✅ OK | Post-event rolls work correctly |
+| [MeteorManager.cs](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/MeteorManager.cs) | ⚠️ Needs cap | No active meteor cap — needs `CountSites()` guard |
+| [SkyreaderGuild.cs](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs) | ⚠️ Needs rift reg | `OnStartCore` only registers meteor zone; needs rift zone + portal item |
 | SourceCard.xlsx | ⚠️ **Trait fix** | `srg_astral_extractor` trait = `Item`, must be `AstralExtractor` |
-| [SkyreaderGuild.csproj](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.csproj) | ⚠️ Needs new files | Missing `TraitAstralExtractor.cs`, `TraitAstralPortal.cs` |
+| [SkyreaderGuild.csproj](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.csproj) | ⚠️ Needs new files | Missing `TraitAstralExtractor.cs`, `TraitAstralPortal.cs` |
 
 > [!IMPORTANT]
 > **`srg_astral_extractor` trait is `Item` not `AstralExtractor`** in SourceCard.xlsx. The ensure script (renamed from `add_meteor_items.py`) will validate and fix this along with any other item data issues.
@@ -38,7 +38,7 @@ Skysign Tracing adds a discovery mechanic to town/overworld exploration. When gu
 
 ### Component 1: Meteor Touched NPC Tagging
 
-#### [MODIFY] [SkyreaderGuild.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs)
+#### [MODIFY] [SkyreaderGuild.cs](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs)
 
 Harmony postfix on `Zone.OnVisit()` to tag 1–2 NPCs in civilized zones.
 
@@ -97,12 +97,12 @@ public static class TagMeteorTouchedOnTownVisit
 
 #### Research Summary
 
-From [SourceGame_Zone.md](file:///c:/Users/mcounts/Documents/ElinMods/elin_readable_game_data/SourceGame_Zone.md), the vanilla `dungeon` row is:
+From [SourceGame_Zone.md](file:///c:/Users/someuser/Documents/ElinMods/elin_readable_game_data/SourceGame_Zone.md), the vanilla `dungeon` row is:
 ```
 id=dungeon | type=Zone_RandomDungeon | idProfile=Lesimas | idBiome=Cave | idPlaylist=Dungeon | tag=random
 ```
 
-[Zone_RandomDungeon](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/Zone_RandomDungeon.cs) provides:
+[Zone_RandomDungeon](file:///c:/Users/someuser/Documents/ElinMods/Elin-Decompiled-main/Elin/Zone_RandomDungeon.cs) provides:
 - `IsNefia => true` — marks it as a proper Nefia for conquest tracking
 - Multi-floor: `StartLV => -1`, levels descend (neg lv = underground)
 - Boss floor: `LvBoss` seeded from `uid`; boss spawns at deepest level via `SpawnMob(null, SpawnSetting.Boss(...))`
@@ -111,7 +111,7 @@ id=dungeon | type=Zone_RandomDungeon | idProfile=Lesimas | idBiome=Cave | idPlay
 
 **Our approach**: Register `srg_astral_rift` with `type = "Zone_RandomDungeon"`. Full Nefia pipeline runs automatically. A Harmony postfix on `Zone_RandomDungeon.OnGenerateMap` adds astral-themed loot/enemies when `id == "srg_astral_rift"`.
 
-#### [MODIFY] [SkyreaderGuild.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs) — `OnStartCore`
+#### [MODIFY] [SkyreaderGuild.cs](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs) — `OnStartCore`
 
 ```csharp
 public void OnStartCore()
@@ -161,7 +161,7 @@ private void RegisterAstralRiftZone(SourceManager sources)
 }
 ```
 
-#### [MODIFY] [SkyreaderGuild.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs) — Post-gen theming
+#### [MODIFY] [SkyreaderGuild.cs](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs) — Post-gen theming
 
 ```csharp
 /// <summary>
@@ -209,14 +209,14 @@ When the Dimensional Gateway Skysign effect triggers, the rift spawns on the ove
 
 #### How zone teleportation works in Elin
 
-From [TraitTeleporter](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitTeleporter.cs) and [TraitMoongate](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitMoongate.cs):
+From [TraitTeleporter](file:///c:/Users/someuser/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitTeleporter.cs) and [TraitMoongate](file:///c:/Users/someuser/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitMoongate.cs):
 - `EClass.pc.MoveZone(zone, ZoneTransition.EnterState.Teleport)` instantly moves the player to a zone
 - Zone UIDs are resolved via `RefZone.Get(uid)` 
 - Things store zone references using `owner.c_uidZone`
 
 Our portal is simpler than either — it's a one-way convenience shortcut to a specific zone.
 
-#### [NEW] [TraitAstralPortal.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/TraitAstralPortal.cs)
+#### [NEW] [TraitAstralPortal.cs](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/TraitAstralPortal.cs)
 
 ```csharp
 using SkyreaderGuild;
@@ -332,7 +332,7 @@ public static Zone FindLatestRift()
 
 ### Component 4: Active Site Caps
 
-#### [MODIFY] [MeteorManager.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/MeteorManager.cs)
+#### [MODIFY] [MeteorManager.cs](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/MeteorManager.cs)
 
 ```csharp
 public const int MAX_ACTIVE_METEOR_SITES = 2;
@@ -389,7 +389,7 @@ public static Zone FindLatestRift() { /* as above */ }
 
 ### Component 5: TraitAstralExtractor
 
-#### [NEW] [TraitAstralExtractor.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/TraitAstralExtractor.cs)
+#### [NEW] [TraitAstralExtractor.cs](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/TraitAstralExtractor.cs)
 
 Brush-pattern consumable. When held, shows hint icons on Touched NPCs. Right-click for "Extract Starlight" action.
 
@@ -533,7 +533,7 @@ public class TraitAstralExtractor : TraitItem
 
 ### Component 6: Item Data Validation Script
 
-#### [RENAME + MODIFY] `add_meteor_items.py` → [ensure_meteor_items.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/ensure_meteor_items.py)
+#### [RENAME + MODIFY] `add_meteor_items.py` → [ensure_meteor_items.py](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/ensure_meteor_items.py)
 
 Rename the script and add a validation/fix section. The script should:
 
@@ -594,7 +594,7 @@ New item to add:
 
 ### Component 7: Project Registration
 
-#### [MODIFY] [SkyreaderGuild.csproj](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.csproj)
+#### [MODIFY] [SkyreaderGuild.csproj](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.csproj)
 
 ```xml
 <Compile Include="TraitAstralExtractor.cs" />
@@ -607,11 +607,11 @@ New item to add:
 
 | File | Change | Description |
 |------|--------|-------------|
-| [SkyreaderGuild.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs) | MODIFY | Add `TagMeteorTouchedOnTownVisit`, `RegisterAstralRiftZone`, `AstralRiftThemingPatch` |
-| [MeteorManager.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/MeteorManager.cs) | MODIFY | Add caps, `CountSites()`, `TrySpawnAstralRift()`, `FindLatestRift()` |
-| [TraitAstralExtractor.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/TraitAstralExtractor.cs) | NEW | Brush-pattern extractor with 5 Skysign effects + portal spawn |
-| [TraitAstralPortal.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/TraitAstralPortal.cs) | NEW | Convenience portal linking to rift zone |
-| [SkyreaderGuild.csproj](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.csproj) | MODIFY | Add new .cs files |
+| [SkyreaderGuild.cs](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs) | MODIFY | Add `TagMeteorTouchedOnTownVisit`, `RegisterAstralRiftZone`, `AstralRiftThemingPatch` |
+| [MeteorManager.cs](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/MeteorManager.cs) | MODIFY | Add caps, `CountSites()`, `TrySpawnAstralRift()`, `FindLatestRift()` |
+| [TraitAstralExtractor.cs](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/TraitAstralExtractor.cs) | NEW | Brush-pattern extractor with 5 Skysign effects + portal spawn |
+| [TraitAstralPortal.cs](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/TraitAstralPortal.cs) | NEW | Convenience portal linking to rift zone |
+| [SkyreaderGuild.csproj](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.csproj) | MODIFY | Add new .cs files |
 | `add_meteor_items.py` → `ensure_meteor_items.py` | RENAME+MODIFY | Add validation, fix traits, add portal item |
 
 ---
@@ -639,4 +639,4 @@ Copy DLL to `D:\Steam\steamapps\common\Elin\BepInEx\plugins\SkyreaderGuild\`
 
 ### Log Locations
 - BepInEx: `D:\Steam\steamapps\common\Elin\BepInEx\LogOutput.log`
-- Unity: `C:\Users\mcounts\AppData\LocalLow\Lafrontier\Elin\Player.log`
+- Unity: `C:\Users\someuser\AppData\LocalLow\Lafrontier\Elin\Player.log`

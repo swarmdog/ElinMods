@@ -22,9 +22,13 @@
     <Compile Include="TraitStarImbuement.cs" />
     <Compile Include="TraitAstralExtractor.cs" />
     <Compile Include="TraitAstralPortal.cs" />
+    <Compile Include="TraitSkyreaderGuildEntrance.cs" />
+    <Compile Include="TraitSkyreaderGuildExit.cs" />
     <Compile Include="TraitBossScroll.cs" />
     <Compile Include="TraitArchivistScroll.cs" />
     <Compile Include="TraitSrgDebris.cs" />
+    <Compile Include="Zone_SkyreaderGuild.cs" />
+    <Compile Include="GuildLayoutBuilder.cs" />
   </ItemGroup>
 
   <!-- BepInEx -->

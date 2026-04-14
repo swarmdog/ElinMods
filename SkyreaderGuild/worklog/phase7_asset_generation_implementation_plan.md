@@ -21,20 +21,20 @@ Generate all assets to `worklog/generated_assets/` for manual review before touc
 
 ### A.1 — Prerequisites
 
-#### [NEW] [requirements.txt](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/requirements.txt)
+#### [NEW] [requirements.txt](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/requirements.txt)
 ```
 google-genai
 Pillow
 python-dotenv
 ```
 - Install: `pip install -r requirements.txt`
-- The `.env.local` at `c:\Users\mcounts\Documents\ElinMods\.env.local` already contains `GEMINI_API_KEY`
+- The `.env.local` at `c:\Users\someuser\Documents\ElinMods\.env.local` already contains `GEMINI_API_KEY`
 
 ---
 
 ### A.2 — Generation Script
 
-#### [NEW] [generate_assets.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/generate_assets.py)
+#### [NEW] [generate_assets.py](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/generate_assets.py)
 
 **Architecture:**
 1. Load `GEMINI_API_KEY` from `../.env.local` via `python-dotenv`
@@ -145,7 +145,7 @@ After manual review and approval of assets, integrate them into the mod.
 
 ### B.1 — Integration Script
 
-#### [NEW] [integrate_assets.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/integrate_assets.py)
+#### [NEW] [integrate_assets.py](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/integrate_assets.py)
 
 This script:
 1. Reads approved assets from `worklog/generated_assets/`
@@ -211,7 +211,7 @@ SkyreaderGuild/
 
 ### B.4 — Deploy Script Additions
 
-#### [MODIFY] [add_meteor_items.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/add_meteor_items.py)
+#### [MODIFY] [add_meteor_items.py](file:///c:/Users/someuser/Documents/ElinMods/SkyreaderGuild/add_meteor_items.py)
 
 Add a new function at the end of the existing deploy step that copies `Texture/` directories to the deployed mod package. This keeps deployment automated.
 

@@ -439,7 +439,7 @@ Place them near the other trait includes.
 1. Install/update the mod and launch Elin.
 2. Check both logs after load:
    - `D:\Steam\steamapps\common\Elin\BepInEx\LogOutput.log`
-   - `C:\Users\mcounts\AppData\LocalLow\Lafrontier\Elin\Player.log`
+   - `C:\Users\someuser\AppData\LocalLow\Lafrontier\Elin\Player.log`
 3. At the Astrological Codex, verify:
    - boss scrolls are visible only at `CosmosApplied`;
    - convergence scroll is visible only at `Understander`;
