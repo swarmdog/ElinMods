@@ -6,7 +6,7 @@
 
 ## 10.1 UI Architecture
 
-All underworld UI is built using Elin's `ELayer` dialog system — the same pattern used by [SkyreaderLadderDialog](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderLadderDialog.cs) for custom mod panels.
+All underworld UI is built using Elin's `ELayer` dialog system — the same pattern used by [SkyreaderLadderDialog](Documents/ElinMods/SkyreaderGuild/SkyreaderLadderDialog.cs) for custom mod panels.
 
 ### 10.1.1 UI Entry Points
 

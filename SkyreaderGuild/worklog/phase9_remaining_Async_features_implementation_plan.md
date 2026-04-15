@@ -43,7 +43,7 @@ graph LR
 
 After investigating the decompiled source, the best region heuristic uses Elin's existing **`GlobalTile.idBiome`** from the world map. Here's how it works:
 
-**Elin's `EloMap.TileInfo`** (see [EloMap.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/EloMap.cs#L30-L87)) provides `source.idBiome` for any world-map coordinate. The `GlobalTile` table ([SourceBlock_GlobalTile.md](file:///c:/Users/mcounts/Documents/ElinMods/elin_readable_game_data/SourceBlock_GlobalTile.md)) maps tile types to biomes:
+**Elin's `EloMap.TileInfo`** (see [EloMap.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/EloMap.cs#L30-L87)) provides `source.idBiome` for any world-map coordinate. The `GlobalTile` table ([SourceBlock_GlobalTile.md](Documents/ElinMods/elin_readable_game_data/SourceBlock_GlobalTile.md)) maps tile types to biomes:
 
 | GlobalTile alias | idBiome | Our Region ID |
 |-----------------|---------|---------------|
@@ -78,13 +78,13 @@ static string MapBiomeToRegion(string biome)
 }
 ```
 
-For **named towns** (Derphy, Palmia, etc.), fall back to their `parent` zone's world-map coordinates and look up the `GlobalTile` at those coords. The Spatial `x`/`y` fields ([Spatial.cs:L93-L115](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/Spatial.cs#L93-L115)) give world-map position directly.
+For **named towns** (Derphy, Palmia, etc.), fall back to their `parent` zone's world-map coordinates and look up the `GlobalTile` at those coords. The Spatial `x`/`y` fields ([Spatial.cs:L93-L115](Documents/ElinMods/Elin-Decompiled-main/Elin/Spatial.cs#L93-L115)) give world-map position directly.
 
 ---
 
 ## Constellation Theming — Leveraging Elin's Religions
 
-Elin has 12 established patron deities with domain names ([SourceGame_Religion.md](file:///c:/Users/mcounts/Documents/ElinMods/elin_readable_game_data/SourceGame_Religion.md)):
+Elin has 12 established patron deities with domain names ([SourceGame_Religion.md](Documents/ElinMods/elin_readable_game_data/SourceGame_Religion.md)):
 
 | God | Domain | Our Constellation Name |
 |-----|--------|----------------------|
@@ -104,7 +104,7 @@ Each season rotates which 5 constellations are active. The names and flavor text
 
 ## Server
 
-### [MODIFY] [database.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/database.py)
+### [MODIFY] [database.py](Documents/ElinMods/SkyreaderGuildServer/database.py)
 
 Add `sky_seasons` table to `init_db()`:
 
@@ -132,7 +132,7 @@ The `modifiers` JSON blob schema:
 }
 ```
 
-### [NEW] [seasons.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/seasons.py)
+### [NEW] [seasons.py](Documents/ElinMods/SkyreaderGuildServer/seasons.py)
 
 FastAPI router at `/sky-season`. **One endpoint**, auth required:
 
@@ -176,7 +176,7 @@ def get_current_season(account=Depends(get_current_account)):
     }
 ```
 
-### [NEW] [seed_seasons.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/seed_seasons.py)
+### [NEW] [seed_seasons.py](Documents/ElinMods/SkyreaderGuildServer/seed_seasons.py)
 
 CLI script that inserts season rows AND their associated constellations and comet regions. Run manually to populate the DB before/after each season rotation.
 
@@ -237,7 +237,7 @@ COMET_REGIONS = [
 ]
 ```
 
-### [MODIFY] [main.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/main.py)
+### [MODIFY] [main.py](Documents/ElinMods/SkyreaderGuildServer/main.py)
 
 ```python
 import seasons
@@ -248,7 +248,7 @@ app.include_router(seasons.router)
 
 ## Client
 
-### [NEW] [SkyreaderSeasonClient.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderSeasonClient.cs)
+### [NEW] [SkyreaderSeasonClient.cs](Documents/ElinMods/SkyreaderGuild/SkyreaderSeasonClient.cs)
 
 Manages season data polling and caching. Full implementation detail:
 
@@ -296,7 +296,7 @@ public class SkySeason
 
 **Resilience**: If fetch fails, log warning, keep existing cache (or defaults). No player-visible error.
 
-### [MODIFY] [SkyreaderGuild.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs)
+### [MODIFY] [SkyreaderGuild.cs](Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs)
 
 Changes:
 1. Add field: `internal static SkyreaderSeasonClient SeasonClient;`
@@ -314,7 +314,7 @@ Changes:
    SeasonClient?.RefreshSeasonIfStale();
    ```
 
-### [MODIFY] [MeteorManager.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/MeteorManager.cs)
+### [MODIFY] [MeteorManager.cs](Documents/ElinMods/SkyreaderGuild/MeteorManager.cs)
 
 In `TrySpawnMeteor()`, multiply the base meteor chance (`ConfigMeteorBaseChance.Value`) by `SkyreaderGuild.GetSeasonModifiers().MeteorChanceMultiplier`. Cap the multiplied value at 3.0 to prevent pathological server data from breaking gameplay:
 
@@ -324,7 +324,7 @@ float seasonMult = Math.Min(SkyreaderGuild.GetSeasonModifiers().MeteorChanceMult
 float adjustedChance = baseChance * seasonMult;
 ```
 
-### [MODIFY] [SkyreaderGuild.cs — `AstralRiftThemingPatch.SpawnYithPack()`](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs#L840-L874)
+### [MODIFY] [SkyreaderGuild.cs — `AstralRiftThemingPatch.SpawnYithPack()`](Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs#L840-L874)
 
 Read `YithSpawnBonus` from season modifiers. During pack composition, for each Yith tier with a bonus > 0, increase its chance of being selected:
 
@@ -341,11 +341,11 @@ foreach (var kvp in bonuses)
 }
 ```
 
-### [MODIFY] [TraitAstralExtractor.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/TraitAstralExtractor.cs)
+### [MODIFY] [TraitAstralExtractor.cs](Documents/ElinMods/SkyreaderGuild/TraitAstralExtractor.cs)
 
 When rolling Skysign effects, read `SkysignWeights` from season modifiers. Adjust the random weight table for each effect type. If a weight of `1.5` is present for `DimensionalGateway`, multiply that outcome's default weight by 1.5.
 
-### [MODIFY] [SkyreaderGuild.cs — `SkyreaderGuildLayoutUpdatePatch.Postfix()`](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs#L1337-L1354)
+### [MODIFY] [SkyreaderGuild.cs — `SkyreaderGuildLayoutUpdatePatch.Postfix()`](Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs#L1337-L1354)
 
 After `GuildLayoutBuilder.UpdateUnlockedLayout()`, check if the season has changed:
 
@@ -365,7 +365,7 @@ if (season != null && season.Id != SeasonClient.LastAnnouncedSeasonId)
 > [!IMPORTANT]
 > Arkyn's dialog text is defined in the mod's CharaText row in `SourceCard.xlsx` (the `idText` column on the Chara sheet references `SourceChara_CharaText`). The existing `add_meteor_items.py` script manages all SourceCard rows.
 
-### [MODIFY] [add_meteor_items.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/worklog/scripts/add_meteor_items.py)
+### [MODIFY] [add_meteor_items.py](Documents/ElinMods/SkyreaderGuild/worklog/scripts/add_meteor_items.py)
 
 Add the new furniture SourceThing rows to `EXPECTED_THINGS`. For each new interactive furniture item, add an entry following the established pattern (see existing entries like `srg_ladder_plaque` at L461):
 
@@ -474,9 +474,9 @@ Add the new furniture SourceThing rows to `EXPECTED_THINGS`. For each new intera
 
 ## Server Tests
 
-### [NEW] [tests/test_seasons.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/tests/test_seasons.py)
+### [NEW] [tests/test_seasons.py](Documents/ElinMods/SkyreaderGuildServer/tests/test_seasons.py)
 
-Following the exact pattern of [test_ladder.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/tests/test_ladder.py):
+Following the exact pattern of [test_ladder.py](Documents/ElinMods/SkyreaderGuildServer/tests/test_ladder.py):
 
 - `test_current_season_with_active_row` — Insert a season covering `now()`, register+auth, verify `GET /sky-season/current` returns it.
 - `test_current_season_with_no_active_row` — Verify default season is returned (no 404/500).
@@ -489,7 +489,7 @@ Following the exact pattern of [test_ladder.py](file:///c:/Users/mcounts/Documen
 
 ## Server
 
-### [MODIFY] [database.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/database.py)
+### [MODIFY] [database.py](Documents/ElinMods/SkyreaderGuildServer/database.py)
 
 Add tables to `init_db()`:
 
@@ -519,7 +519,7 @@ CREATE TABLE IF NOT EXISTS constellation_progress (
 );
 ```
 
-### [NEW] [constellations.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/constellations.py)
+### [NEW] [constellations.py](Documents/ElinMods/SkyreaderGuildServer/constellations.py)
 
 Router at `/constellations`. **All endpoints require auth.**
 
@@ -564,14 +564,14 @@ Router at `/constellations`. **All endpoints require auth.**
 - Insert `constellation_memberships` row.
 - Return `{"joined": true, "constellation_id": "gale_crimson"}`.
 
-### [MODIFY] [main.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/main.py)
+### [MODIFY] [main.py](Documents/ElinMods/SkyreaderGuildServer/main.py)
 
 ```python
 import constellations
 app.include_router(constellations.router)
 ```
 
-### [MODIFY] [seed_seasons.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/seed_seasons.py)
+### [MODIFY] [seed_seasons.py](Documents/ElinMods/SkyreaderGuildServer/seed_seasons.py)
 
 Add constellation seeding per season. Example for `crimson_showers`:
 
@@ -592,7 +592,7 @@ CONSTELLATIONS = {
 
 ## Client
 
-### [NEW] [SkyreaderConstellationClient.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderConstellationClient.cs)
+### [NEW] [SkyreaderConstellationClient.cs](Documents/ElinMods/SkyreaderGuild/SkyreaderConstellationClient.cs)
 
 **Fields:**
 ```csharp
@@ -609,7 +609,7 @@ private string _playerConstellationId;
 
 **`ConstellationBoardView`** — POCO matching server response, deserialized via Newtonsoft.Json.
 
-### [NEW] [SkyreaderConstellationDialog.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderConstellationDialog.cs)
+### [NEW] [SkyreaderConstellationDialog.cs](Documents/ElinMods/SkyreaderGuild/SkyreaderConstellationDialog.cs)
 
 Two modes, determined by `ConstellationClient.HasJoinedThisSeason`:
 
@@ -627,9 +627,9 @@ Two modes, determined by `ConstellationClient.HasJoinedThisSeason`:
 - Claim button grants 3× `srg_meteorite_source` + 25 GP + `Msg.SayRaw` cosmetic title.
 - Claim tracked locally via `constellationRewardClaimed_{seasonId}` in the identity file.
 
-Uses `UINote` + `Dialog` pattern identical to [SkyreaderLadderDialog.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderLadderDialog.cs).
+Uses `UINote` + `Dialog` pattern identical to [SkyreaderLadderDialog.cs](Documents/ElinMods/SkyreaderGuild/SkyreaderLadderDialog.cs).
 
-### [NEW] [TraitConstellationBoard.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/TraitConstellationBoard.cs)
+### [NEW] [TraitConstellationBoard.cs](Documents/ElinMods/SkyreaderGuild/TraitConstellationBoard.cs)
 
 ```csharp
 public class TraitConstellationBoard : TraitItem
@@ -644,7 +644,7 @@ public class TraitConstellationBoard : TraitItem
 }
 ```
 
-### [MODIFY] [GuildLayoutBuilder.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/GuildLayoutBuilder.cs)
+### [MODIFY] [GuildLayoutBuilder.cs](Documents/ElinMods/SkyreaderGuild/GuildLayoutBuilder.cs)
 
 Add placement in the **Observatory** room (Researcher rank, already exists):
 ```csharp
@@ -655,7 +655,7 @@ new Placement("srg_constellation_board", 22, 39, true, "obs_constellation_board"
 
 ## Server Tests
 
-### [NEW] [tests/test_constellations.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/tests/test_constellations.py)
+### [NEW] [tests/test_constellations.py](Documents/ElinMods/SkyreaderGuildServer/tests/test_constellations.py)
 
 - `test_join_constellation_and_view_progress` — Register, seed season+constellations, join, submit contributions, verify progress updates.
 - `test_cannot_join_twice_in_same_season` — Join one → attempt join another → HTTP 409.
@@ -669,7 +669,7 @@ new Placement("srg_constellation_board", 22, 39, true, "obs_constellation_board"
 
 ## Server
 
-### [MODIFY] [database.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/database.py)
+### [MODIFY] [database.py](Documents/ElinMods/SkyreaderGuildServer/database.py)
 
 Add tables:
 
@@ -694,11 +694,11 @@ CREATE TABLE IF NOT EXISTS geometry_aggregates (
 );
 ```
 
-### [NEW] [geometry.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/geometry.py)
+### [NEW] [geometry.py](Documents/ElinMods/SkyreaderGuildServer/geometry.py)
 
 Router at `/geometry`. **All endpoints require auth.**
 
-**Allowed shapes enum** (from [RiftLayoutShaper.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/RiftLayoutShaper.cs)):
+**Allowed shapes enum** (from [RiftLayoutShaper.cs](Documents/ElinMods/SkyreaderGuild/RiftLayoutShaper.cs)):
 ```python
 VALID_SHAPES = {"Circle", "Ellipse", "Diamond", "Crescent", "Cross", "Star", "LShape", "Irregular"}
 ```
@@ -743,7 +743,7 @@ SHAPE_FLAVORS = {
 }
 ```
 
-### [MODIFY] [main.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/main.py)
+### [MODIFY] [main.py](Documents/ElinMods/SkyreaderGuildServer/main.py)
 
 ```python
 import geometry
@@ -754,7 +754,7 @@ app.include_router(geometry.router)
 
 ## Client
 
-### [NEW] [SkyreaderGeometryClient.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderGeometryClient.cs)
+### [NEW] [SkyreaderGeometryClient.cs](Documents/ElinMods/SkyreaderGuild/SkyreaderGeometryClient.cs)
 
 **Sampling** — After `RiftLayoutShaper.Reshape()` completes:
 1. Compute `dangerBand = Math.Clamp(zone.DangerLv / 10, 1, 10)`.
@@ -765,7 +765,7 @@ app.include_router(geometry.router)
 
 **Viewing** — `FetchGeometrySummaryAsync()` → `GET /geometry/summary`. Cached for 1 in-game week.
 
-### [MODIFY] [RiftLayoutShaper.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/RiftLayoutShaper.cs)
+### [MODIFY] [RiftLayoutShaper.cs](Documents/ElinMods/SkyreaderGuild/RiftLayoutShaper.cs)
 
 Currently `Reshape()` returns `void`. Modify to track and expose the dominant shape:
 
@@ -781,7 +781,7 @@ Currently `Reshape()` returns `void`. Modify to track and expose the dominant sh
    );
    ```
 
-### [NEW] [SkyreaderGeometryDialog.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderGeometryDialog.cs)
+### [NEW] [SkyreaderGeometryDialog.cs](Documents/ElinMods/SkyreaderGuild/SkyreaderGeometryDialog.cs)
 
 Shows the Geometry Orrery UI:
 - Header: "Astral Geometry Observation Network — [Season Name]"
@@ -790,7 +790,7 @@ Shows the Geometry Orrery UI:
 - If season `geometryBias` matches dominant shape, show: "The cosmos resonates with this season's alignment."
 - Total sample count shown.
 
-### [NEW] [TraitGeometryOrrery.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/TraitGeometryOrrery.cs)
+### [NEW] [TraitGeometryOrrery.cs](Documents/ElinMods/SkyreaderGuild/TraitGeometryOrrery.cs)
 
 ```csharp
 public class TraitGeometryOrrery : TraitItem
@@ -805,7 +805,7 @@ public class TraitGeometryOrrery : TraitItem
 }
 ```
 
-### [MODIFY] [GuildLayoutBuilder.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/GuildLayoutBuilder.cs)
+### [MODIFY] [GuildLayoutBuilder.cs](Documents/ElinMods/SkyreaderGuild/GuildLayoutBuilder.cs)
 
 Add placement in **Observatory** room:
 ```csharp
@@ -822,7 +822,7 @@ In `AstralRiftThemingPatch.Postfix()`, if the season's `geometryBias` shape's gl
 
 ## Server Tests
 
-### [NEW] [tests/test_geometry.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/tests/test_geometry.py)
+### [NEW] [tests/test_geometry.py](Documents/ElinMods/SkyreaderGuildServer/tests/test_geometry.py)
 
 - `test_submit_sample_and_fetch_summary`
 - `test_invalid_shape_type_rejected` — Verify HTTP 422 for non-enum shapes.
@@ -836,7 +836,7 @@ In `AstralRiftThemingPatch.Postfix()`, if the season's `geometryBias` shape's gl
 
 ## Server
 
-### [MODIFY] [database.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/database.py)
+### [MODIFY] [database.py](Documents/ElinMods/SkyreaderGuildServer/database.py)
 
 Add tables:
 
@@ -866,7 +866,7 @@ CREATE TABLE IF NOT EXISTS comet_heat_buckets (
 );
 ```
 
-### [NEW] [comet.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/comet.py)
+### [NEW] [comet.py](Documents/ElinMods/SkyreaderGuildServer/comet.py)
 
 Router at `/comet`. **All endpoints require auth.**
 
@@ -900,7 +900,7 @@ Validates `region_id` exists in `comet_regions`. Inserts a report row with UUID 
 - ≥ 0.2 → `"Troubled"` 🟠
 - < 0.2 → `"Overrun"` 🔴
 
-### [MODIFY] [main.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/main.py)
+### [MODIFY] [main.py](Documents/ElinMods/SkyreaderGuildServer/main.py)
 
 ```python
 import comet
@@ -911,7 +911,7 @@ app.include_router(comet.router)
 
 ## Client
 
-### [NEW] [SkyreaderCometClient.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderCometClient.cs)
+### [NEW] [SkyreaderCometClient.cs](Documents/ElinMods/SkyreaderGuild/SkyreaderCometClient.cs)
 
 **Region detection** — Uses the biome mapping from the Region Mapping section above:
 
@@ -941,7 +941,7 @@ For each region with non-zero deltas, sends `POST /comet/report` and resets coun
 
 **Viewing** — `FetchHeatmapAsync()` → `GET /comet/heatmap`. Cached for 1 in-game week.
 
-### [MODIFY] [SkyreaderGuild.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs)
+### [MODIFY] [SkyreaderGuild.cs](Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs)
 
 1. Add `internal static SkyreaderCometClient CometClient;`
 2. Initialize in `Awake()`.
@@ -951,7 +951,7 @@ For each region with non-zero deltas, sends `POST /comet/report` and resets coun
    ```
 4. In `FlushLadderContributions()`, also call `CometClient?.FlushHeatReports()`.
 
-### [MODIFY] [TraitAstralExtractor.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/TraitAstralExtractor.cs)
+### [MODIFY] [TraitAstralExtractor.cs](Documents/ElinMods/SkyreaderGuild/TraitAstralExtractor.cs)
 
 After successfully cleansing a target, call:
 ```csharp
@@ -959,7 +959,7 @@ SkyreaderGuild.CometClient?.IncrementCleansed(
     SkyreaderGuild.CometClient.GetCurrentRegionId(), 1);
 ```
 
-### [NEW] [SkyreaderHeatmapDialog.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderHeatmapDialog.cs)
+### [NEW] [SkyreaderHeatmapDialog.cs](Documents/ElinMods/SkyreaderGuild/SkyreaderHeatmapDialog.cs)
 
 Displays the heatmap as a region list:
 - Header: "Comet Contamination Report — [Season Name]"
@@ -967,7 +967,7 @@ Displays the heatmap as a region list:
 - Player's current region highlighted.
 - Bottom text: "Your extractions contribute to your region's purity."
 
-### [NEW] [TraitCometHeatmapTable.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/TraitCometHeatmapTable.cs)
+### [NEW] [TraitCometHeatmapTable.cs](Documents/ElinMods/SkyreaderGuild/TraitCometHeatmapTable.cs)
 
 ```csharp
 public class TraitCometHeatmapTable : TraitItem
@@ -982,7 +982,7 @@ public class TraitCometHeatmapTable : TraitItem
 }
 ```
 
-### [MODIFY] [GuildLayoutBuilder.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/GuildLayoutBuilder.cs)
+### [MODIFY] [GuildLayoutBuilder.cs](Documents/ElinMods/SkyreaderGuild/GuildLayoutBuilder.cs)
 
 Add placement in the **Atrium** room (Wanderer rank):
 ```csharp
@@ -1001,7 +1001,7 @@ In `TagMeteorTouchedOnCivilizedVisit.Postfix()`, after entering a civilized zone
 
 ## Server Tests
 
-### [NEW] [tests/test_comet.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/tests/test_comet.py)
+### [NEW] [tests/test_comet.py](Documents/ElinMods/SkyreaderGuildServer/tests/test_comet.py)
 
 - `test_report_and_fetch_heatmap`
 - `test_status_tiers` — Verify all 4 status mappings.
@@ -1015,7 +1015,7 @@ In `TagMeteorTouchedOnCivilizedVisit.Postfix()`, after entering a civilized zone
 
 ## Server
 
-### [MODIFY] [database.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/database.py)
+### [MODIFY] [database.py](Documents/ElinMods/SkyreaderGuildServer/database.py)
 
 Add tables:
 
@@ -1046,7 +1046,7 @@ CREATE TABLE IF NOT EXISTS research_note_pulls (
 );
 ```
 
-### [NEW] [research_notes.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/research_notes.py)
+### [NEW] [research_notes.py](Documents/ElinMods/SkyreaderGuildServer/research_notes.py)
 
 Router at `/research-notes`. **All endpoints require auth.**
 
@@ -1084,7 +1084,7 @@ Also inserts `research_note_pulls` rows for each returned note to prevent re-ser
 - After upsert, recalculates: `UPDATE research_notes SET rating = (SELECT COALESCE(SUM(value), 0) FROM research_note_ratings WHERE note_id = ?) WHERE id = ?`
 - Returns `{"rated": true, "new_rating": 5}`.
 
-### [MODIFY] [main.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/main.py)
+### [MODIFY] [main.py](Documents/ElinMods/SkyreaderGuildServer/main.py)
 
 ```python
 import research_notes
@@ -1095,7 +1095,7 @@ app.include_router(research_notes.router)
 
 ## Client
 
-### [NEW] [SkyreaderStarPaperClient.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderStarPaperClient.cs)
+### [NEW] [SkyreaderStarPaperClient.cs](Documents/ElinMods/SkyreaderGuild/SkyreaderStarPaperClient.cs)
 
 **Writing:**
 - `SubmitStarPaperAsync(string title, string body)` → `POST /research-notes/create`.
@@ -1109,7 +1109,7 @@ app.include_router(research_notes.router)
 **Rating:**
 - `RateStarPaperAsync(string noteId, int value)` → `POST /research-notes/rate`.
 
-### [NEW] [SkyreaderStarPaperWriteDialog.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderStarPaperWriteDialog.cs)
+### [NEW] [SkyreaderStarPaperWriteDialog.cs](Documents/ElinMods/SkyreaderGuild/SkyreaderStarPaperWriteDialog.cs)
 
 Text-entry UI for composing a star paper:
 - Title field (max 80 chars) via Elin's `Dialog.InputName()`.
@@ -1118,7 +1118,7 @@ Text-entry UI for composing a star paper:
 - On success: `Msg.SayRaw("Your star paper has been submitted to the Guild Library.")` + GP award.
 - **Rank gate**: Requires `Understander` rank.
 
-### [NEW] [SkyreaderStarPaperReadDialog.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderStarPaperReadDialog.cs)
+### [NEW] [SkyreaderStarPaperReadDialog.cs](Documents/ElinMods/SkyreaderGuild/SkyreaderStarPaperReadDialog.cs)
 
 Shows pulled star papers:
 - Header: "Guild Library — Star Papers"
@@ -1127,7 +1127,7 @@ Shows pulled star papers:
 - "Mark as Insightful" (rate +1) / "Dismiss" (rate -1) buttons.
 - Rating updates are fire-and-forget.
 
-### [NEW] [TraitStarPaperShelf.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/TraitStarPaperShelf.cs)
+### [NEW] [TraitStarPaperShelf.cs](Documents/ElinMods/SkyreaderGuild/TraitStarPaperShelf.cs)
 
 ```csharp
 public class TraitStarPaperShelf : TraitItem
@@ -1142,7 +1142,7 @@ public class TraitStarPaperShelf : TraitItem
 }
 ```
 
-### [NEW] [TraitStarPaperWritingDesk.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/TraitStarPaperWritingDesk.cs)
+### [NEW] [TraitStarPaperWritingDesk.cs](Documents/ElinMods/SkyreaderGuild/TraitStarPaperWritingDesk.cs)
 
 ```csharp
 public class TraitStarPaperWritingDesk : TraitItem
@@ -1166,7 +1166,7 @@ public class TraitStarPaperWritingDesk : TraitItem
 }
 ```
 
-### [MODIFY] [GuildLayoutBuilder.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/GuildLayoutBuilder.cs)
+### [MODIFY] [GuildLayoutBuilder.cs](Documents/ElinMods/SkyreaderGuild/GuildLayoutBuilder.cs)
 
 Two placements:
 - **Atrium** (Wanderer rank — reading shelf accessible to all):
@@ -1182,7 +1182,7 @@ Two placements:
 
 ## Server Tests
 
-### [NEW] [tests/test_research_notes.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/tests/test_research_notes.py)
+### [NEW] [tests/test_research_notes.py](Documents/ElinMods/SkyreaderGuildServer/tests/test_research_notes.py)
 
 - `test_create_and_pull_note` — Create note, pull as different player, verify content.
 - `test_profanity_filter_rejects` — Create with blocked word → HTTP 400.
@@ -1198,7 +1198,7 @@ Two placements:
 
 ## Seasonal HQ Decorations
 
-### [MODIFY] [GuildLayoutBuilder.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/GuildLayoutBuilder.cs)
+### [MODIFY] [GuildLayoutBuilder.cs](Documents/ElinMods/SkyreaderGuild/GuildLayoutBuilder.cs)
 
 Add `DecorateForSeason(Zone zone, string seasonId)` method:
 
@@ -1213,7 +1213,7 @@ Add `DecorateForSeason(Zone zone, string seasonId)` method:
 
 ## Config Validation
 
-### [MODIFY] [SkyreaderGuild.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs)
+### [MODIFY] [SkyreaderGuild.cs](Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs)
 
 - All new clients (`SeasonClient`, `ConstellationClient`, `CometClient`, `GeometryClient`, `StarPaperClient`) check `ConfigEnableOnlineFeatures.Value` before executing any network call.
 - No new config entries — all new features gated behind the single existing online toggle.
@@ -1228,7 +1228,7 @@ Add `DecorateForSeason(Zone zone, string seasonId)` method:
 
 ## Asset Pipeline
 
-### [MODIFY] [asset_specs.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/worklog/scripts/asset_specs.py)
+### [MODIFY] [asset_specs.py](Documents/ElinMods/SkyreaderGuild/worklog/scripts/asset_specs.py)
 
 Add entries for all new furniture items:
 
@@ -1249,13 +1249,13 @@ Use the `generate_image` tool to create:
 4. `srg_star_paper_shelf` — A bookshelf with glowing scroll tubes and stacked star papers.
 5. `srg_star_paper_desk` — A simple writing desk with quill, inkwell, and parchment.
 
-### [MODIFY] [generate_assets.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/worklog/scripts/generate_assets.py)
+### [MODIFY] [generate_assets.py](Documents/ElinMods/SkyreaderGuild/worklog/scripts/generate_assets.py)
 
 Add the 5 new asset IDs to the generation list with appropriate prompts.
 
 ## Full SourceThing Summary
 
-All new items needed in `EXPECTED_THINGS` in [add_meteor_items.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/worklog/scripts/add_meteor_items.py):
+All new items needed in `EXPECTED_THINGS` in [add_meteor_items.py](Documents/ElinMods/SkyreaderGuild/worklog/scripts/add_meteor_items.py):
 
 | Item ID | Category | Trait Class | _tileType | _idRenderData |
 |---------|----------|-------------|-----------|---------------|

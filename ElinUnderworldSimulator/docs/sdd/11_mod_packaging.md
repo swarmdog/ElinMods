@@ -134,7 +134,7 @@ ElinUnderworldSimulator/
 
 ### 11.3.2 Directory.Build.props Registration
 
-Add `ElinUnderworldSimulator` to the `IsElinModProject` condition in [Directory.Build.props](file:///c:/Users/mcounts/Documents/ElinMods/Directory.Build.props):
+Add `ElinUnderworldSimulator` to the `IsElinModProject` condition in [Directory.Build.props](Documents/ElinMods/Directory.Build.props):
 
 ```xml
 <IsElinModProject Condition="
@@ -145,7 +145,7 @@ Add `ElinUnderworldSimulator` to the `IsElinModProject` condition in [Directory.
 ">true</IsElinModProject>
 ```
 
-This gives the project automatic access to all Elin DLL references, Harmony, BepInEx, and the shared build targets from [Directory.Build.targets](file:///c:/Users/mcounts/Documents/ElinMods/Directory.Build.targets).
+This gives the project automatic access to all Elin DLL references, Harmony, BepInEx, and the shared build targets from [Directory.Build.targets](Documents/ElinMods/Directory.Build.targets).
 
 ---
 
@@ -153,7 +153,7 @@ This gives the project automatic access to all Elin DLL references, Harmony, Bep
 
 ### 11.4.1 Design Philosophy
 
-The SkyreaderGuild mod uses three separate scripts for asset management ([generate_assets.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/worklog/scripts/generate_assets.py), [integrate_assets.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/worklog/scripts/integrate_assets.py), [add_meteor_items.py](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/worklog/scripts/add_meteor_items.py)). Each has its own copy of asset definitions, leading to spec duplication.
+The SkyreaderGuild mod uses three separate scripts for asset management ([generate_assets.py](Documents/ElinMods/SkyreaderGuild/worklog/scripts/generate_assets.py), [integrate_assets.py](Documents/ElinMods/SkyreaderGuild/worklog/scripts/integrate_assets.py), [add_meteor_items.py](Documents/ElinMods/SkyreaderGuild/worklog/scripts/add_meteor_items.py)). Each has its own copy of asset definitions, leading to spec duplication.
 
 The Underworld pipeline consolidates into:
 - **One spec file** (`uw_asset_specs.py`) — single source of truth for all item/chara definitions
@@ -534,7 +534,7 @@ if __name__ == "__main__":
 
 ### 11.4.4 NPOI Shared-String Normalization
 
-The `normalize_shared_strings()` function is the most critical part of XLSX management. It must be called after every openpyxl save. The complete implementation is ported from [add_meteor_items.py L49-L168](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/worklog/scripts/add_meteor_items.py#L49-L168).
+The `normalize_shared_strings()` function is the most critical part of XLSX management. It must be called after every openpyxl save. The complete implementation is ported from [add_meteor_items.py L49-L168](Documents/ElinMods/SkyreaderGuild/worklog/scripts/add_meteor_items.py#L49-L168).
 
 Summary of what it does:
 1. Opens the `.xlsx` as a ZIP

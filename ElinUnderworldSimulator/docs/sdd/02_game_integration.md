@@ -22,8 +22,8 @@ Game.StartNewGame() → initializes game, checks prologue
 ```
 
 **Key source references:**
-- [FastStart Plugin.cs L41-L73](file:///c:/Users/mcounts/Documents/ElinMods/FastStart/Plugin.cs#L41-L73) — Prologue injection pattern (proven working)
-- [QuestMain.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/QuestMain.cs) — Quest phase definitions
+- [FastStart Plugin.cs L41-L73](Documents/ElinMods/FastStart/Plugin.cs#L41-L73) — Prologue injection pattern (proven working)
+- [QuestMain.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/QuestMain.cs) — Quest phase definitions
 
 ### 2.1.2 Harmony Patches — Scenario Registration
 
@@ -58,7 +58,7 @@ public static class PatchGamePrologue
 }
 ```
 
-**Reference:** FastStart uses a similar approach at [L41-L54](file:///c:/Users/mcounts/Documents/ElinMods/FastStart/Plugin.cs#L41-L54) — it returns `Prologue.list[0]` as the template prologue for custom start indices.
+**Reference:** FastStart uses a similar approach at [L41-L54](Documents/ElinMods/FastStart/Plugin.cs#L41-L54) — it returns `Prologue.list[0]` as the template prologue for custom start indices.
 
 ---
 
@@ -89,7 +89,7 @@ public static class PatchSetChara
 }
 ```
 
-**Reference:** [FastStart L56-L73](file:///c:/Users/mcounts/Documents/ElinMods/FastStart/Plugin.cs#L56-L73) — dropdown mutation after vanilla population.
+**Reference:** [FastStart L56-L73](Documents/ElinMods/FastStart/Plugin.cs#L56-L73) — dropdown mutation after vanilla population.
 
 ---
 
@@ -118,7 +118,7 @@ public static class PatchListModes
 }
 ```
 
-**Reference:** [FastStart L75-L110](file:///c:/Users/mcounts/Documents/ElinMods/FastStart/Plugin.cs#L75-L110).
+**Reference:** [FastStart L75-L110](Documents/ElinMods/FastStart/Plugin.cs#L75-L110).
 
 ---
 
@@ -142,7 +142,7 @@ public static class PatchStartNewGame
 }
 ```
 
-**Reference:** [FastStart L144-L189](file:///c:/Users/mcounts/Documents/ElinMods/FastStart/Plugin.cs#L144-L189).
+**Reference:** [FastStart L144-L189](Documents/ElinMods/FastStart/Plugin.cs#L144-L189).
 
 ---
 
@@ -274,7 +274,7 @@ public static class UnderworldStartupBootstrap
 
 ### 2.2.1 Custom Zones
 
-The mod may register 1-2 custom zones for underworld-specific locations. These follow the exact same pattern used by [Zone_SkyreaderGuild](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/Zone_SkyreaderGuild.cs).
+The mod may register 1-2 custom zones for underworld-specific locations. These follow the exact same pattern used by [Zone_SkyreaderGuild](Documents/ElinMods/SkyreaderGuild/Zone_SkyreaderGuild.cs).
 
 **Potential custom zones:**
 
@@ -284,7 +284,7 @@ The mod may register 1-2 custom zones for underworld-specific locations. These f
 
 Each zone requires:
 1. A `Zone_` class inheriting from `Zone` (or a subclass like `Zone_Dungeon`)
-2. An entry in `SourceGame.xlsx` Zone sheet following the [SourceGame_Zone schema](file:///c:/Users/mcounts/Documents/ElinMods/elin_readable_game_data/SourceGame_Zone.md)
+2. An entry in `SourceGame.xlsx` Zone sheet following the [SourceGame_Zone schema](Documents/ElinMods/elin_readable_game_data/SourceGame_Zone.md)
 3. Registration in `OnStartCore` or via CWL source sheet loading
 
 **Zone class template:**
@@ -306,8 +306,8 @@ public class Zone_UnderworldHideout : Zone
 ```
 
 **Source patterns:**
-- [Zone_Derphy.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/Zone_Derphy.cs) — `AllowCriminal => true`
-- [Zone_SkyreaderGuild](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/Zone_SkyreaderGuild.cs) — custom zone registration and map generation
+- [Zone_Derphy.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/Zone_Derphy.cs) — `AllowCriminal => true`
+- [Zone_SkyreaderGuild](Documents/ElinMods/SkyreaderGuild/Zone_SkyreaderGuild.cs) — custom zone registration and map generation
 
 ### 2.2.2 Zone Source Sheet Entry
 
@@ -326,7 +326,7 @@ idFile: uw_hideout
 tag: closed
 ```
 
-Reference: [SourceGame_Zone.md column definitions](file:///c:/Users/mcounts/Documents/ElinMods/elin_readable_game_data/SourceGame_Zone.md) L3-L28.
+Reference: [SourceGame_Zone.md column definitions](Documents/ElinMods/elin_readable_game_data/SourceGame_Zone.md) L3-L28.
 
 ---
 
@@ -336,7 +336,7 @@ Reference: [SourceGame_Zone.md column definitions](file:///c:/Users/mcounts/Docu
 
 The Fixer is a unique NPC with a custom chara entry in `SourceCard.xlsx` Chara sheet.
 
-Column values (using [CHARA_COL mapping](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/worklog/scripts/add_meteor_items.py#L208-L259)):
+Column values (using [CHARA_COL mapping](Documents/ElinMods/SkyreaderGuild/worklog/scripts/add_meteor_items.py#L208-L259)):
 
 | Column | Index | Value |
 |--------|-------|-------|
@@ -376,11 +376,11 @@ public class TraitUnderworldFixer : TraitUnique
 
 ### 2.3.3 Fixer Placement
 
-The Fixer spawns in **Derphy** — Elin's canonical criminal town where `AllowCriminal => true` ([Zone_Derphy.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/Zone_Derphy.cs)).
+The Fixer spawns in **Derphy** — Elin's canonical criminal town where `AllowCriminal => true` ([Zone_Derphy.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/Zone_Derphy.cs)).
 
 For the "Underworld Startup" scenario, the Fixer initially spawns in the player's starting zone (via bootstrap) and later relocates to Derphy. For standalone exploration, the Fixer can be found in Derphy.
 
-**Respawn handling**: The Fixer should be a global NPC (`SetGlobal`) that persists across zone reloads. This follows the same pattern as vanilla unique NPCs. If Derphy regenerates (monthly town reset), the Fixer is re-injected via a `Zone.OnVisit` postfix patch — identical to [SkyreaderGuild's portal injection](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/Zone_SkyreaderGuild.cs).
+**Respawn handling**: The Fixer should be a global NPC (`SetGlobal`) that persists across zone reloads. This follows the same pattern as vanilla unique NPCs. If Derphy regenerates (monthly town reset), the Fixer is re-injected via a `Zone.OnVisit` postfix patch — identical to [SkyreaderGuild's portal injection](Documents/ElinMods/SkyreaderGuild/Zone_SkyreaderGuild.cs).
 
 ---
 
@@ -392,14 +392,14 @@ Elin already has a robust criminal status system. The Underworld mod integrates 
 
 | Property/Method | Location | Purpose |
 |-----------------|----------|---------|
-| `Zone.AllowCriminal` | [Zone.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/Zone.cs) | Virtual property — `true` for Derphy and lawless zones |
-| `Zone.HasLaw` | [Zone.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/Zone.cs) | `true` for towns with guards; `false` for wilderness/dungeons |
-| `Player.IsCriminal` | [Player.cs L1408-L1418](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/Player.cs#L1408-L1418) | `karma < 0 && !HasCondition<ConIncognito>()` — criminal flag |
+| `Zone.AllowCriminal` | [Zone.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/Zone.cs) | Virtual property — `true` for Derphy and lawless zones |
+| `Zone.HasLaw` | [Zone.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/Zone.cs) | `true` for towns with guards; `false` for wilderness/dungeons |
+| `Player.IsCriminal` | [Player.cs L1408-L1418](Documents/ElinMods/Elin-Decompiled-main/Elin/Player.cs#L1408-L1418) | `karma < 0 && !HasCondition<ConIncognito>()` — criminal flag |
 | `ConIncognito` | Elin condition system | Condition that masks criminal status — guards ignore the player while active |
-| `TraitGuard` | [Chara.cs L6701](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/Chara.cs#L6701) | Guards aggro on PC party if `IsCriminal` and not in an instance zone |
-| `TraitMerchantDrug.ShopType` | [TraitMerchantDrug.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitMerchantDrug.cs) | Returns `ShopType.Drug` — sells potions/drugs |
-| `TraitMerchantBlack.CanSellStolenGoods` | [TraitMerchantBlack.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitMerchantBlack.cs) | Returns `true` — accepts stolen goods |
-| `GuildThief.SellStolenPrice` | [GuildThief.cs L17-L24](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/GuildThief.cs#L17-L24) | Price formula for stolen goods: `price * 100 / (190 - rank * 2)` |
+| `TraitGuard` | [Chara.cs L6701](Documents/ElinMods/Elin-Decompiled-main/Elin/Chara.cs#L6701) | Guards aggro on PC party if `IsCriminal` and not in an instance zone |
+| `TraitMerchantDrug.ShopType` | [TraitMerchantDrug.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/TraitMerchantDrug.cs) | Returns `ShopType.Drug` — sells potions/drugs |
+| `TraitMerchantBlack.CanSellStolenGoods` | [TraitMerchantBlack.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/TraitMerchantBlack.cs) | Returns `true` — accepts stolen goods |
+| `GuildThief.SellStolenPrice` | [GuildThief.cs L17-L24](Documents/ElinMods/Elin-Decompiled-main/Elin/GuildThief.cs#L17-L24) | Price formula for stolen goods: `price * 100 / (190 - rank * 2)` |
 
 ### 2.4.2 How the Mod Uses These Systems
 
@@ -562,7 +562,7 @@ This gives the player an immediate ability to navigate towns with some protectio
 
 ### 2.4.4 Dealing System Conditions
 
-Two custom `BadCondition` subclasses support the addiction/overdose system (see [§5.7-5.8](./05_orders_reputation.md)). These follow the same pattern as [ConPoison](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/ConPoison.cs).
+Two custom `BadCondition` subclasses support the addiction/overdose system (see [§5.7-5.8](./05_orders_reputation.md)). These follow the same pattern as [ConPoison](Documents/ElinMods/Elin-Decompiled-main/Elin/ConPoison.cs).
 
 | Condition | Base Class | Applies To | Trigger | Cure |
 |-----------|-----------|-----------|---------|------|
@@ -579,7 +579,7 @@ Full implementation in [§5.7.4](./05_orders_reputation.md) and [§5.8.4](./05_o
 
 ### 2.4.5 Drug Consumption Conditions
 
-14 custom `Condition` and `BadCondition` subclasses support the personal drug use system (see [§4.5](./04_farming_and_smoking.md)). These follow the pattern of vanilla [ConSmoking](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/ConSmoking.cs).
+14 custom `Condition` and `BadCondition` subclasses support the personal drug use system (see [§4.5](./04_farming_and_smoking.md)). These follow the pattern of vanilla [ConSmoking](Documents/ElinMods/Elin-Decompiled-main/Elin/ConSmoking.cs).
 
 **Active drug buffs (Condition subclasses):**
 
@@ -615,7 +615,7 @@ Vanilla `Chara.TryUse()` (line 8098) only recognizes `id == "cigar"` for smokeab
 
 ## 2.5 Configuration & Tunability
 
-All gameplay-significant values in this module are exposed via BepInEx `ConfigEntry<T>` bindings, following the [SkyreaderGuild config pattern](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs#L243-L253). This allows players and server operators to adjust the experience without code changes.
+All gameplay-significant values in this module are exposed via BepInEx `ConfigEntry<T>` bindings, following the [SkyreaderGuild config pattern](Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs#L243-L253). This allows players and server operators to adjust the experience without code changes.
 
 ### 2.5.1 Client-Side Config (BepInEx)
 

@@ -46,7 +46,7 @@ graph LR
 | **Talk to NPC** | Player has contraband + NPC is in a town zone | "Offer a taste" dialog option injected via `DramaCustomSequence.Build` postfix |
 | **Dealer's Ledger** | Interact with `uw_dealers_ledger` item | Custom panel showing all customers, status, addiction, product preferences |
 
-**Party member immunity:** All party members (`IsPCParty`) and PC faction members (`IsPCFaction`) are excluded from the dealing system. They cannot be offered samples, cannot develop addiction, and cannot OD. The Fixer and all recruited allies are always immune. See [TraitChara.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitChara.cs) for the faction check pattern.
+**Party member immunity:** All party members (`IsPCParty`) and PC faction members (`IsPCFaction`) are excluded from the dealing system. They cannot be offered samples, cannot develop addiction, and cannot OD. The Fixer and all recruited allies are always immune. See [TraitChara.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/TraitChara.cs) for the faction check pattern.
 
 ---
 
@@ -237,7 +237,7 @@ When a Dependent+ customer is not served for too long, they enter **withdrawal**
 | Addicted | 2 visits | NPC actively seeks the player. Dialog: *"Please... I need it."* NPC gains `ConUWWithdrawal`. |
 | Severe | 1 visit | NPC collapses. Gains `ConUWWithdrawal` (severe). May approach any party member. |
 
-**`ConUWWithdrawal`** — a custom `BadCondition` ([ConPoison.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/ConPoison.cs) as reference):
+**`ConUWWithdrawal`** — a custom `BadCondition` ([ConPoison.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/ConPoison.cs) as reference):
 
 ```csharp
 public class ConUWWithdrawal : BadCondition
@@ -343,7 +343,7 @@ def check_overdose(npc, product):
 
 ### 5.8.3 NPC Death and Customer Data
 
-Town NPCs auto-revive through Elin's `Zone.Revive()` system ([Zone.cs L1126-1158](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/Zone.cs#L1126-L1158)). Imported town NPCs satisfy `CanAutoRevive` ([TraitChara.cs L19-29](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitChara.cs#L19-L29)) because `isImported=true` and `!IsGlobal`. Towns also regenerate periodically via `ShouldRegenerate` + `dateRegenerate`.
+Town NPCs auto-revive through Elin's `Zone.Revive()` system ([Zone.cs L1126-1158](Documents/ElinMods/Elin-Decompiled-main/Elin/Zone.cs#L1126-L1158)). Imported town NPCs satisfy `CanAutoRevive` ([TraitChara.cs L19-29](Documents/ElinMods/Elin-Decompiled-main/Elin/TraitChara.cs#L19-L29)) because `isImported=true` and `!IsGlobal`. Towns also regenerate periodically via `ShouldRegenerate` + `dateRegenerate`.
 
 **When a customer dies from a fatal OD:**
 - NPC is killed via standard `DamageHP()` — added to `map.deadCharas`

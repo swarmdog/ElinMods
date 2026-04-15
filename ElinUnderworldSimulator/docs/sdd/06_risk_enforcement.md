@@ -206,7 +206,7 @@ public static void TriggerRaid(Zone playerBase, int raidIntensity)
 }
 ```
 
-**Source reference**: [Zone_Dungeon.cs L100-L109](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/Zone_Dungeon.cs#L100-L109) — how the vanilla game spawns NPCs during zone generation.
+**Source reference**: [Zone_Dungeon.cs L100-L109](Documents/ElinMods/Elin-Decompiled-main/Elin/Zone_Dungeon.cs#L100-L109) — how the vanilla game spawns NPCs during zone generation.
 
 ---
 

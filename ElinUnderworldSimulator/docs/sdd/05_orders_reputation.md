@@ -142,7 +142,7 @@ CLIENT_REP_MULTIPLIERS = {
 }
 ```
 
-**Reference:** The pricing model is inspired by [GuildThief.SellStolenPrice](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/GuildThief.cs#L17-L24): `price * 100 / (190 - rank * 2)`. We use a similar rank-scaling formula for payout bonuses:
+**Reference:** The pricing model is inspired by [GuildThief.SellStolenPrice](Documents/ElinMods/Elin-Decompiled-main/Elin/GuildThief.cs#L17-L24): `price * 100 / (190 - rank * 2)`. We use a similar rank-scaling formula for payout bonuses:
 
 ```python
 def rank_payout_bonus(rank_tier: int) -> float:

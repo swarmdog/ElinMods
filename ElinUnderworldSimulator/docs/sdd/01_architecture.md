@@ -79,12 +79,12 @@ graph TB
 
 | Component | Technology | Source |
 |-----------|-----------|--------|
-| Runtime | .NET Framework 4.8 (`net48`) | [Directory.Build.props](file:///c:/Users/mcounts/Documents/ElinMods/Directory.Build.props) L12 |
+| Runtime | .NET Framework 4.8 (`net48`) | [Directory.Build.props](Documents/ElinMods/Directory.Build.props) L12 |
 | Mod Framework | BepInEx 5.x | `BepInEx.Core.dll`, `BepInEx.Unity.dll` |
 | Patching | Harmony 2.x (`0Harmony.dll`) | Prefix/Postfix/Transpiler patches |
-| Game API | `Elin.dll`, `Plugins.BaseCore.dll`, `Plugins.Modding.dll`, `Plugins.UI.dll` | [Directory.Build.targets](file:///c:/Users/mcounts/Documents/ElinMods/Directory.Build.targets) L37-L52 |
+| Game API | `Elin.dll`, `Plugins.BaseCore.dll`, `Plugins.Modding.dll`, `Plugins.UI.dll` | [Directory.Build.targets](Documents/ElinMods/Directory.Build.targets) L37-L52 |
 | HTTP | `System.Net.Http` | Standard .NET 4.8 |
-| JSON | `Newtonsoft.Json` (bundled with Elin) | [Directory.Build.targets](file:///c:/Users/mcounts/Documents/ElinMods/Directory.Build.targets) L53-L56 |
+| JSON | `Newtonsoft.Json` (bundled with Elin) | [Directory.Build.targets](Documents/ElinMods/Directory.Build.targets) L53-L56 |
 | UI | `UnityEngine.UI.dll` | Unity UGUI |
 
 ### Backend Server
@@ -142,7 +142,7 @@ public class UnderworldPlugin : BaseUnityPlugin
 }
 ```
 
-**Source pattern**: [SkyreaderGuild.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs) — same BepInPlugin attribute, Harmony init, config binding approach.
+**Source pattern**: [SkyreaderGuild.cs](Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs) — same BepInPlugin attribute, Harmony init, config binding approach.
 
 ### 1.4.2 `UnderworldStartupBootstrap`
 
@@ -164,7 +164,7 @@ public static class UnderworldStartupBootstrap
 }
 ```
 
-**Source pattern**: [FastStartBootstrap.Apply()](file:///c:/Users/mcounts/Documents/ElinMods/FastStart/Plugin.cs#L144-L189) — zone claiming, quest manipulation, item granting. The key difference: FastStart replays vanilla quests to completion; Underworld simply leaves `QuestMain` at phase 0.
+**Source pattern**: [FastStartBootstrap.Apply()](Documents/ElinMods/FastStart/Plugin.cs#L144-L189) — zone claiming, quest manipulation, item granting. The key difference: FastStart replays vanilla quests to completion; Underworld simply leaves `QuestMain` at phase 0.
 
 ### 1.4.3 Crafting Module
 
@@ -177,8 +177,8 @@ Three crafting station traits, each inheriting from Elin's existing crafting hie
 | `TraitAdvancedLab` | `TraitFactory` | `"uw_advanced_lab"` | High-tier contraband crafting |
 
 **Source patterns**:
-- `TraitFactory` hierarchy: [TraitFactory.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitFactory.cs) → [TraitWorkbench.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitWorkbench.cs) → [TraitAlchemyBench.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitAlchemyBench.cs)
-- Decay-to-product: [TraitBrewery.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitBrewery.cs)
+- `TraitFactory` hierarchy: [TraitFactory.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/TraitFactory.cs) → [TraitWorkbench.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/TraitWorkbench.cs) → [TraitAlchemyBench.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/TraitAlchemyBench.cs)
+- Decay-to-product: [TraitBrewery.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/TraitBrewery.cs)
 
 ### 1.4.4 Network Module
 
@@ -188,8 +188,8 @@ Three crafting station traits, each inheriting from Elin's existing crafting hie
 | `UnderworldNetworkClient` | HTTP methods (GET/POST) with auth headers, timeout handling, offline fallback. All calls return `Task<T>` or `null` on failure. |
 
 **Source patterns**:
-- [SkyreaderAuthManager.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderAuthManager.cs) — identical token flow
-- [SkyreaderOnlineClient.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderOnlineClient.cs) — `HttpClient` usage, error handling, polling
+- [SkyreaderAuthManager.cs](Documents/ElinMods/SkyreaderGuild/SkyreaderAuthManager.cs) — identical token flow
+- [SkyreaderOnlineClient.cs](Documents/ElinMods/SkyreaderGuild/SkyreaderOnlineClient.cs) — `HttpClient` usage, error handling, polling
 
 ### 1.4.5 Economy Module
 
@@ -208,7 +208,7 @@ Three crafting station traits, each inheriting from Elin's existing crafting hie
 | `MarketScreen` | Browse/filter/accept available orders. |
 | `TerritoryOverlay` | Territory status: name, heat, demand, controlling faction. |
 
-**Source pattern**: [SkyreaderLadderDialog.cs](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderLadderDialog.cs) — `ELayer`-based custom dialog, Unity UI construction.
+**Source pattern**: [SkyreaderLadderDialog.cs](Documents/ElinMods/SkyreaderGuild/SkyreaderLadderDialog.cs) — `ELayer`-based custom dialog, Unity UI construction.
 
 ### 1.4.7 Custom Traits
 
@@ -218,7 +218,7 @@ Three crafting station traits, each inheriting from Elin's existing crafting hie
 | `TraitFixerNPC` | (custom or `TraitUnique`) | Fixer NPC interaction — opens NetworkPanel |
 
 **Source patterns**:
-- [TraitShippingChest.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitShippingChest.cs) — container gating
+- [TraitShippingChest.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/TraitShippingChest.cs) — container gating
 - SkyreaderGuild trait patterns for custom NPC interaction
 
 ## 1.5 Dependency Hierarchy

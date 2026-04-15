@@ -8,7 +8,7 @@ This document defines every custom item, category, and recipe in the mod. It inc
 
 ## 3.1 SourceCard XLSX Column Reference
 
-All Thing entries use the column mapping from the proven [add_meteor_items.py THING_COL](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/worklog/scripts/add_meteor_items.py#L171-L205):
+All Thing entries use the column mapping from the proven [add_meteor_items.py THING_COL](Documents/ElinMods/SkyreaderGuild/worklog/scripts/add_meteor_items.py#L171-L205):
 
 | Column Name | Index | Type | Notes |
 |-------------|-------|------|-------|
@@ -40,7 +40,7 @@ All Thing entries use the column mapping from the proven [add_meteor_items.py TH
 | `tag` | 46 | string | Tags: `noShop`, `noWish`, `contraband`, etc. |
 | `detail` | 52 | string | English description text. |
 
-> **Critical NPOI Rule** (from [agents.md](file:///c:/Users/mcounts/Documents/ElinMods/AGENTS.md)): Numeric columns (`tiles`, `value`, `LV`, `weight`, `chance`, `quality`, `HP`, `sort_value`) **must** be written as numbers, not strings. The `sort` column (index 10) is a string category name, but `sort_value` (index 11) is numeric.
+> **Critical NPOI Rule** (from [agents.md](Documents/ElinMods/AGENTS.md)): Numeric columns (`tiles`, `value`, `LV`, `weight`, `chance`, `quality`, `HP`, `sort_value`) **must** be written as numbers, not strings. The `sort` column (index 10) is a string category name, but `sort_value` (index 11) is numeric.
 
 ---
 
@@ -209,7 +209,7 @@ Elin's source data importer uses NPOI, which reads string values exclusively fro
 
 ### 3.5.2 The Solution
 
-After every openpyxl save, run the `normalize_shared_strings()` function from [add_meteor_items.py L49-L168](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/worklog/scripts/add_meteor_items.py#L49-L168). This function:
+After every openpyxl save, run the `normalize_shared_strings()` function from [add_meteor_items.py L49-L168](Documents/ElinMods/SkyreaderGuild/worklog/scripts/add_meteor_items.py#L49-L168). This function:
 
 1. Opens the saved `.xlsx` as a ZIP archive
 2. Iterates all worksheet XML files

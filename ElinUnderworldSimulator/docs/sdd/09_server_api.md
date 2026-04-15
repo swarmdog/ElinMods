@@ -2,7 +2,7 @@
 
 > Parent: [00_overview.md](./00_overview.md) · Architecture: [01_architecture.md](./01_architecture.md)
 
-This document is the complete API specification for the Underworld backend server — a first-class deliverable matching the [SkyreaderGuildServer](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuildServer/) patterns.
+This document is the complete API specification for the Underworld backend server — a first-class deliverable matching the [SkyreaderGuildServer](Documents/ElinMods/SkyreaderGuildServer/) patterns.
 
 ---
 
@@ -13,7 +13,7 @@ This document is the complete API specification for the Underworld backend serve
 | Framework | **FastAPI** (Python 3.11+) | Async-native, auto OpenAPI docs, proven in SkyreaderGuildServer |
 | Database | **SQLite** via `aiosqlite` | Zero-config, single-file, sufficient for async multiplayer workloads |
 | Server | **uvicorn** | ASGI standard, used by SkyreaderGuildServer |
-| Auth | **Custom token-based** | Matches [SkyreaderAuthManager](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderAuthManager.cs) client-side flow |
+| Auth | **Custom token-based** | Matches [SkyreaderAuthManager](Documents/ElinMods/SkyreaderGuild/SkyreaderAuthManager.cs) client-side flow |
 | Testing | **pytest** + `httpx.AsyncClient` | State routed to `worklog/pytest/test_tmp` per agents.md |
 | Background Jobs | **asyncio tasks** | In-process scheduled coroutines (no external task queue needed) |
 
@@ -244,7 +244,7 @@ CREATE INDEX IF NOT EXISTS idx_shipments_player ON shipments(player_id);
 
 ### 9.4.1 Flow
 
-Token-based auth matching the [SkyreaderAuthManager](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderAuthManager.cs) pattern:
+Token-based auth matching the [SkyreaderAuthManager](Documents/ElinMods/SkyreaderGuild/SkyreaderAuthManager.cs) pattern:
 
 ```mermaid
 sequenceDiagram

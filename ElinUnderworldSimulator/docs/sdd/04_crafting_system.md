@@ -62,10 +62,10 @@ classDiagram
 ```
 
 **Key source files:**
-- [TraitFactory.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitFactory.cs) — Base crafting station: `Contains()`, `GetSPCost()`, act duration
-- [TraitWorkbench.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitWorkbench.cs) — Simple subclass with no overrides
-- [TraitAlchemyBench.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitAlchemyBench.cs) — Example pattern: filters recipes by `idFactory`
-- [TraitBrewery.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitBrewery.cs) — Decay-to-product model: items placed inside the container transform over time
+- [TraitFactory.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/TraitFactory.cs) — Base crafting station: `Contains()`, `GetSPCost()`, act duration
+- [TraitWorkbench.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/TraitWorkbench.cs) — Simple subclass with no overrides
+- [TraitAlchemyBench.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/TraitAlchemyBench.cs) — Example pattern: filters recipes by `idFactory`
+- [TraitBrewery.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/TraitBrewery.cs) — Decay-to-product model: items placed inside the container transform over time
 
 ---
 
@@ -101,7 +101,7 @@ public class TraitMixingTable : TraitFactory
 4. For each recipe, it calls `this.Contains(recipe)` — our override filters to `factory == "uw_mixing_table"`
 5. The filtered list populates the crafting UI
 
-**Source reference:** [RecipeSource.cs L125-L196](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/RecipeSource.cs#L125-L196) — `GetIngredients()` method parses the `components` column.
+**Source reference:** [RecipeSource.cs L125-L196](Documents/ElinMods/Elin-Decompiled-main/Elin/RecipeSource.cs#L125-L196) — `GetIngredients()` method parses the `components` column.
 
 ### 4.2.2 Recipe Registration
 
@@ -111,7 +111,7 @@ Recipes are registered purely through SourceCard.xlsx Thing entries. No code-sid
 2. **Thing row has `components` column**: The `"uw_herb_whisper/3,potion_empty/1"` format specifies required ingredients and quantities.
 3. **Thing row has `recipeKey` column**: `"*"` means the recipe is always known. Omitting it means the player must find a recipe scroll.
 
-**Component syntax** (from [RecipeSource.GetIngredients()](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/RecipeSource.cs#L125-L196)):
+**Component syntax** (from [RecipeSource.GetIngredients()](Documents/ElinMods/Elin-Decompiled-main/Elin/RecipeSource.cs#L125-L196)):
 ```
 "item_id/quantity,item_id2/quantity2"
 ```
@@ -142,7 +142,7 @@ For the Mixing Table, the default calculation is sufficient. Higher-value contra
 
 ### 4.3.1 Design
 
-The Processing Vat uses Elin's **decay-to-product** model from [TraitBrewery](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitBrewery.cs). Items placed inside the vat passively transform into refined contraband over time.
+The Processing Vat uses Elin's **decay-to-product** model from [TraitBrewery](Documents/ElinMods/Elin-Decompiled-main/Elin/TraitBrewery.cs). Items placed inside the vat passively transform into refined contraband over time.
 
 This is conceptually identical to how the Brewery turns berries into wine — raw items "ferment" into processed products.
 
@@ -196,7 +196,7 @@ public class TraitProcessingVat : TraitBrewery
 
 ### 4.3.3 How TraitBrewery's Decay Model Works
 
-From [TraitBrewery.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitBrewery.cs):
+From [TraitBrewery.cs](Documents/ElinMods/Elin-Decompiled-main/Elin/TraitBrewery.cs):
 
 1. Player places item in the vat container
 2. Elin's `CardManager` runs periodic decay ticks on all items
@@ -257,7 +257,7 @@ No code-side rank check is needed for the station itself — the progression is 
 
 ### 4.5.1 Elin's Existing Quality System
 
-Elin already propagates ingredient quality through crafting via [CraftUtil.MixIngredients()](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/CraftUtil.cs#L374-L498):
+Elin already propagates ingredient quality through crafting via [CraftUtil.MixIngredients()](Documents/ElinMods/Elin-Decompiled-main/Elin/CraftUtil.cs#L374-L498):
 
 ```csharp
 // From CraftUtil.cs — simplified quality propagation logic
