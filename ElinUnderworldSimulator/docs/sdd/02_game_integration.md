@@ -577,6 +577,40 @@ Two custom `BadCondition` subclasses support the addiction/overdose system (see 
 
 Full implementation in [§5.7.4](./05_orders_reputation.md) and [§5.8.4](./05_orders_reputation.md).
 
+### 2.4.5 Drug Consumption Conditions
+
+14 custom `Condition` and `BadCondition` subclasses support the personal drug use system (see [§4.5](./04_farming_and_smoking.md)). These follow the pattern of vanilla [ConSmoking](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/ConSmoking.cs).
+
+**Active drug buffs (Condition subclasses):**
+
+| Condition | Drug | Key Stats | Duration |
+|-----------|------|-----------|----------|
+| `ConUWWhisperHigh` | Whisper Tonic | PV +15, DV +10, SPD −5 | p/5 |
+| `ConUWShadowRush` | Shadow Elixir | SPD +15, extra action/3 turns | p/3 |
+| `ConUWDreamHigh` | Dream Powder / Dream Cookie | INT +3, PER +2 | p/5 |
+| `ConUWVoidRage` | Void Salts | STR +3, WIL −3 | p/5 |
+| `ConUWCrimsonSurge` | Crimson Elixir | STR +3, END +3, MaxHP +50 | p/5 |
+| `ConUWWhisperCalm` | Whispervine Roll | PV +10, sleepiness −1/tick | p/4 |
+| `ConUWDreamCalm` | Dreamweed Joint | CHA +3 | p/5 |
+| `ConUWBerserkerRage` | Berserker's Draught | STR +5, END +3 | p/4 |
+| `ConUWShadowRushX` | Shadow Rush | SPD +20, extra action/2 turns | p/2 |
+| `ConUWFrostbloom` | Frostbloom Elixir | END +4, HP regen +3/tick | p/6 |
+| `ConUWAshveil` | Ashveil Incense | PER +5, + ConSeeInvisible | p/5 |
+
+**Crash/comedown debuffs (BadCondition subclasses):**
+
+| Condition | Triggered By | Key Stats | Duration |
+|-----------|-------------|-----------|----------|
+| `ConUWShadowCrash` | ConUWShadowRush expire | SPD −10, stamina drain | 30 |
+| `ConUWBerserkerCrash` | ConUWBerserkerRage expire | STR −3, END −2, ConConfuse | 15 |
+| `ConUWRushCrash` | ConUWShadowRushX expire | SPD −15, stamina drain, ConDim | 40 |
+
+SourceGame_Stat entries (IDs 90100-90113) are specified in [§4.5.3](./04_farming_and_smoking.md).
+
+### 2.4.6 Smoking Item Harmony Patch
+
+Vanilla `Chara.TryUse()` (line 8098) only recognizes `id == "cigar"` for smokeable items. Our 4 smokeable items require a Harmony Prefix on `Chara.TryUse()` that checks a HashSet of our item IDs and delegates to `TraitItemProc.OnUse()`. Full implementation in [§4.4.1](./04_farming_and_smoking.md).
+
 ---
 
 ## 2.5 Configuration & Tunability

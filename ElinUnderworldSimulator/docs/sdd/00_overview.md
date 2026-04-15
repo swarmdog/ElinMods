@@ -62,13 +62,19 @@ All in-game terms use Elin-flavored fantasy language.
 | **Withdrawal** | `ConUWWithdrawal` condition applied to Dependent+ customers who haven't been served within a visit threshold. Stat debuffs, vomiting, and desperate dialog. Cured by serving product. |
 | **Alchemist's Reprieve** | Craftable recovery potion (`uw_antidote_vial`). Cures `ConUWOverdose` from mild/severe ODs, restoring 50% HP. Cannot prevent fatal ODs. |
 | **Dealer's Ledger** | Book item (`uw_dealers_ledger`) that opens a custom `ELayer` panel tracking all customers across towns — status, loyalty, addiction, and pending orders. |
+| **Strain** | A seed's accumulated food trait elements and `encLV`, representing the genetic quality of a drug crop line. Higher strains produce more potent herbs and refined products. |
+| **Administration Route** | The method of drug consumption: Drink (potions), Smoke (`TraitItemProc`, cigar pattern), Eat (`TraitFood`), Throw (splash/gas), or Blend (coat food). |
+| **Frostbloom** | Region-locked herb found only in Noyel or during winter. Used to craft Frostbloom Elixir (cold resistance, regeneration). |
+| **Ashveil Moss** | Region-locked herb found only in Lothria (ashlands). Used to craft Ashveil Incense (see invisible, fire resistance). |
+| **Dream Cookie** | An edible drug created by blending Dream Powder into baked food. Demonstrates the cooking/blend integration. |
+| **Crash/Comedown** | A `BadCondition` debuff applied when a potent drug wears off. Severity scales with the drug's power. Removable by re-dosing (at addiction risk). |
 
 ### 0.5 Scope Boundary
 
 **In scope (this mod):**
 - Standalone "Underworld Startup" starting scenario
 - Custom crafting stations (Mixing Table, Processing Vat, Advanced Lab)
-- 15-25 new items (raw ingredients, precursors, finished contraband, cutting agents)
+- 30+ new items (raw ingredients, precursors, 12 finished drug products, cutting agents, dealing items, region-locked herbs)
 - 2-3 custom NPCs (Fixer, suppliers, enforcers)
 - Async multiplayer backend (FastAPI + SQLite)
 - Order/shipment lifecycle with server-side resolution
@@ -82,6 +88,11 @@ All in-game terms use Elin-flavored fantasy language.
 - NPC addiction and tolerance mechanics (progressive dependency)
 - Overdose system with graduated consequences (mild/severe/fatal)
 - Withdrawal conditions and customer management
+- Drug farming with seed strain improvement (genetics loop)
+- 5 administration routes (drink, smoke, eat, throw, blend)
+- 12 distinct sellable drug products with combat effects
+- Region-locked herbs (Frostbloom in Noyel, Ashveil in Lothria)
+- Configurable PC self-addiction system
 
 
 **Out of scope:**
@@ -99,7 +110,8 @@ All in-game terms use Elin-flavored fantasy language.
 | **01** | [01_architecture.md](./01_architecture.md) | Component diagram, tech stack, module decomposition, class hierarchy |
 | **02** | [02_game_integration.md](./02_game_integration.md) | Harmony patches, startup scenario, zone registration, NPC integration, criminal system hooks |
 | **03** | [03_data_model.md](./03_data_model.md) | Item taxonomy, SourceCard XLSX specifications, element properties, NPOI compliance |
-| **04** | [04_crafting_system.md](./04_crafting_system.md) | Mixing Table, Processing Vat, Advanced Lab, quality propagation, recipe registration |
+| **04a** | [04_crafting_system.md](./04_crafting_system.md) | Mixing Table, Processing Vat, Advanced Lab, quality propagation, recipe registration |
+| **04b** | [04_farming_and_smoking.md](./04_farming_and_smoking.md) | Crop cultivation, seed strains, 12-product drug catalog, administration routes, personal use conditions, player effects |
 | **05** | [05_orders_reputation.md](./05_orders_reputation.md) | Client archetypes, order lifecycle, reputation tracks, rank benefits, satisfaction algorithm |
 | **06** | [06_risk_enforcement.md](./06_risk_enforcement.md) | Heat system, nerve resource, law enforcement events, raid implementation, recovery |
 | **07** | [07_territory_factions.md](./07_territory_factions.md) | Territory map, faction system, warfare resolution, control rewards |

@@ -55,6 +55,8 @@ ElinUnderworldSimulator/
 │   │   ├── uw_herb_dream.png
 │   │   ├── uw_herb_shadow.png
 │   │   ├── uw_herb_crimson.png
+│   │   ├── uw_herb_frostbloom.png
+│   │   ├── uw_herb_ashveil.png
 │   │   ├── uw_mineral_crude.png
 │   │   ├── uw_mineral_crystal.png
 │   │   ├── uw_extract_whisper.png
@@ -66,7 +68,16 @@ ElinUnderworldSimulator/
 │   │   ├── uw_powder_dream.png
 │   │   ├── uw_elixir_shadow.png
 │   │   ├── uw_salts_void.png
-│   │   └── uw_elixir_crimson.png
+│   │   ├── uw_elixir_crimson.png
+│   │   ├── uw_roll_whisper.png
+│   │   ├── uw_roll_dream.png
+│   │   ├── uw_draught_berserker.png
+│   │   ├── uw_elixir_rush.png
+│   │   ├── uw_elixir_frost.png
+│   │   ├── uw_incense_ash.png
+│   │   ├── uw_dealers_ledger.png
+│   │   ├── uw_sample_kit.png
+│   │   └── uw_antidote_vial.png
 │   └── Chara/
 │       └── uw_fixer.png
 └── worklog/

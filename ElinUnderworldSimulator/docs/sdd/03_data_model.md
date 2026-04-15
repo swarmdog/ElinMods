@@ -91,6 +91,8 @@ Foraged or purchased materials. Available from merchants, wild zones, or player 
 | `uw_mineral_crude` | Crude Moonite | `ore` | `granite` | 20 | 500 | Mine (any mine zone) | Ore/mineral |
 | `uw_mineral_crystal` | Voidstone Shard | `ore` | `obsidian` | 80 | 300 | Mine (deep dungeons) | Rare ore |
 | `uw_herb_crimson` | Crimsonwort | `herb` | `leaf` | 60 | 90 | Forage (hot biomes) | Exotic herb |
+| `uw_herb_frostbloom` | Frostbloom | `herb` | `leaf` | 45 | 70 | Noyel zone / Winter only | Region-locked (see [§4.2.4](./04_farming_and_smoking.md)) |
+| `uw_herb_ashveil` | Ashveil Moss | `herb` | `leaf` | 45 | 100 | Lothria zone only | Region-locked (see [§4.2.4](./04_farming_and_smoking.md)) |
 
 ### 3.2.2 Tier 1 — Precursors (Processed Ingredients)
 
@@ -106,15 +108,22 @@ Produced at the Mixing Table from raw ingredients. Used as inputs for finished c
 
 ### 3.2.3 Tier 2 — Finished Contraband
 
-The sellable products. Each has potency and toxicity values that determine payout and client satisfaction.
+The sellable products. 12 total — 5 base, 2 smokeable variants, 2 advanced blends, 1 edible (via blend), 2 region-locked. Full effect details in [04_farming_and_smoking.md §4.3](./04_farming_and_smoking.md).
 
-| ID | Name | Category | Factory | Components | Material | Value | Weight | Potency | Toxicity |
-|----|------|----------|---------|------------|----------|-------|--------|---------|----------|
-| `uw_tonic_whisper` | Whisper Tonic | `potion` | `uw_mixing_table` | `uw_extract_whisper/2,uw_powder_moonite/1` | `glass` | 500 | 200 | 40 | 10 |
-| `uw_powder_dream` | Dream Powder | `_item` | `uw_mixing_table` | `uw_extract_dream/2,uw_powder_moonite/1` | `mineral` | 800 | 150 | 60 | 15 |
-| `uw_elixir_shadow` | Shadow Elixir | `potion` | `uw_mixing_table` | `uw_extract_shadow/2,uw_crystal_void/1` | `glass` | 1200 | 200 | 75 | 20 |
-| `uw_salts_void` | Void Salts | `_item` | `uw_advanced_lab` | `uw_crystal_void/3,uw_extract_dream/1` | `obsidian` | 2000 | 100 | 90 | 30 |
-| `uw_elixir_crimson` | Crimson Elixir | `potion` | `uw_advanced_lab` | `uw_herb_crimson/4,uw_extract_shadow/2,uw_crystal_void/1` | `glass` | 3000 | 250 | 95 | 25 |
+| ID | Name | Category | Factory | Components | Material | Value | Weight | Route | Trait |
+|----|------|----------|---------|------------|----------|-------|--------|-------|-------|
+| `uw_tonic_whisper` | Whisper Tonic | `potion` | `uw_mixing_table` | `uw_extract_whisper/2,uw_powder_moonite/1` | `glass` | 500 | 200 | Drink | `Drug,Buff,ConUWWhisperHigh` |
+| `uw_powder_dream` | Dream Powder | `_item` | `uw_mixing_table` | `uw_extract_dream/2,uw_powder_moonite/1` | `mineral` | 800 | 150 | Smoke | `ItemProc,Buff,ConUWDreamHigh` |
+| `uw_elixir_shadow` | Shadow Elixir | `potion` | `uw_mixing_table` | `uw_extract_shadow/2,uw_crystal_void/1` | `glass` | 1200 | 200 | Drink | `Drug,Buff,ConUWShadowRush` |
+| `uw_salts_void` | Void Salts | `_item` | `uw_advanced_lab` | `uw_crystal_void/3,uw_extract_dream/1` | `obsidian` | 2000 | 100 | Eat | `Food` (elements: `90022/3`) |
+| `uw_elixir_crimson` | Crimson Elixir | `potion` | `uw_advanced_lab` | `uw_herb_crimson/4,uw_extract_shadow/2,uw_crystal_void/1` | `glass` | 3000 | 250 | Drink | `Drug,Buff,ConUWCrimsonSurge` |
+| `uw_roll_whisper` | Whispervine Roll | `_item` | `self` | `uw_herb_whisper/3,bark/1` | `paper` | 200 | 50 | Smoke | `ItemProc,Buff,ConUWWhisperCalm` |
+| `uw_roll_dream` | Dreamweed Joint | `_item` | `self` | `uw_herb_dream/3,bark/1` | `paper` | 250 | 50 | Smoke | `ItemProc,Buff,ConUWDreamCalm` |
+| `uw_draught_berserker` | Berserker's Draught | `potion` | `uw_advanced_lab` | `uw_salts_void/1,uw_elixir_crimson/1` | `glass` | 4500 | 200 | Drink | `Drug,Buff,ConUWBerserkerRage` |
+| `uw_elixir_rush` | Shadow Rush | `potion` | `uw_advanced_lab` | `uw_elixir_shadow/1,uw_salts_void/1` | `glass` | 3500 | 150 | Drink | `Drug,Buff,ConUWShadowRushX` |
+| *(blended)* | Dream Cookie | — | Blend | `uw_powder_dream` + any baked food | — | — | — | Eat | — (food gains `90021` element) |
+| `uw_elixir_frost` | Frostbloom Elixir | `potion` | `uw_mixing_table` | `uw_herb_frostbloom/3,uw_extract_whisper/1,potion_empty/1` | `glass` | 1800 | 200 | Drink | `Drug,Buff,ConUWFrostbloom` |
+| `uw_incense_ash` | Ashveil Incense | `_item` | `uw_mixing_table` | `uw_herb_ashveil/3,uw_powder_moonite/1` | `paper` | 2000 | 80 | Smoke/Throw | `ItemProc,Buff,ConUWAshveil` |
 
 ### 3.2.4 Cutting Agents
 
@@ -165,6 +174,8 @@ Contraband items use Elin's element system to encode potency and toxicity. These
 | 90012 | `UW_LOYALTY` | Per-NPC | Customer loyalty tier. Range 0-20+. Gates order volume and markup. |
 | 90013 | `UW_PREFERRED_PRODUCT` | Per-NPC | Product type the customer prefers (set on first sample). |
 | 90014 | `UW_OFFER_COOLDOWN` | Per-NPC | Hours remaining before the NPC can be offered another sample. |
+| 90021 | `UW_DREAM_TRAIT` | Food trait | When eaten, applies `ConUWDreamHigh`. Used on blended Dream Cookie food items. See [§4.5.1](./04_farming_and_smoking.md). |
+| 90022 | `UW_VOID_TRAIT` | Food trait | When eaten, applies `ConUWVoidRage`. Used on Void Salts. See [§4.5.1](./04_farming_and_smoking.md). |
 
 ### 3.4.2 How Elements Are Set During Crafting
 

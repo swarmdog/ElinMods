@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>ElinUnderworldSimulator</AssemblyName>
+    <RootNamespace>ElinUnderworldSimulator</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="DealerLedgerDialog.cs" />
+    <Compile Include="ModInfo.cs" />
+    <Compile Include="TraitUwAntidoteVial.cs" />
+    <Compile Include="TraitUwContrabandChest.cs" />
+    <Compile Include="TraitUwDealerLedger.cs" />
+    <Compile Include="TraitUwMixingTable.cs" />
+    <Compile Include="TraitUwSampleKit.cs" />
+    <Compile Include="UnderworldBootstrap.cs" />
+    <Compile Include="UnderworldDealService.cs" />
+    <Compile Include="UnderworldPlugin.cs" />
+    <Compile Include="UnderworldRuntime.cs" />
+    <Compile Include="UnderworldSaveData.cs" />
+  </ItemGroup>
+</Project>

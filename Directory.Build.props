@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <IsElinModProject Condition="'$(MSBuildProjectName)' == 'FastStart' or '$(MSBuildProjectName)' == 'PartyWage' or '$(MSBuildProjectName)' == 'SkyreaderGuild'">true</IsElinModProject>
+    <IsElinModProject Condition="'$(MSBuildProjectName)' == 'FastStart' or '$(MSBuildProjectName)' == 'PartyWage' or '$(MSBuildProjectName)' == 'SkyreaderGuild' or '$(MSBuildProjectName)' == 'ElinUnderworldSimulator'">true</IsElinModProject>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsElinModProject)' == 'true'">

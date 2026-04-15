@@ -9,7 +9,6 @@ Elin-Decomp*
 elin_readable_game_data
 agents.md
 SkyreaderGuild/worklog/reports/*
-
 SkyreaderGuildServer/*.db
 SkyreaderGuildServer/worklog
 

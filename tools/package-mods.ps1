@@ -72,6 +72,42 @@ function Assert-PackageXml([string]$Path) {
     }
 }
 
+function Get-PackageMeta([string]$Path) {
+    Assert-PackageXml $Path
+    [xml]$xml = Get-Content -LiteralPath $Path -Raw
+    return @{
+        id = [string]$xml.Meta.id
+        title = [string]$xml.Meta.title
+        version = [string]$xml.Meta.version
+    }
+}
+
+function Assert-PackageMetaMatches([string]$ExpectedPath, [string]$ActualPath, [string]$Label) {
+    $expected = Get-PackageMeta $ExpectedPath
+    $actual = Get-PackageMeta $ActualPath
+
+    foreach ($field in @("id", "title", "version")) {
+        if ($expected[$field] -ne $actual[$field]) {
+            Fail "$Label metadata mismatch for <$field>: expected '$($expected[$field])', got '$($actual[$field])'"
+        }
+    }
+}
+
+function Get-FileSha256([string]$Path) {
+    if (!(Test-Path -LiteralPath $Path -PathType Leaf)) {
+        Fail "Missing file for hashing: $Path"
+    }
+    return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash
+}
+
+function Assert-FileHashMatches([string]$ExpectedPath, [string]$ActualPath, [string]$Label) {
+    $expected = Get-FileSha256 $ExpectedPath
+    $actual = Get-FileSha256 $ActualPath
+    if ($expected -ne $actual) {
+        Fail "$Label hash mismatch between '$ExpectedPath' and '$ActualPath'"
+    }
+}
+
 function Assert-Preview([string]$Path) {
     if (!(Test-Path -LiteralPath $Path -PathType Leaf)) {
         Fail "Missing preview.jpg: $Path"
@@ -281,6 +317,30 @@ function Assert-SkyreaderTextures([string]$SourceCardPath, [string]$SourceTextur
     }
 }
 
+function Assert-PrefixedTextures([string]$PackageLabel, [string]$Prefix, [string]$SourceCardPath, [string]$SourceTextureDir, [string]$StagedTextureDir) {
+    Assert-FlatTextureDirectory $SourceTextureDir
+    Assert-FlatTextureDirectory $StagedTextureDir
+
+    $requiredIds = Get-XlsxIds $SourceCardPath @("Thing", "Chara") |
+        Where-Object { $_ -like "$Prefix*" } |
+        Sort-Object -Unique
+
+    $sourceTextureIds = Get-ChildItem -LiteralPath $SourceTextureDir -File -Filter "*.png" |
+        ForEach-Object { [System.IO.Path]::GetFileNameWithoutExtension($_.Name) }
+    $stagedTextureIds = Get-ChildItem -LiteralPath $StagedTextureDir -File -Filter "*.png" |
+        ForEach-Object { [System.IO.Path]::GetFileNameWithoutExtension($_.Name) }
+
+    $missingFromSource = @($requiredIds | Where-Object { $sourceTextureIds -notcontains $_ })
+    if ($missingFromSource.Count -gt 0) {
+        Fail "$PackageLabel SourceCard ids are missing flat source textures: $($missingFromSource -join ', ')"
+    }
+
+    $missingFromStage = @($requiredIds | Where-Object { $stagedTextureIds -notcontains $_ })
+    if ($missingFromStage.Count -gt 0) {
+        Fail "$PackageLabel package is missing flat staged textures: $($missingFromStage -join ', ')"
+    }
+}
+
 function Get-RelativeZipPath([string]$BasePath, [string]$Path) {
     $baseFull = [System.IO.Path]::GetFullPath($BasePath)
     if (!$baseFull.EndsWith([System.IO.Path]::DirectorySeparatorChar)) {
@@ -419,6 +479,42 @@ function Copy-SkyreaderPackage {
     Assert-Preview (Join-Path $packageDir "preview.jpg")
 }
 
+function Copy-UnderworldPackage {
+    $sourceDir = Join-Path $RepoRoot "ElinUnderworldSimulator"
+    $packageDir = Join-Path $StagingRoot "ElinUnderworldSimulator"
+    New-Item -ItemType Directory -Path $packageDir -Force | Out-Null
+
+    Copy-RequiredFile (Join-Path $sourceDir "package.xml") (Join-Path $packageDir "package.xml")
+    Copy-RequiredFile (Join-Path $sourceDir "preview.jpg") (Join-Path $packageDir "preview.jpg")
+    Copy-RequiredFile (Join-Path $sourceDir "bin\$Configuration\ElinUnderworldSimulator.dll") (Join-Path $packageDir "ElinUnderworldSimulator.dll")
+
+    if ($IncludePdb) {
+        $pdbPath = Join-Path $sourceDir "bin\$Configuration\ElinUnderworldSimulator.pdb"
+        if (Test-Path -LiteralPath $pdbPath -PathType Leaf) {
+            Copy-Item -LiteralPath $pdbPath -Destination (Join-Path $packageDir "ElinUnderworldSimulator.pdb") -Force
+        }
+    }
+
+    $sourceCardSource = Join-Path $sourceDir "LangMod\EN\SourceCard.xlsx"
+    $sourceCardDest = Join-Path $packageDir "LangMod\EN\SourceCard.xlsx"
+    Copy-RequiredFile $sourceCardSource $sourceCardDest
+    Assert-SourceCardWorkbook $sourceCardDest
+
+    $textureSource = Join-Path $sourceDir "Texture"
+    $textureDest = Join-Path $packageDir "Texture"
+    New-Item -ItemType Directory -Path $textureDest -Force | Out-Null
+    Assert-FlatTextureDirectory $textureSource
+    Get-ChildItem -LiteralPath $textureSource -File -Filter "*.png" |
+        ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $textureDest $_.Name) -Force }
+
+    Assert-PrefixedTextures "ElinUnderworldSimulator" "uw_" $sourceCardDest $textureSource $textureDest
+
+    Assert-PackageMetaMatches (Join-Path $sourceDir "package.xml") (Join-Path $packageDir "package.xml") "Staged ElinUnderworldSimulator"
+    Assert-FileHashMatches (Join-Path $sourceDir "bin\$Configuration\ElinUnderworldSimulator.dll") (Join-Path $packageDir "ElinUnderworldSimulator.dll") "Staged ElinUnderworldSimulator.dll"
+    Assert-PackageXml (Join-Path $packageDir "package.xml")
+    Assert-Preview (Join-Path $packageDir "preview.jpg")
+}
+
 function Assert-NoForbiddenFiles {
     $forbidden = Get-ChildItem -LiteralPath $StagingRoot -Recurse -File |
         Where-Object {
@@ -460,7 +556,7 @@ function Deploy-Packages {
         Fail "Elin package directory does not exist: $packageDir"
     }
 
-    foreach ($package in @("FastStartMod", "PartyWage", "SkyreaderGuild")) {
+    foreach ($package in @("FastStartMod", "PartyWage", "SkyreaderGuild", "ElinUnderworldSimulator")) {
         $source = Join-Path $StagingRoot $package
         $dest = Join-Path $packageDir $package
         if (Test-Path -LiteralPath $dest) {
@@ -468,6 +564,11 @@ function Deploy-Packages {
         }
         Copy-Item -LiteralPath $source -Destination $dest -Recurse -Force
         Write-Host "Deployed $package to $dest"
+
+        if ($package -eq "ElinUnderworldSimulator") {
+            Assert-PackageMetaMatches (Join-Path $RepoRoot "ElinUnderworldSimulator\package.xml") (Join-Path $dest "package.xml") "Deployed ElinUnderworldSimulator"
+            Assert-FileHashMatches (Join-Path $RepoRoot "ElinUnderworldSimulator\bin\$Configuration\ElinUnderworldSimulator.dll") (Join-Path $dest "ElinUnderworldSimulator.dll") "Deployed ElinUnderworldSimulator.dll"
+        }
     }
 }
 
@@ -484,12 +585,14 @@ Reset-Directory $OutputPath
 Copy-ScriptModPackage "FastStart" "FastStartMod" "FastStartMod"
 Copy-ScriptModPackage "PartyWage" "PartyWage" "PartyWage"
 Copy-SkyreaderPackage
+Copy-UnderworldPackage
 Assert-NoForbiddenFiles
 
 $packages = @{
     "FastStartMod" = "FastStartMod.zip"
     "PartyWage" = "PartyWage.zip"
     "SkyreaderGuild" = "SkyreaderGuild.zip"
+    "ElinUnderworldSimulator" = "ElinUnderworldSimulator.zip"
 }
 
 foreach ($packageName in $packages.Keys) {

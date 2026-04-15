@@ -9,7 +9,8 @@ namespace FastStartMod
     [BepInPlugin("mrmeagle.elin.faststart", "Fast Start", "1.1.0")]
     public class FastStartPlugin : BaseUnityPlugin
     {
-        public const int FastStartPrologueIndex = 100;
+        public const string FastStartLabel = "Fast Start";
+        internal static int RegisteredPrologueIndex = -1;
 
         internal static bool IsApplyingFastStart = false;
         internal static bool HasAppliedFastStart = false;
@@ -36,20 +37,41 @@ namespace FastStartMod
         internal static void Log(string msg) => _instance?.Logger.LogInfo(msg);
         internal static void LogWarn(string msg) => _instance?.Logger.LogWarning(msg);
         internal static void LogError(string msg) => _instance?.Logger.LogError(msg);
-    }
 
-    [HarmonyPatch(typeof(Game), nameof(Game.Prologue), MethodType.Getter)]
-    static class Patch_Game_Prologue
-    {
-        static bool Prefix(Game __instance, ref Prologue __result)
+        internal static int EnsureFastStartPrologueRegistered()
         {
-            if (__instance.idPrologue == FastStartPlugin.FastStartPrologueIndex)
+            if (RegisteredPrologueIndex >= 0
+                && EClass.setting?.start?.prologues != null
+                && RegisteredPrologueIndex < EClass.setting.start.prologues.Count)
             {
-                __result = EClass.setting.start.prologues[0];
-                return false;
+                return RegisteredPrologueIndex;
             }
 
-            return true;
+            if (EClass.setting?.start?.prologues == null || EClass.setting.start.prologues.Count == 0)
+            {
+                LogWarn("Unable to register Fast Start because the base prologue list is unavailable.");
+                return -1;
+            }
+
+            Prologue template = EClass.setting.start.prologues[0];
+            EClass.setting.start.prologues.Add(new Prologue
+            {
+                type = template.type,
+                idStartZone = template.idStartZone,
+                startX = template.startX,
+                startZ = template.startZ,
+                year = template.year,
+                month = template.month,
+                day = template.day,
+                hour = template.hour,
+                posAsh = template.posAsh,
+                posFiama = template.posFiama,
+                posPunk = template.posPunk,
+                weather = template.weather,
+            });
+            RegisteredPrologueIndex = EClass.setting.start.prologues.Count - 1;
+            Log($"Registered Fast Start prologue at index {RegisteredPrologueIndex}.");
+            return RegisteredPrologueIndex;
         }
     }
 
@@ -58,54 +80,23 @@ namespace FastStartMod
     {
         static void Postfix(UICharaMaker __instance)
         {
-            var modes = new List<string>(__instance.listMode);
-            if (!modes.Contains("Fast Start"))
+            int fastStartIndex = FastStartPlugin.EnsureFastStartPrologueRegistered();
+            if (fastStartIndex < 0)
             {
-                modes.Add("Fast Start");
+                return;
+            }
+
+            var modes = new List<string>(__instance.listMode);
+            if (!modes.Contains(FastStartPlugin.FastStartLabel))
+            {
+                modes.Add(FastStartPlugin.FastStartLabel);
                 __instance.listMode = modes.ToArray();
             }
 
-            if (EMono.game.idPrologue == FastStartPlugin.FastStartPrologueIndex)
+            if (EMono.game.idPrologue == fastStartIndex)
             {
-                __instance.textMode.SetText("Fast Start");
+                __instance.textMode.SetText(FastStartPlugin.FastStartLabel);
             }
-        }
-    }
-
-    [HarmonyPatch(typeof(UICharaMaker), nameof(UICharaMaker.ListModes))]
-    static class Patch_UICharaMaker_ListModes
-    {
-        static bool Prefix(UICharaMaker __instance)
-        {
-            EMono.ui.AddLayer<LayerList>().SetStringList(
-                () => __instance.listMode,
-                delegate (int a, string b)
-                {
-                    if (a < EClass.setting.start.prologues.Count)
-                    {
-                        EMono.game.idPrologue = a;
-                        Prologue prologue = EMono.game.Prologue;
-                        EMono.world.date.year = prologue.year;
-                        EMono.world.date.month = prologue.month;
-                        EMono.world.date.day = prologue.day;
-                        EMono.world.weather._currentCondition = prologue.weather;
-                    }
-                    else
-                    {
-                        EMono.game.idPrologue = FastStartPlugin.FastStartPrologueIndex;
-                        Prologue prologue = EClass.setting.start.prologues[0];
-                        EMono.world.date.year = prologue.year;
-                        EMono.world.date.month = prologue.month;
-                        EMono.world.date.day = prologue.day;
-                        EMono.world.weather._currentCondition = prologue.weather;
-                    }
-
-                    __instance.textMode.SetText(__instance.listMode[a]);
-                    __instance.Refresh();
-                }
-            ).SetSize().SetTitles("wStartMode");
-
-            return false;
         }
     }
 
@@ -151,7 +142,7 @@ namespace FastStartMod
 
         static void Postfix()
         {
-            if (EClass.game.idPrologue != FastStartPlugin.FastStartPrologueIndex)
+            if (EClass.game.idPrologue != FastStartPlugin.RegisteredPrologueIndex)
             {
                 return;
             }

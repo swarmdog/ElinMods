@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Meta>
+	<title>Elin Underworld Simulator</title>
+	<id>mrmeagle_ElinUnderworldSimulator</id>
+	<author>mistermeagle</author>
+	<loadPriority>110</loadPriority>
+	<description>
+Elin: Underworld Simulator!
+	</description>
+	<tags>NPC,Item</tags>
+	<version>0.23.45</version>
+</Meta>
