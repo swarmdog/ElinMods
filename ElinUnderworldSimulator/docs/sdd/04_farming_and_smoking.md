@@ -2,7 +2,7 @@
 
 > Parent: [00_overview.md](./00_overview.md) · Data Model: [03_data_model.md](./03_data_model.md) · Dealing: [05_small_time_dealing.md](./05_small_time_dealing.md)
 
-This document specifies the complete cultivation-to-consumption pipeline: how the player grows custom drug crops using Elin's seed/strain improvement system, how harvested materials are refined into 12 sellable drug products, and how each product can be personally consumed via five distinct administration routes. A developer implementing this document should be able to produce all SourceObj entries, SourceCard rows, trait classes, and condition classes without further research.
+This document specifies the complete cultivation-to-consumption pipeline: how the player grows custom drug crops using Elin's seed/strain improvement system, how harvested materials are refined into 12 sellable drug products, and how each product can be personally consumed via five distinct administration routes.
 
 ---
 
@@ -91,7 +91,7 @@ This section explains the vanilla systems the mod plugs into. A developer must u
 
 ### 4.2.2 Custom SourceObj Entries for Drug Herbs
 
-Each plantable drug herb requires a row in the mod's `SourceObj` sheet (or injected via Harmony). These define the growth system, tile graphics, harvest item, and growth parameters.
+Each plantable drug herb requires a row in the mod's `SourceObj` sheet (or injected via Harmony). These define the growth system, tile graphics, harvest item, and growth parameters.  Asset generation and integration must also be included and we always prefer to have mod content in a source card (see SkyreaderGuild for examples and inspiration).
 
 **SourceObj column reference** (from `SourceObj.Row`):
 
