@@ -139,6 +139,14 @@ Existing Elin items used to modify output quality. No new items needed — these
 | `uw_advanced_lab` | Shadow Laboratory | `crafter` | `ObjBig` | `@obj` | `uw_mixing_table` | `uw_crystal_void/2,glass/8,ingot/6,plank/4` | `glass` | 12000 | 25000 | `AdvancedLab,crafting` | A sophisticated alchemical apparatus of dark glass and polished metal. Only a seasoned underworld artisan could operate this. |
 | `uw_contraband_chest` | Dead Drop Crate | `container` | (empty) | `@obj` | `uw_mixing_table` | `plank/4,bolt/2` | `oak` | 800 | 8000 | `ContrabandChest,3,3,crate` | A nondescript wooden crate. The Fixer's associates know to check under the false bottom. |
 
+### 3.3.1 Dealing System Items
+
+| ID | Name | Category | Factory | Components | Material | Value | Weight | Trait | Detail |
+|----|------|----------|---------|------------|----------|-------|--------|-------|--------|
+| `uw_dealers_ledger` | Dealer's Ledger | `book` | — (starter item) | — | `paper` | 200 | 300 | `DealerLedger` | A battered notebook filled with coded names, quantities, and delivery schedules. Your customer network at a glance. |
+| `uw_sample_kit` | Sample Kit | `container` | `uw_mixing_table` | `leather/2,bolt/1` | `leather` | 150 | 500 | `SampleKit,1,3,pouch` | A concealed hip pouch with hidden compartments. Its contents don't attract attention from law enforcement. |
+| `uw_antidote_vial` | Alchemist's Reprieve | `potion` | `uw_mixing_table` | `uw_herb_whisper/2,uw_herb_shadow/1,potion_empty/1` | `glass` | 400 | 150 | `AntidoteVial` | An emergency concoction of netherworld herbs. Can stabilize someone in the grips of an overdose — if administered in time. |
+
 ---
 
 ## 3.4 Element Properties for Contraband
@@ -152,6 +160,11 @@ Contraband items use Elin's element system to encode potency and toxicity. These
 | `uw_potency` | Potency | Positive | Primary quality factor. Higher = better payouts. Range 0-100. |
 | `uw_toxicity` | Toxicity | Negative | Quality defect. Higher = reduced satisfaction, order failures. Range 0-100. |
 | `uw_traceability` | Traceability | Negative | How easily traced. Higher = more heat generated per shipment. Range 0-50. |
+| 90010 | `UW_ADDICTION` | Per-NPC | Customer addiction level. Range 0-100. Drives order frequency and OD risk. See [§5.7](./05_orders_reputation.md). |
+| 90011 | `UW_TOLERANCE` | Per-NPC | Customer tolerance. Range 0-50. Increases min potency demand over time. |
+| 90012 | `UW_LOYALTY` | Per-NPC | Customer loyalty tier. Range 0-20+. Gates order volume and markup. |
+| 90013 | `UW_PREFERRED_PRODUCT` | Per-NPC | Product type the customer prefers (set on first sample). |
+| 90014 | `UW_OFFER_COOLDOWN` | Per-NPC | Hours remaining before the NPC can be offered another sample. |
 
 ### 3.4.2 How Elements Are Set During Crafting
 

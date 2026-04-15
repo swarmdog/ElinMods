@@ -358,7 +358,55 @@ foreach (var ing in ingredients)
 
 ---
 
-## 4.6 Testing & Verification
+## 4.6 Configuration & Tunability
+
+All crafting-related tuning values are exposed via BepInEx config:
+
+### 4.6.1 Client-Side Config (BepInEx)
+
+```csharp
+// ── Crafting Quality ──
+ConfigPotencyBaseMultiplier = Config.Bind("Crafting", "PotencyBaseMultiplier", 100,
+    "Percent multiplier on base potency for all crafted items (100 = normal).");
+ConfigToxicityBaseMultiplier = Config.Bind("Crafting", "ToxicityBaseMultiplier", 100,
+    "Percent multiplier on base toxicity for all crafted items.");
+ConfigSkillPotencyPerLevel = Config.Bind("Crafting", "SkillPotencyPerLevel", 0.5f,
+    "Potency bonus per crafting skill level.");
+
+// ── Cutting Agents ──
+ConfigFlourPotencyMultiplier = Config.Bind("CuttingAgents", "FlourPotencyMultiplier", 70,
+    "Percent potency retained when cutting with flour (default: 70 = -30%).");
+ConfigFlourToxicityMultiplier = Config.Bind("CuttingAgents", "FlourToxicityMultiplier", 90,
+    "Percent toxicity retained when cutting with flour.");
+ConfigWaterPotencyMultiplier = Config.Bind("CuttingAgents", "WaterPotencyMultiplier", 80,
+    "Percent potency retained when cutting with water.");
+ConfigWaterToxicityMultiplier = Config.Bind("CuttingAgents", "WaterToxicityMultiplier", 85,
+    "Percent toxicity retained when cutting with water.");
+
+// ── Processing Vat ──
+ConfigProcessingVatDaysBase = Config.Bind("Processing", "ProcessingVatDaysBase", 3,
+    "Base in-game days for processing vat refinement.");
+ConfigProcessingVatQualityBonus = Config.Bind("Processing", "ProcessingVatQualityBonus", 20,
+    "Percent potency boost from vat processing.");
+```
+
+### 4.6.2 Config Reference Table
+
+| Config Key | Type | Default | Used In |
+|------------|------|---------|--------|
+| `PotencyBaseMultiplier` | int | 100 | Quality propagation formula |
+| `ToxicityBaseMultiplier` | int | 100 | Quality propagation formula |
+| `SkillPotencyPerLevel` | float | 0.5 | Skill-based potency bonus |
+| `FlourPotencyMultiplier` | int | 70 | Flour cutting agent effect |
+| `FlourToxicityMultiplier` | int | 90 | Flour cutting agent effect |
+| `WaterPotencyMultiplier` | int | 80 | Water cutting agent effect |
+| `WaterToxicityMultiplier` | int | 85 | Water cutting agent effect |
+| `ProcessingVatDaysBase` | int | 3 | Vat processing duration |
+| `ProcessingVatQualityBonus` | int | 20 | Vat refinement bonus |
+
+---
+
+## 4.7 Testing & Verification
 
 ### Crafting Station Tests
 

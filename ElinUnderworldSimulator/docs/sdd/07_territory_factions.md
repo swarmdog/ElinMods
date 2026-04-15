@@ -187,7 +187,160 @@ When control changes, all affected players receive a notification on their next 
 
 ---
 
-## 7.4 Testing & Verification
+## 7.4 Faction Management — Furniture & NPCs
+
+Faction operations are accessed through specific furniture placed in the player's base and through the Fixer NPC. The Fixer is the primary management interface.
+
+### 7.4.1 The Fixer as Permanent Recruit
+
+The Fixer begins as a static NPC in the player's starting zone (§2.1.3) but can be **recruited as a permanent party member** during the Peddler rank promotion. This makes the Fixer a persistent companion who travels with the player, providing access to the underworld network from anywhere.
+
+**Recruitment flow:**
+1. Player reaches **Peddler** rank (500 total rep)
+2. Fixer offers new dialog: *"You've proven useful. How about I tag along — keep things running smooth no matter where we go?"*
+3. On acceptance, the Fixer joins the player's party as a permanent ally using Elin's `Chara.party.AddMember()` system
+4. As a party member, the Fixer can be interacted with at any time to open the Network Panel — no need to return to a specific town
+
+**Implementation:**
+```csharp
+// In TraitUnderworldFixer.OnUse():
+if (c.IsPC && !owner.IsPCParty)
+{
+    int rank = UnderworldPlugin.Instance.Reputation.GlobalRank;
+    if (rank >= UnderworldRank.Peddler && !recruitDialogShown)
+    {
+        ShowRecruitDialog(() => {
+            // Recruit the Fixer as a permanent party member
+            owner.SetGlobal(EClass.pc.currentZone, owner.pos.x, owner.pos.z);
+            EClass.pc.party.AddMember(owner);
+            owner.SetFaction(EClass.Home);
+            Msg.Say("uw_fixer_joined"); // "The Fixer nods. 'Partners, then.'"
+            recruitDialogShown = true;
+        });
+        return true;
+    }
+}
+```
+
+**Fixer combat behavior**: The Fixer uses the `thief` job class and has moderate combat stats. They can hold their own in dungeons but aren't a primary fighter. The Fixer's real value is mobile access to the network.
+
+### 7.4.2 Faction Management Furniture
+
+| Furniture ID | Name | Purpose | Unlock Rank | Interaction |
+|-------------|------|---------|-------------|-------------|
+| `uw_territory_map` | Territory Map | Wall-mounted map showing all territory statuses, heat levels, and controlling factions. Click to view detailed territory breakdown. | Novice | Opens Territory Panel (read-only) |
+| `uw_faction_desk` | Syndicate Desk | Administrative desk for faction operations. Create, manage, and coordinate faction activities. | Supplier | Opens Faction Management Panel |
+| `uw_dead_drop_board` | Dead Drop Board | A corkboard showing available network orders for the base's territory. Quick access to market without the Fixer. | Peddler | Opens Market Screen (filtered to local territory) |
+| `uw_heat_monitor` | Heat Monitor | A crystal apparatus that displays real-time heat levels for all territories. Pulses red when any territory is Critical+. | Novice | Opens Territory Overlay |
+
+**Furniture source row specs:**
+
+```python
+FACTION_FURNITURE = {
+    "uw_territory_map": {
+        "name": "territory map",
+        "category": "crafter",
+        "_tileType": "ObjBig",
+        "_idRenderData": "@obj tall",
+        "factory": "uw_mixing_table",
+        "components": "parchment/3,ingot/1",
+        "value": 1500,
+        "weight": 5000,
+        "trait": "TerritoryMap",
+        "detail": "A well-worn map marked with symbols only the initiated would understand. "
+                  "Each pin represents a market and its current... temperature.",
+    },
+    "uw_faction_desk": {
+        "name": "syndicate desk",
+        "category": "crafter",
+        "_tileType": "ObjBig",
+        "_idRenderData": "@obj",
+        "factory": "uw_mixing_table",
+        "components": "plank/6,ingot/2,parchment/2",
+        "value": 4000,
+        "weight": 12000,
+        "trait": "FactionDesk",
+        "detail": "A heavy oak desk with locked drawers and a concealed compartment. "
+                  "From here, empires are coordinated.",
+    },
+    "uw_dead_drop_board": {
+        "name": "dead drop board",
+        "category": "crafter",
+        "_tileType": "ObjBig",
+        "_idRenderData": "@obj tall",
+        "factory": "uw_mixing_table",
+        "components": "plank/3,bolt/2",
+        "value": 800,
+        "weight": 3000,
+        "trait": "DeadDropBoard",
+        "detail": "A nondescript corkboard pinned with coded notes. "
+                  "Each one represents a request from the network.",
+    },
+    "uw_heat_monitor": {
+        "name": "heat monitor",
+        "category": "crafter",
+        "_tileType": "ObjBig",
+        "_idRenderData": "@obj",
+        "factory": "uw_mixing_table",
+        "components": "uw_mineral_crystal/1,glass/3,ingot/2",
+        "value": 3000,
+        "weight": 8000,
+        "trait": "HeatMonitor",
+        "lightData": "0,255,200,200,3",  # red-tinted glow
+        "detail": "A glass apparatus filled with dark fluid. "
+                  "It reacts to the network's collective anxiety.",
+    },
+}
+```
+
+### 7.4.3 Faction Management Panel
+
+Accessed via the Syndicate Desk or through the Fixer's dialog (if in party), the Faction Management Panel provides:
+
+| Tab | Content | Actions Available |
+|-----|---------|-------------------|
+| **Overview** | Faction name, member count, controlled territories, total influence | — (read-only) |
+| **Members** | List of faction members with roles, ranks, and contribution stats | Promote to officer (leader only) |
+| **Territories** | Per-territory influence scores, control status, and heat | Set territory priority (focus shipments) |
+| **Recruitment** | Open slots, invitation URL/code | Generate invite code |
+| **Coordination** | Recent faction shipments, target territories, bonus status | View coordination bonus progress |
+
+---
+
+## 7.5 Configuration & Tunability
+
+### 7.5.1 Server-Side Config (config.py)
+
+```python
+# Territory
+TERRITORY_HEAT_DECAY_RATE = 2        # Heat points decayed per cycle
+TERRITORY_FACTION_DECAY_RATE = 0.90  # Daily influence score decay multiplier
+TERRITORY_CONTROL_LEAD_PCT = 20      # Percent lead required for control
+ORDER_GENERATION_INTERVAL = 21600    # Seconds between order generation (6h)
+
+# Factions
+FACTION_MAX_MEMBERS_BASE = 10
+FACTION_COORDINATION_THRESHOLD = 3   # Members shipping to same territory
+FACTION_COORDINATION_BONUS_PCT = 5   # Payout bonus for coordination
+FACTION_CONTROL_PAYOUT_BONUS_PCT = 10  # Payout bonus in controlled territory
+FACTION_CONTROL_HEAT_DECAY_BONUS = 1   # Extra heat decay in controlled territory
+
+# Warfare
+WARFARE_RESOLUTION_INTERVAL = 86400 # Seconds between warfare resolution (24h)
+```
+
+### 7.5.2 Client-Side Config (BepInEx)
+
+```csharp
+ConfigFixerRecruitEnabled = Config.Bind("Fixer", "RecruitEnabled", true,
+    "Allow the Fixer to be recruited as a permanent party member.");
+ConfigFixerRecruitMinRank = Config.Bind("Fixer", "RecruitMinRank", 1,
+    "Minimum underworld rank to recruit the Fixer (0=Novice, 1=Peddler, etc.).");
+```
+
+---
+
+## 7.6 Testing & Verification
 
 ### Territory Tests (Server-side — pytest)
 
@@ -242,3 +395,15 @@ async def test_territory_control(client, other_client):
 | Two factions compete | A ships 1000, B ships 500 | A controls (>20% lead) |
 | Close contest | A ships 600, B ships 550 | Contested — no controller |
 | Influence decay | A controlled yesterday, no ships today | A's score drops 10% |
+
+### Faction Furniture Tests
+
+| Test | Steps | Expected |
+|------|-------|----------|
+| Territory Map opens | Place map → interact | Territory Panel shows all territories with heat bars |
+| Syndicate Desk opens | Place desk → interact (requires Supplier rank) | Faction Management Panel opens |
+| Dead Drop Board opens | Place board → interact | Market Screen filtered to local territory |
+| Heat Monitor glow | Place monitor → territory reaches Critical | Monitor light pulses red |
+| Fixer recruitment | Reach Peddler rank → talk to Fixer | Recruit dialog appears |
+| Fixer in party | Recruit Fixer → travel to new zone | Fixer follows, NPC interaction still opens Network Panel |
+| Config override | Set `FixerRecruitMinRank=0` | Fixer recruitabe at Novice rank |

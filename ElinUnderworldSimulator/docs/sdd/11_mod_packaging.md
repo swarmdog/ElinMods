@@ -301,6 +301,81 @@ ASSET_SPECS: list[AssetSpec] = [
         ),
     ),
     
+    # ── Dealing System Items ─────────────────────────────────────────
+    AssetSpec(
+        id="uw_dealers_ledger",
+        category="item",
+        prompt=(
+            "2D top-down RPG game book icon, a worn leather-bound ledger "
+            "with coded symbols on the cover, dog-eared pages, ink stains, "
+            "pixel art style, dark brown leather and aged parchment palette, "
+            "uniform flat fuchsia/magenta screen background, centered, "
+            "clean edges, no text, no frame, game asset"
+        ),
+        preview_size=(48, 48),
+        deploy=SMALL_ITEM,
+        source_row=SourceRowSpec(
+            name_JP="ディーラーの台帳",
+            name="dealer's ledger",
+            category="book",
+            defMat="paper",
+            value=200,
+            weight=300,
+            trait="DealerLedger",
+            detail="A battered notebook filled with coded names and delivery schedules.",
+        ),
+    ),
+    AssetSpec(
+        id="uw_sample_kit",
+        category="item",
+        prompt=(
+            "2D top-down RPG game pouch icon, a small concealed hip pouch "
+            "with hidden compartments, dark leather with subtle buckles, "
+            "pixel art style, dark brown and black palette, "
+            "uniform flat fuchsia/magenta screen background, centered, "
+            "clean edges, no text, no frame, game asset"
+        ),
+        preview_size=(48, 48),
+        deploy=SMALL_ITEM,
+        source_row=SourceRowSpec(
+            name_JP="サンプルキット",
+            name="sample kit",
+            category="container",
+            defMat="leather",
+            value=150,
+            weight=500,
+            trait="SampleKit,1,3,pouch",
+            factory="uw_mixing_table",
+            components="leather/2,bolt/1",
+            detail="A concealed hip pouch. Its contents don't attract law enforcement.",
+        ),
+    ),
+    AssetSpec(
+        id="uw_antidote_vial",
+        category="item",
+        prompt=(
+            "2D top-down RPG game potion icon, a small glass vial "
+            "with a swirling silver-green liquid, cork stopper, "
+            "faintly glowing, pixel art style, silver and emerald palette, "
+            "uniform flat fuchsia/magenta screen background, centered, "
+            "clean edges, no text, no frame, game asset"
+        ),
+        preview_size=(48, 48),
+        deploy=SMALL_ITEM,
+        source_row=SourceRowSpec(
+            name_JP="錬金術師の猶予",
+            name="alchemist's reprieve",
+            category="potion",
+            defMat="glass",
+            value=400,
+            weight=150,
+            trait="AntidoteVial",
+            factory="uw_mixing_table",
+            components="uw_herb_whisper/2,uw_herb_shadow/1,potion_empty/1",
+            detail="An emergency concoction. Can stabilize someone in the grips of an overdose.",
+        ),
+    ),
+    
     # ── NPCs ─────────────────────────────────────────────────────────
     AssetSpec(
         id="uw_fixer",

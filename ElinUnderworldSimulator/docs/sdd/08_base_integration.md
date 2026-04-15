@@ -44,8 +44,16 @@ private static void PlaceStarterFurniture(Zone zone)
     // Storage chest nearby
     PlaceThing("chest", cx - 2, cz, map);
     
-    // Campfire for ambient light
-    PlaceThing("bonfire", cx, cz + 3, map);
+    // Basic Elin crafting infrastructure
+    PlaceThing("bonfire", cx, cz + 3, map);        // Light + cooking
+    PlaceThing("workbench", cx - 2, cz + 2, map);  // Basic crafting
+    PlaceThing("well", cx + 2, cz + 3, map);       // Water source
+    
+    // Heat Monitor (starts unlocked — visual feedback from day 1)
+    PlaceThing("uw_heat_monitor", cx + 3, cz + 2, map);
+    
+    // Dead Drop Board (shows local territory orders)
+    PlaceThing("uw_dead_drop_board", cx - 3, cz, map);
 }
 
 private static void PlaceThing(string id, int x, int z, Map map)
@@ -66,13 +74,28 @@ As the player advances in underworld rank, new infrastructure becomes available 
 
 | Rank | Infrastructure Unlocked | How Obtained |
 |------|------------------------|-------------|
-| **Novice** (0) | Mixing Table, Contraband Chest, basic storage | Bootstrap (pre-placed) |
-| **Peddler** (500 rep) | Processing Vat | Craft at Mixing Table using `uw_mineral_crude/3,plank/6,ingot/2` |
-| **Supplier** (2000 rep) | Advanced Lab | Craft at Mixing Table using `uw_crystal_void/2,glass/8,ingot/6,plank/4` |
+| **Novice** (0) | Mixing Table, Contraband Chest, Heat Monitor, Dead Drop Board, basic storage | Bootstrap (pre-placed) |
+| **Novice** (100 rep) | Herbalist's Garden | Craft at Mixing Table using `uw_herb_whisper/5,soil/3,plank/4` |
+| **Peddler** (500 rep) | Processing Vat, Territory Map | Craft at Mixing Table using `uw_mineral_crude/3,plank/6,ingot/2` |
+| **Supplier** (2000 rep) | Advanced Lab, Concealment Locker, Syndicate Desk | Craft at Mixing Table using `uw_crystal_void/2,glass/8,ingot/6,plank/4` |
 | **Kingpin** (5000 rep) | Safe House Room | Craft decoration item that grants heat reduction aura |
 | **Overlord** (10000 rep) | Logistics Hub | Craft desk furniture that provides +20% max nerve |
 
-### 8.2.2 Rank-Gated Recipes
+### 8.2.2 New Infrastructure Detail
+
+#### Herbalist's Garden (`uw_herbalists_garden`)
+A dedicated soil bed that auto-grows whispervine and dreamroot. Placed as a 2×2 zone feature. Each in-game day, it produces 1-2 random raw herbs based on "garden yield" (configurable). Requires watering from a well within 5 tiles.
+
+- **Trait**: `TraitHerbalistGarden : TraitFactory` — runs on day-tick, generates herbs into the player's storage chest.
+- **Quality**: Garden-grown herbs have slightly lower potency (80% of foraged), but are reliable and risk-free.
+
+#### Concealment Locker (`uw_concealment_locker`)
+A hidden storage container that prevents its contents from being flagged as contraband. Items placed inside are invisible to the `IsCriminal` check — useful for storing finished product at your base without attracting heat to your home zone.
+
+- **Trait**: `TraitConcealmentLocker : TraitContainer` — overrides the contraband detection during zone inspection events.
+- **Capacity**: 2×4 grid with contraband-shielding property.
+
+### 8.2.3 Rank-Gated Recipes
 
 Rather than hard-coding rank checks, progression is gated naturally through ingredient availability:
 - **Processing Vat** requires `uw_mineral_crude` — available from early mining
@@ -206,12 +229,43 @@ Elin's base system supports resident NPCs who perform work tasks. The underworld
 | **Processor** | Reduces Processing Vat time by 20% | Zone modifier on `DecaySpeedChild` |
 | **Guard** | Reduces raid difficulty | Zone modifier on raid NPC count |
 | **Smuggler** | +10% payout bonus on shipments | Modifier applied during `CalculatePayout()` |
+| **Street Dealer** | Handles automated small-time dealing | NPC gains loyalty-tracking elements; auto-sells to towns on day-tick. Income = `(Silver Tongue / 2)%` of manual dealing rates. |
 
-These roles use Elin's existing `FactionBranch` work assignment system and could be implemented as custom work policies or element modifiers. This is a Phase 2 enhancement.
+These roles use Elin's existing `FactionBranch` work assignment system and could be implemented as custom work policies or element modifiers. Street Dealer is the most complex — effectively automating the §5.6 dealing loop.
 
 ---
 
-## 8.5 Testing & Verification
+## 8.5 Configuration & Tunability
+
+### 8.5.1 Client-Side Config (BepInEx)
+
+```csharp
+// ── Base ──
+ConfigGardenYieldPerDay = Config.Bind("Base", "GardenYieldPerDay", 2,
+    "Max herbs produced per day by Herbalist's Garden.");
+ConfigGardenPotencyMultiplier = Config.Bind("Base", "GardenPotencyMultiplier", 80,
+    "Percent potency of garden-grown herbs vs foraged (100 = identical).");
+ConfigConcealmentLockerSlots = Config.Bind("Base", "ConcealmentLockerSlots", 8,
+    "Number of item slots in the Concealment Locker.");
+ConfigNerveCostMultiplier = Config.Bind("Base", "NerveCostMultiplier", 100,
+    "Percent multiplier on nerve costs for shipping (100 = normal).");
+ConfigSafehouseHeatReduction = Config.Bind("Base", "SafehouseHeatReduction", 5,
+    "Daily heat reduction from Safe House Room.");
+```
+
+### 8.5.2 Config Reference Table
+
+| Config Key | Type | Default | Used In |
+|------------|------|---------|--------|
+| `GardenYieldPerDay` | int | 2 | Herbalist's Garden day-tick |
+| `GardenPotencyMultiplier` | int | 80 | Garden herb quality |
+| `ConcealmentLockerSlots` | int | 8 | Concealment Locker capacity |
+| `NerveCostMultiplier` | int | 100 | Shipment nerve check |
+| `SafehouseHeatReduction` | int | 5 | Safe House heat aura |
+
+---
+
+## 8.6 Testing & Verification
 
 ### Bootstrap Placement Tests
 
@@ -219,6 +273,10 @@ These roles use Elin's existing `FactionBranch` work assignment system and could
 |------|-------|----------|
 | Mixing table placed | Start Underworld game → check zone | Mixing table visible at center |
 | Chest placed | Start Underworld game → check zone | Contraband chest adjacent to table |
+| Elin workbench placed | Start Underworld game → check zone | Vanilla workbench present for crafting |
+| Well placed | Start Underworld game → check zone | Water source available |
+| Heat Monitor placed | Start Underworld game → check zone | Heat Monitor visible, glowing |
+| Dead Drop Board placed | Start Underworld game → check zone | Board present, opens market screen |
 | Furniture interactable | Click on mixing table | Crafting UI opens with underworld recipes |
 | Chest interactable | Click on contraband chest | Container UI opens with Ship button |
 
@@ -239,4 +297,8 @@ These roles use Elin's existing `FactionBranch` work assignment system and could
 |------|----------|
 | Processing Vat craftable at Peddler rank | Recipe appears in Mixing Table at ≥500 rep |
 | Advanced Lab requires rare materials | Cannot craft without `uw_crystal_void` |
+| Herbalist's Garden produces herbs | Place garden, wait 1 day, check storage → 1-2 herbs appeared |
+| Garden quality | Garden herbs have ~80% potency of foraged equivalents |
+| Concealment Locker hides items | Place contraband in locker → `IsCriminal` not triggered in zone |
 | Safe House effect | Place safe house room item → territory heat −5/day |
+| Config override | Set `GardenYieldPerDay=5` → garden produces 5 herbs/day |

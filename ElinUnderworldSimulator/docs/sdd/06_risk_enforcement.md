@@ -39,6 +39,15 @@ def accumulate_heat(territory, shipment):
 | Palmia Markets | 60 | Capital city — very high surveillance |
 | Mysilia Backways | 100 | Moderate — balanced |
 
+**Additional heat sources** (see [§5.8 Overdose System](./05_orders_reputation.md)):
+
+| Event | Heat Delta | Notes |
+|-------|-----------|-------|
+| Severe overdose | +5 | NPC collapses visibly; 20% guard alert chance |
+| Fatal overdose | +15 (configurable) | NPC death; 100% guard alert; karma −5; rep −20 |
+
+These OD-driven heat events bypass the server-side accumulation formula above — they are applied directly to the local territory on the client side via `UnderworldConfig.ODFatalHeatGain`.
+
 ### 6.1.3 Heat Decay
 
 Server-side background job runs periodically (every in-game day equivalent):
@@ -166,7 +175,7 @@ def resolve_inspection(shipment, inspection_severity):
 
 - **Trigger**: Only at Lockdown heat level (86-100). 5% per shipment.
 - **Effect**: **In-game combat event** in the player's base zone
-- **Implementation**: Hostile guard NPCs spawn in the player's zone using Elin's encounter spawning
+- **Implementation**: Hostile guard NPCs spawn in the player's zone using Elin's encounter spawning.  This will need sufficient design to make it impactful and thematic.
 
 ```csharp
 /// <summary>
@@ -212,7 +221,67 @@ public static void TriggerRaid(Zone playerBase, int raidIntensity)
 
 ---
 
-## 6.5 Testing & Verification
+## 6.5 Configuration & Tunability
+
+All risk and enforcement values are exposed via config, split between client and server:
+
+### 6.5.1 Client-Side Config (BepInEx)
+
+```csharp
+// ── Nerve ──
+ConfigNerveRegenPerHour = Config.Bind("Nerve", "NerveRegenPerHour", 2,
+    "Nerve points regenerated per in-game hour.");
+ConfigNerveMaxBase = Config.Bind("Nerve", "NerveMaxBase", 100,
+    "Base maximum nerve before rank/skill bonuses.");
+ConfigNerveShipmentCostBase = Config.Bind("Nerve", "NerveShipmentCostBase", 10,
+    "Base nerve cost per shipment submission.");
+```
+
+### 6.5.2 Server-Side Config (config.py)
+
+```python
+# Heat thresholds (percent of max heat)
+HEAT_THRESHOLD_ELEVATED = 30
+HEAT_THRESHOLD_HIGH = 50
+HEAT_THRESHOLD_CRITICAL = 70
+HEAT_THRESHOLD_LOCKDOWN = 85
+
+# Heat accumulation
+HEAT_GAIN_PER_SHIPMENT_BASE = 5   # Base heat added per shipment
+HEAT_TRACEABILITY_MULTIPLIER = 0.1  # Additional heat per traceability point
+HEAT_DECAY_PER_CYCLE = 2          # Heat decayed per background job cycle
+HEAT_DECAY_INTERVAL = 3600        # Seconds between decay cycles
+
+# Enforcement probabilities (per shipment, at threshold level)
+ENFORCEMENT_INSPECT_CHANCE_ELEVATED = 0.10    # 10% at elevated
+ENFORCEMENT_BUST_CHANCE_HIGH = 0.05           # 5% at high
+ENFORCEMENT_RAID_CHANCE_LOCKDOWN = 0.01       # 1% at lockdown (per shipment)
+
+# Recovery costs
+BRIBE_COST_BASE = 5000
+BRIBE_COST_PER_HEAT = 500         # Cost scales: base + (heat * per_heat)
+BRIBE_HEAT_REDUCTION = 20
+BRIBE_COOLDOWN_HOURS = 24
+DECOY_HEAT_REDUCTION = 10
+```
+
+### 6.5.3 Config Reference Table
+
+| Config Key | Type | Default | Side | Used In |
+|------------|------|---------|------|---------|
+| `NerveRegenPerHour` | int | 2 | Client | Nerve ticker |
+| `NerveMaxBase` | int | 100 | Client | NerveTracker |
+| `NerveShipmentCostBase` | int | 10 | Client | Chest ship action |
+| `HEAT_THRESHOLD_ELEVATED` | int | 30 | Server | Heat classification |
+| `HEAT_GAIN_PER_SHIPMENT_BASE` | int | 5 | Server | Shipment resolution |
+| `HEAT_DECAY_PER_CYCLE` | int | 2 | Server | Background decay job |
+| `ENFORCEMENT_INSPECT_CHANCE_ELEVATED` | float | 0.10 | Server | Enforcement roll |
+| `BRIBE_COST_BASE` | int | 5000 | Server | Recovery endpoint |
+| `BRIBE_HEAT_REDUCTION` | int | 20 | Server | Heat reduction |
+
+---
+
+## 6.6 Testing & Verification
 
 ### Heat System Tests (Server-side — pytest)
 

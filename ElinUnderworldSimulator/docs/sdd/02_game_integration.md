@@ -207,17 +207,40 @@ public static class UnderworldStartupBootstrap
     
     private static void GrantStarterItems(Chara player)
     {
-        // Give the player basic underworld tools
-        var items = new[]
+        // ── Underworld-specific equipment ──
+        var underworldItems = new[]
         {
             ("uw_mixing_table", 1),    // Portable mixing table (furniture)
             ("uw_contraband_chest", 1), // Shipping chest
-            ("uw_herb_basic", 10),      // Basic herb ingredient
+            ("uw_herb_whisper", 10),    // Basic herb ingredient
             ("uw_mineral_crude", 5),    // Crude mineral ingredient
-            ("money", 5000),            // Starting gold
         };
         
-        foreach (var (id, count) in items)
+        // ── Basic Elin items for crafting & survival ──
+        // The player needs standard tools to engage with Elin's
+        // crafting, cooking, and gathering systems from the start.
+        var basicItems = new[]
+        {
+            ("money", 5000),            // Starting gold
+            ("axe", 1),                 // Lumberjacking
+            ("pickaxe", 1),             // Mining
+            ("hoe", 1),                 // Farming / digging
+            ("bandage", 6),             // Basic healing
+            ("backpack", 1),            // Additional inventory space
+            ("torch", 3),               // Light source for dungeon runs
+            ("ration", 5),              // Starting food
+            ("potion_empty", 10),       // Empty bottles for crafting
+            ("waterskin", 1),           // Water carrying
+        };
+        
+        foreach (var (id, count) in underworldItems)
+        {
+            var thing = ThingGen.Create(id);
+            thing.SetNum(count);
+            player.AddThing(thing);
+        }
+        
+        foreach (var (id, count) in basicItems)
         {
             var thing = ThingGen.Create(id);
             thing.SetNum(count);
@@ -276,6 +299,8 @@ public class Zone_UnderworldHideout : Zone
     {
         base.OnGenerateMap();
         // Custom map generation — layout builder pattern from GuildLayoutBuilder
+        // We should also consider directly exporting our generated maps to .z and so they can be used via SourceGame
+        // in that scenario, we would have a python pipeline to generate the .z or .map
     }
 }
 ```
@@ -361,7 +386,7 @@ For the "Underworld Startup" scenario, the Fixer initially spawns in the player'
 
 ## 2.4 Criminal System Integration
 
-Elin already has a robust criminal status system. The Underworld mod integrates with it rather than replacing it.
+Elin already has a robust criminal status system. The Underworld mod integrates with it rather than replacing it. Critically, vanilla criminal status (`IsCriminal`) is triggered by `karma < 0` and makes guards in lawful zones hostile — turning every town visit into potential combat. The mod must provide skills that let the player operate as a dealer without every town trip becoming a warzone.
 
 ### 2.4.1 Relevant Vanilla Systems
 
@@ -369,7 +394,9 @@ Elin already has a robust criminal status system. The Underworld mod integrates 
 |-----------------|----------|---------|
 | `Zone.AllowCriminal` | [Zone.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/Zone.cs) | Virtual property — `true` for Derphy and lawless zones |
 | `Zone.HasLaw` | [Zone.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/Zone.cs) | `true` for towns with guards; `false` for wilderness/dungeons |
-| `Chara.IsCriminal` | Elin character system | Player flag set on criminal actions |
+| `Player.IsCriminal` | [Player.cs L1408-L1418](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/Player.cs#L1408-L1418) | `karma < 0 && !HasCondition<ConIncognito>()` — criminal flag |
+| `ConIncognito` | Elin condition system | Condition that masks criminal status — guards ignore the player while active |
+| `TraitGuard` | [Chara.cs L6701](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/Chara.cs#L6701) | Guards aggro on PC party if `IsCriminal` and not in an instance zone |
 | `TraitMerchantDrug.ShopType` | [TraitMerchantDrug.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitMerchantDrug.cs) | Returns `ShopType.Drug` — sells potions/drugs |
 | `TraitMerchantBlack.CanSellStolenGoods` | [TraitMerchantBlack.cs](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/TraitMerchantBlack.cs) | Returns `true` — accepts stolen goods |
 | `GuildThief.SellStolenPrice` | [GuildThief.cs L17-L24](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/GuildThief.cs#L17-L24) | Price formula for stolen goods: `price * 100 / (190 - rank * 2)` |
@@ -384,19 +411,233 @@ Elin already has a robust criminal status system. The Underworld mod integrates 
 
 4. **Zone-based risk**: Operations in `HasLaw == true` zones (most towns) attract criminal status and potential guard aggro. Operations in `AllowCriminal` zones (Derphy, wilderness) are safe. This maps perfectly to the heat/enforcement system: high-heat shipments through lawful territories are riskier.
 
+### 2.4.3 Custom Underworld Skills
+
+Vanilla Elin's criminal system is designed around the Thieves' Guild, where outlaw status makes most towns extremely dangerous. Our player is a *dealer*, not a generalized criminal — they need to walk through Palmia to sell samples and through Port Kapul to meet contacts without every visit becoming open warfare.
+
+These custom skills are registered as Element entries in `SourceGame.xlsx` Element sheet, following the same pattern as vanilla skills (type: `Skill`, group: `SKILL`, category: `skill`).
+
+#### Skill 1: **Shadow Guise** (Disguise / Anti-Detection)
+
+| Field | Value |
+|-------|-------|
+| ID | `uw_shadow_guise` (custom Element ID, 90000+ range) |
+| Name | Shadow Guise |
+| Type | `Skill` |
+| Category | `skill` / `stealth` |
+| Parent Attribute | `PER` |
+| Description | The art of blending into crowds and appearing unremarkable. Reduces the chance of guard aggro while carrying contraband in lawful zones. |
+
+**Mechanical effect**:
+- At any level > 0, the player gains a periodic `ConIncognito`-like buff when entering lawful towns, with duration scaling with skill level.
+- This is implemented as a Harmony postfix on `Zone.OnVisit`: when the player enters a `HasLaw` zone, apply a custom condition (`ConShadowGuise`) whose duration = `skill_level * SHADOW_GUISE_DURATION_PER_LEVEL` in-game minutes.
+- While `ConShadowGuise` is active, the `IsCriminal` check returns `false` (same mechanism as `ConIncognito`).
+- The condition wears off naturally — long visits or loitering in town become progressively riskier.
+- **Skill training**: Passive gain whenever the player enters a lawful zone while carrying contraband and leaves without being detected.
+
+```csharp
+/// <summary>
+/// Custom condition that masks criminal status in lawful zones.
+/// Duration scales with Shadow Guise skill level.
+/// Mechanically identical to ConIncognito but with underworld flavor.
+/// </summary>
+public class ConShadowGuise : Condition
+{
+    public override bool AllowCriminal => true; // Same effect as ConIncognito
+    
+    public override int GetPhase()
+    {
+        return value switch
+        {
+            >= 30 => 2, // Strong guise
+            >= 10 => 1, // Moderate
+            _ => 0,     // Weak
+        };
+    }
+}
+
+// Applied in Zone.OnVisit postfix:
+public static void ApplyShadowGuise()
+{
+    if (!EClass._zone.HasLaw) return;
+    
+    int skillLevel = EClass.pc.elements.GetBase(UW_SHADOW_GUISE_ID);
+    if (skillLevel <= 0) return;
+    
+    int duration = skillLevel * UnderworldConfig.ShadowGuiseDurationPerLevel.Value;
+    EClass.pc.AddCondition<ConShadowGuise>(duration);
+}
+```
+
+#### Skill 2: **Silver Tongue** (Bribery / Social Engineering)
+
+| Field | Value |
+|-------|-------|
+| ID | `uw_silver_tongue` (custom Element ID) |
+| Name | Silver Tongue |
+| Type | `Skill` |
+| Category | `skill` / `general` |
+| Parent Attribute | `CHA` |
+| Description | The ability to talk your way out of — or into — anything. Reduces karma penalties for criminal actions and improves prices when dealing with NPCs. |
+
+**Mechanical effects**:
+- **Karma shield**: When the player would lose karma from carrying contraband or other criminal actions, reduce the loss by `skill_level * SILVER_TONGUE_KARMA_REDUCTION_PCT / 100` (capped at 80% reduction). This slows the descent into deep negative karma.
+- **Bribe on detection**: When guards would normally aggro, there's a `skill_level * 2`% chance to automatically spend gold (configurable base cost) to avoid the encounter. Msg: *"You slip a few coins to the guard. They suddenly find something very interesting to look at."*
+- **Better street prices**: When selling contraband via the small-time dealing system (§5.6), payout is improved by `skill_level / 2`%.
+- **Skill training**: Gains XP whenever a bribe succeeds, when selling to NPCs, or when completing deals in lawful zones.
+
+#### Skill 3: **Nerve Conditioning** (Stamina / Endurance)
+
+| Field | Value |
+|-------|-------|
+| ID | `uw_nerve_conditioning` (custom Element ID) |
+| Name | Nerve Conditioning |
+| Type | `Skill` |
+| Category | `skill` / `general` |
+| Parent Attribute | `WIL` |
+| Description | Hardened resolve from a life of calculated risk. Increases maximum Shadow Nerve and accelerates regeneration. |
+
+**Mechanical effects**:
+- **Max nerve bonus**: `+skill_level * NERVE_CONDITIONING_BONUS_PER_LEVEL` to maximum nerve (stacks with rank-based max nerve).
+- **Regen bonus**: Nerve regeneration per in-game hour increased by `skill_level / 10` (rounded down, minimum +0).
+- **Skill training**: Gains XP whenever nerve is spent on an operation.
+
+#### Skill Registration
+
+All three skills are added to `.xlsx` Element sheet rows using the proven `add_meteor_items.py` pattern. They follow the same column structure as vanilla skills like `stealth` (ID 152) and `travel` (ID 240).
+
+```python
+UNDERWORLD_SKILLS = {
+    90001: {
+        "alias": "uw_shadow_guise",
+        "name": "Shadow Guise",
+        "aliasParent": "PER",
+        "parentFactor": 20,
+        "lvFactor": 100,
+        "type": "Skill",
+        "group": "SKILL",
+        "category": "skill",
+        "categorySub": "stealth",
+        "detail": "The art of blending into crowds. Reduces detection in lawful zones.",
+    },
+    90002: {
+        "alias": "uw_silver_tongue",
+        "name": "Silver Tongue",
+        "aliasParent": "CHA",
+        "parentFactor": 20,
+        "lvFactor": 100,
+        "type": "Skill",
+        "group": "SKILL",
+        "category": "skill",
+        "categorySub": "general",
+        "detail": "The ability to talk your way out of trouble. Reduces karma loss and enables bribery.",
+    },
+    90003: {
+        "alias": "uw_nerve_conditioning",
+        "name": "Nerve Conditioning",
+        "aliasParent": "WIL",
+        "parentFactor": 10,
+        "lvFactor": 100,
+        "type": "Skill",
+        "group": "SKILL",
+        "category": "skill",
+        "categorySub": "general",
+        "detail": "Hardened resolve from a life of risk. Increases maximum nerve and regen rate.",
+    },
+}
+```
+
+#### Starter Skill Grants
+
+During bootstrap (`UnderworldStartupBootstrap.Apply()`), the player receives initial levels in these skills:
+
+```csharp
+// ── Step 8: Grant Underworld Skills ──────────────────────────
+player.elements.SetBase(90001, 5);  // Shadow Guise: level 5
+player.elements.SetBase(90002, 3);  // Silver Tongue: level 3
+player.elements.SetBase(90003, 1);  // Nerve Conditioning: level 1
+```
+
+This gives the player an immediate ability to navigate towns with some protection, with room to grow through use.
+
+### 2.4.4 Dealing System Conditions
+
+Two custom `BadCondition` subclasses support the addiction/overdose system (see [§5.7-5.8](./05_orders_reputation.md)). These follow the same pattern as [ConPoison](file:///c:/Users/mcounts/Documents/ElinMods/Elin-Decompiled-main/Elin/ConPoison.cs).
+
+| Condition | Base Class | Applies To | Trigger | Cure |
+|-----------|-----------|-----------|---------|------|
+| `ConUWWithdrawal` | `BadCondition` | Dealing customers (Dependent+ addiction) | Not served within visit threshold | Serving the customer product |
+| `ConUWOverdose` | `BadCondition` | Dealing customers (Addicted+ addiction) | OD roll at deal time (mild/severe) | Natural slow decay, or Alchemist's Reprieve item |
+
+**Party member immunity**: Neither condition can be applied to `IsPCParty` or `IsPCFaction` characters. The dealing system excludes them entirely.
+
+**ConUWWithdrawal phases**: SPD −5/−10/−15 and STR −5/−10 at increasing severity. Does not decay naturally — only cured by product. Severe phase causes periodic vomiting.
+
+**ConUWOverdose phases**: SPD −10/−20/−30, STR −5/−10/−15, WIL −10/−15 at increasing severity. Phase 2 adds `ConParalyze`. Slow decay (1/10 tick rate). Severe phase causes vomiting.
+
+Full implementation in [§5.7.4](./05_orders_reputation.md) and [§5.8.4](./05_orders_reputation.md).
+
 ---
 
-## 2.5 Save Compatibility
+## 2.5 Configuration & Tunability
 
-### 2.5.1 Mod Removal Safety
+All gameplay-significant values in this module are exposed via BepInEx `ConfigEntry<T>` bindings, following the [SkyreaderGuild config pattern](file:///c:/Users/mcounts/Documents/ElinMods/SkyreaderGuild/SkyreaderGuild.cs#L243-L253). This allows players and server operators to adjust the experience without code changes.
+
+### 2.5.1 Client-Side Config (BepInEx)
+
+```csharp
+// In UnderworldPlugin.Awake()
+
+// ── Scenario ──
+ConfigStartingGold = Config.Bind("Scenario", "StartingGold", 5000,
+    "Gold granted during Underworld Startup.");
+
+// ── Skills ──
+ConfigShadowGuiseDurationPerLevel = Config.Bind("Skills", "ShadowGuiseDurationPerLevel", 10,
+    "In-game minutes of disguise per Shadow Guise skill level when entering a lawful zone.");
+ConfigSilverTongueKarmaReductionPct = Config.Bind("Skills", "SilverTongueKarmaReductionPct", 2,
+    "Percent karma loss reduction per Silver Tongue level (max 80%).");
+ConfigSilverTongueBribeBaseCost = Config.Bind("Skills", "SilverTongueBribeBaseCost", 500,
+    "Base gold cost for an automatic guard bribe.");
+ConfigNerveConditioningBonusPerLevel = Config.Bind("Skills", "NerveConditioningBonusPerLevel", 2,
+    "Additional max nerve per Nerve Conditioning skill level.");
+
+// ── Network ──
+ConfigServerUrl = Config.Bind("Network", "ServerUrl", "http://localhost:8000",
+    "URL of the Underworld backend server.");
+ConfigPollIntervalSeconds = Config.Bind("Network", "PollIntervalSeconds", 300,
+    "How often to poll the server for results (seconds).");
+ConfigOfflineMode = Config.Bind("Network", "OfflineMode", false,
+    "If true, all network features are disabled.");
+```
+
+### 2.5.2 Config Reference Table
+
+| Config Key | Type | Default | Section | Used In |
+|------------|------|---------|---------|--------|
+| `StartingGold` | int | 5000 | Scenario | Bootstrap |
+| `ShadowGuiseDurationPerLevel` | int | 10 | Skills | Zone.OnVisit patch |
+| `SilverTongueKarmaReductionPct` | int | 2 | Skills | Karma loss patch |
+| `SilverTongueBribeBaseCost` | int | 500 | Skills | Guard aggro patch |
+| `NerveConditioningBonusPerLevel` | int | 2 | Skills | NerveTracker |
+| `ServerUrl` | string | `http://localhost:8000` | Network | NetworkClient |
+| `PollIntervalSeconds` | int | 300 | Network | Polling loop |
+| `OfflineMode` | bool | false | Network | All network calls |
+
+---
+
+## 2.6 Save Compatibility
+
+### 2.6.1 Mod Removal Safety
 
 When the mod is disabled:
 - Custom items (mixing table, contraband, chest) become "alchemical ash" — Elin's default behavior for items with unknown IDs
 - Custom NPCs (Fixer) disappear — their chara IDs are no longer recognized
 - Custom zones become inaccessible — the zone type classes don't exist
+- Custom skills become orphaned element IDs — harmless, no crash
 - No save corruption — Elin handles unknown entries gracefully
 
-### 2.5.2 Mod State Persistence
+### 2.6.2 Mod State Persistence
 
 Local mod state (accepted orders, cached reputation) is stored in one of two ways:
 
@@ -410,13 +651,13 @@ File.WriteAllText(savePath, JsonConvert.SerializeObject(state));
 **Option B — Player element values** (for simple numeric state):
 Use Elin's existing element system to store values on the player card. This survives mod removal as orphaned element IDs.
 
-### 2.5.3 Server Data Independence
+### 2.6.3 Server Data Independence
 
 All multiplayer state (orders, shipments, reputation, territory) lives on the server. The client mod is a thin view into server state. Disabling the mod doesn't affect the server — the player's faction membership and reputation persist.
 
 ---
 
-## 2.6 Testing & Verification
+## 2.7 Testing & Verification
 
 ### Startup Scenario Tests
 
@@ -424,7 +665,8 @@ All multiplayer state (orders, shipments, reputation, territory) lives on the se
 |------|-------|-----------------|
 | Scenario appears | New game → character creation | "Underworld Startup" appears in scenario dropdown |
 | Scenario selectable | Select "Underworld Startup" → create character | Game starts without crash |
-| Bootstrap items | Start Underworld game | Inventory contains: mixing table, chest, 10× basic herb, 5× crude mineral, 5000 gold |
+| Bootstrap items | Start Underworld game | Inventory contains: mixing table, chest, 10× whispervine, 5× crude moonite, 5000 gold, axe, pickaxe, hoe, bandages, torch, rations |
+| Basic tool check | Start Underworld game → check inventory | Player has axe, pickaxe, hoe for Elin crafting/gathering |
 | Fixer spawned | Start Underworld game → check starting zone | Fixer NPC present, interactable |
 | QuestMain suppressed | Start Underworld game → check quest log | QuestMain at phase 0, no main quest prompts or NPCs |
 | QuestHome active | Start Underworld game → check quest log | QuestHome at phase 2 (land claimed) |
@@ -446,6 +688,19 @@ All multiplayer state (orders, shipments, reputation, territory) lives on the se
 | Derphy safe | Carry/sell contraband in Derphy → no criminal flag |
 | Drug merchant interaction | Sell contraband to drug merchant → accepted, paid at base rate |
 | Thief guild synergy | Join Thief guild → sell contraband to merchant → price improved by rank |
+
+### Underworld Skill Tests
+
+| Test | Steps | Expected |
+|------|-------|----------|
+| Shadow Guise activates | Enter Palmia with skill level 10 | `ConShadowGuise` applied, duration ≈ 100 minutes |
+| Shadow Guise hides criminal | Enter lawful zone with karma < 0 | Guards do not aggro while condition active |
+| Shadow Guise expires | Wait in town past duration | Condition expires, guards may aggro |
+| Silver Tongue karma shield | Commit criminal act with skill level 20 | Karma loss reduced by ~40% |
+| Silver Tongue bribe | Enter lawful zone, guard aggro triggers | Gold deducted, encounter avoided (prob: level × 2%) |
+| Nerve Conditioning | Check max nerve at skill level 10 | Max nerve = base + 20 |
+| Skill training | Enter/leave lawful zones with contraband | Shadow Guise skill XP increases |
+| Config override | Set `ShadowGuiseDurationPerLevel=20` in config | Duration doubles |
 
 ### Save Compatibility Tests
 

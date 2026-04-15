@@ -50,6 +50,18 @@ All in-game terms use Elin-flavored fantasy language.
 | **Underworld Rank** | Global player progression: Novice → Peddler → Supplier → Kingpin → Overlord. Unlocks higher-tier recipes, stations, and order access. |
 | **Potency** | Primary quality attribute of contraband. Higher potency = better payouts but faster heat accumulation. Derived from ingredient quality and crafting skill. |
 | **Toxicity** | Negative quality attribute. High toxicity reduces client satisfaction and may cause order failures. Result of poor ingredients or cutting agents. |
+| **Shadow Guise** | Custom underworld skill (PER-based). Masks criminal status when entering lawful towns, duration scaling with level. |
+| **Silver Tongue** | Custom underworld skill (CHA-based). Reduces karma loss, enables guard bribery, and improves street deal prices. |
+| **Nerve Conditioning** | Custom underworld skill (WIL-based). Increases maximum Shadow Nerve and accelerates regeneration. |
+| **Dealing** | Small-time sales of contraband directly to town NPCs. The early-game income loop — offer samples, build regulars, sell from inventory. |
+| **Prospect/Regular/Devoted/Hooked** | NPC customer loyalty tiers. Higher tiers buy more, pay more, and generate passive rep. |
+| **Sample Kit** | A concealment item that hides a small quantity of contraband from the `IsCriminal` check in lawful zones. |
+| **Addiction** | Per-NPC element (`UW_ADDICTION`, 0-100) tracking how dependent a customer has become. Higher addiction = more volume/revenue but increasing OD risk. Five tiers: Clean, Casual, Dependent, Addicted, Severe. |
+| **Tolerance** | Per-NPC element (`UW_TOLERANCE`, 0-50) tracking how much potency the customer needs. Increases with repeated purchases. Demands higher-potency product over time. |
+| **Overdose** | Risk event triggered during deals when a customer's addiction ≥ 61. Three severities: mild (debuffs), severe (collapse + heat), fatal (customer death + major consequences). |
+| **Withdrawal** | `ConUWWithdrawal` condition applied to Dependent+ customers who haven't been served within a visit threshold. Stat debuffs, vomiting, and desperate dialog. Cured by serving product. |
+| **Alchemist's Reprieve** | Craftable recovery potion (`uw_antidote_vial`). Cures `ConUWOverdose` from mild/severe ODs, restoring 50% HP. Cannot prevent fatal ODs. |
+| **Dealer's Ledger** | Book item (`uw_dealers_ledger`) that opens a custom `ELayer` panel tracking all customers across towns — status, loyalty, addiction, and pending orders. |
 
 ### 0.5 Scope Boundary
 
@@ -65,6 +77,12 @@ All in-game terms use Elin-flavored fantasy language.
 - Base integration (contraband chest, infrastructure progression)
 - Custom UI panels (network screen, market, territory overview)
 - Automated asset pipeline (sprite generation, XLSX management)
+- 3 custom underworld skills (Shadow Guise, Silver Tongue, Nerve Conditioning)
+- Small-time dealing system (NPC customer tracking, loyalty tiers, direct sales)
+- NPC addiction and tolerance mechanics (progressive dependency)
+- Overdose system with graduated consequences (mild/severe/fatal)
+- Withdrawal conditions and customer management
+
 
 **Out of scope:**
 - Real-time PvP or synchronous multiplayer
