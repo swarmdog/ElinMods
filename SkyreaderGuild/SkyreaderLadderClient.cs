@@ -292,7 +292,7 @@ namespace SkyreaderGuild
             }
             catch (Exception ex)
             {
-                SetFetchError("The Starlight Ladder is unreachable. Check that the ladder server is running.");
+                SetFetchError(SkyreaderGuild.GetOnlineFailureMessage(ex, "The Starlight Ladder is unreachable. Check that the ladder server is running."));
                 SkyreaderGuild.Log("Ladder fetch failed: " + ex.Message);
             }
             finally

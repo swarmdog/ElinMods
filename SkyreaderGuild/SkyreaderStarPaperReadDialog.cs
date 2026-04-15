@@ -132,7 +132,7 @@ namespace SkyreaderGuild
                 string loading = currentView == ShelfView.Guild
                     ? "The shelf is sorting fresh papers from across the guild..."
                     : "Your archived papers are being gathered...";
-                note.AddText(loading);
+                note.AddText(SkyreaderGuild.GetOnlineStatusText(loading), FontColor.Warning);
                 return;
             }
 

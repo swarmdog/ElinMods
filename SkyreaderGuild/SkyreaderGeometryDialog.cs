@@ -58,7 +58,7 @@ namespace SkyreaderGuild
 
             if (data == null)
             {
-                note.AddText("The orrery is calibrating...");
+                note.AddText(SkyreaderGuild.GetOnlineStatusText("The orrery is calibrating..."), FontColor.Warning);
                 note.Build();
                 return;
             }

@@ -7,11 +7,20 @@ from fastapi.testclient import TestClient
 
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
+SRC = ROOT / "src"
+sys.path.insert(0, str(SRC))
 
 ALL_MODULES = [
-    "main", "auth", "contributions", "ladder", "database",
-    "seasons", "constellations", "geometry", "comet", "research_notes",
+    "skyreaderguild_server.main",
+    "skyreaderguild_server.auth",
+    "skyreaderguild_server.contributions",
+    "skyreaderguild_server.ladder",
+    "skyreaderguild_server.database",
+    "skyreaderguild_server.seasons",
+    "skyreaderguild_server.constellations",
+    "skyreaderguild_server.geometry",
+    "skyreaderguild_server.comet",
+    "skyreaderguild_server.research_notes",
 ]
 
 
@@ -19,10 +28,11 @@ def make_client(tmp_path, monkeypatch):
     monkeypatch.setenv("SKYREADER_JWT_SECRET", "test-secret-that-is-long-enough")
     monkeypatch.setenv("SKYREADER_DB_PATH", str(tmp_path / "skyreader-test.db"))
 
-    for name in ALL_MODULES:
-        sys.modules.pop(name, None)
+    for name in list(sys.modules):
+        if name == "skyreaderguild_server" or name.startswith("skyreaderguild_server."):
+            sys.modules.pop(name, None)
 
-    main = importlib.import_module("main")
+    main = importlib.import_module("skyreaderguild_server.main")
     return TestClient(main.app)
 
 

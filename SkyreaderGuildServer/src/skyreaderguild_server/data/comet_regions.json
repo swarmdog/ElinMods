@@ -1,0 +1,32 @@
+[
+    {
+        "id": "plains",
+        "name": "The Plains",
+        "description": "Rolling grassland, roads, and farmland."
+    },
+    {
+        "id": "forest",
+        "name": "The Woodlands",
+        "description": "Dense forests and ancient groves."
+    },
+    {
+        "id": "snowlands",
+        "name": "The Snowlands",
+        "description": "Frozen tundra and permafrost."
+    },
+    {
+        "id": "coast",
+        "name": "The Coast",
+        "description": "Shorelines, beaches, and salt marshes."
+    },
+    {
+        "id": "highlands",
+        "name": "The Highlands",
+        "description": "Mountain passes and rocky terrain."
+    },
+    {
+        "id": "sea",
+        "name": "The Deep Sea",
+        "description": "Open ocean and underwater ruins."
+    }
+]

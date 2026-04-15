@@ -369,6 +369,7 @@ function Copy-ScriptModPackage([string]$ProjectDir, [string]$PackageName, [strin
 
 function Copy-SkyreaderPackage {
     $sourceDir = Join-Path $RepoRoot "SkyreaderGuild"
+    $serverSourceDir = Join-Path $RepoRoot "SkyreaderGuildServer"
     $packageDir = Join-Path $StagingRoot "SkyreaderGuild"
     New-Item -ItemType Directory -Path $packageDir -Force | Out-Null
 
@@ -396,6 +397,24 @@ function Copy-SkyreaderPackage {
         ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $textureDest $_.Name) -Force }
 
     Assert-SkyreaderTextures $sourceCardDest $textureSource $textureDest
+
+    $serverDest = Join-Path $packageDir "Server\SkyreaderGuildServer"
+    New-Item -ItemType Directory -Path $serverDest -Force | Out-Null
+    Copy-RequiredFile (Join-Path $serverSourceDir "pyproject.toml") (Join-Path $serverDest "pyproject.toml")
+    Copy-RequiredFile (Join-Path $serverSourceDir "README.md") (Join-Path $serverDest "README.md")
+    $serverSrcRoot = Join-Path $serverSourceDir "src"
+    $serverSrcDest = Join-Path $serverDest "src"
+    New-Item -ItemType Directory -Path $serverSrcDest -Force | Out-Null
+    Get-ChildItem -LiteralPath $serverSrcRoot -Recurse -File |
+        Where-Object { $_.FullName -notmatch "\\__pycache__\\" } |
+        ForEach-Object {
+            $relative = Get-RelativeZipPath $serverSrcRoot $_.FullName
+            $destination = Join-Path $serverSrcDest $relative
+            $destinationDir = Split-Path $destination -Parent
+            New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
+            Copy-Item -LiteralPath $_.FullName -Destination $destination -Force
+        }
+
     Assert-PackageXml (Join-Path $packageDir "package.xml")
     Assert-Preview (Join-Path $packageDir "preview.jpg")
 }
@@ -403,9 +422,9 @@ function Copy-SkyreaderPackage {
 function Assert-NoForbiddenFiles {
     $forbidden = Get-ChildItem -LiteralPath $StagingRoot -Recurse -File |
         Where-Object {
-            $_.Extension -in @(".cs", ".csproj", ".db") -or
+            $_.Extension -in @(".cs", ".csproj", ".db", ".pyc") -or
             $_.Name -eq "SourceLocalization.json" -or
-            $_.FullName -match "\\(bin|obj|worklog|Screenshots|reports)\\"
+            $_.FullName -match "\\(bin|obj|worklog|Screenshots|reports|tests|docs|__pycache__|\.venv)\\"
         }
 
     if ($forbidden) {

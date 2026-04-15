@@ -58,7 +58,7 @@ namespace SkyreaderGuild
 
             if (data == null)
             {
-                note.AddText("The constellation board is updating...");
+                note.AddText(SkyreaderGuild.GetOnlineStatusText("The constellation board is updating..."), FontColor.Warning);
                 note.Build();
                 return;
             }

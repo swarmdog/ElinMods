@@ -42,6 +42,7 @@ namespace SkyreaderGuild {
         public static ConfigEntry<bool> ConfigEnableRiftLayouts;
         public static ConfigEntry<bool> ConfigEnableOnlineFeatures;
         public static ConfigEntry<string> ConfigLadderServerUrl;
+        internal static SkyreaderLocalServerManager LocalServerManager;
         internal static SkyreaderAuthManager LadderAuthManager;
         internal static SkyreaderLadderClient LadderClient;
         internal static SkyreaderOnlineClient OnlineClient;
@@ -251,14 +252,30 @@ namespace SkyreaderGuild {
             ConfigEnableOnlineFeatures = Config.Bind("Online", "EnableOnlineFeatures", false, "Enable connection to the Skyreader ladder server for global rankings.");
             ConfigLadderServerUrl = Config.Bind("Online", "LadderServerUrl", "http://localhost:8000", "URL of the Skyreader ladder server.");
 
-            LadderAuthManager = new SkyreaderAuthManager(() => ConfigLadderServerUrl.Value);
+            LocalServerManager = new SkyreaderLocalServerManager(
+                () => ConfigEnableOnlineFeatures != null && ConfigEnableOnlineFeatures.Value,
+                () => ConfigLadderServerUrl.Value,
+                Path.GetDirectoryName(assemblyPath) ?? string.Empty
+            );
+            LadderAuthManager = new SkyreaderAuthManager(() => ConfigLadderServerUrl.Value, LocalServerManager);
             LadderClient = new SkyreaderLadderClient(() => ConfigLadderServerUrl.Value, LadderAuthManager);
             OnlineClient = new SkyreaderOnlineClient(() => ConfigLadderServerUrl.Value, LadderAuthManager);
+            LocalServerManager.InitializeOnPluginLoad();
 
             ModUtil.RegisterSerializedTypeFallback("SkyreaderGuild", "SkyreaderGuild.QuestSkyreader", "QuestDummy");
             Harmony harmony = new Harmony(ModInfo.Guid);
             harmony.PatchAll();
             Log("Harmony patches installed.");
+        }
+
+        private void OnApplicationQuit()
+        {
+            LocalServerManager?.Shutdown();
+        }
+
+        private void OnDestroy()
+        {
+            LocalServerManager?.Shutdown();
         }
 
         internal static bool IsOnlineLadderReady()
@@ -319,7 +336,35 @@ namespace SkyreaderGuild {
                 return "The plaque is blank. Join the Skyreader Guild before reading the Starlight Ladder.";
             }
 
+            string localStatus = LocalServerManager?.GetStatusMessage();
+            if (!string.IsNullOrEmpty(localStatus))
+            {
+                return localStatus;
+            }
+
             return "The Starlight Ladder is not ready yet.";
+        }
+
+        internal static string GetOnlineStatusText(string fallback)
+        {
+            string localStatus = LocalServerManager?.GetStatusMessage();
+            return string.IsNullOrEmpty(localStatus) ? fallback : localStatus;
+        }
+
+        internal static string GetOnlineFailureMessage(Exception ex, string fallback)
+        {
+            string localStatus = LocalServerManager?.GetStatusMessage();
+            if (!string.IsNullOrEmpty(localStatus))
+            {
+                return localStatus;
+            }
+
+            if (ex != null && !string.IsNullOrEmpty(ex.Message))
+            {
+                return ex.Message;
+            }
+
+            return fallback;
         }
 
         internal static string GetLadderPlaqueText()

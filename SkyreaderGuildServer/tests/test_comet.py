@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "src"))
 
 from tests.helpers import auth_header, make_client, register
 
@@ -152,8 +152,10 @@ def test_legacy_region_tables_replaced_on_init(tmp_path, monkeypatch):
             """
         )
 
-    sys.modules.pop("database", None)
-    database = importlib.import_module("database")
+    for name in list(sys.modules):
+        if name == "skyreaderguild_server" or name.startswith("skyreaderguild_server."):
+            sys.modules.pop(name, None)
+    database = importlib.import_module("skyreaderguild_server.database")
     database.init_db()
 
     with sqlite3.connect(db_path) as db:

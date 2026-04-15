@@ -20,6 +20,7 @@
     <Compile Include="TraitSrgDebris.cs" />
     <Compile Include="SkyreaderAuthManager.cs" />
     <Compile Include="SkyreaderLadderClient.cs" />
+    <Compile Include="SkyreaderLocalServerManager.cs" />
     <Compile Include="SkyreaderLadderDialog.cs" />
     <Compile Include="TraitLadderPlaque.cs" />
     <Compile Include="Zone_SkyreaderGuild.cs" />

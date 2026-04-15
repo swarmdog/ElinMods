@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "skyreaderguild-server"
+version = "2.1.0"
+description = "Self-hostable FastAPI backend for the SkyreaderGuild Elin mod."
+readme = "README.md"
+requires-python = ">=3.12,<4"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+    "pydantic>=2.0",
+    "python-jose[cryptography]>=3.3.0",
+    "httpx>=0.27.0",
+]
+
+[project.scripts]
+skyreader-guild-server = "skyreaderguild_server.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+skyreaderguild_server = ["data/*.json", "data/*.md"]

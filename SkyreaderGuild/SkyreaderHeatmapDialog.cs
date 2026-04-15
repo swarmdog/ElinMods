@@ -58,7 +58,7 @@ namespace SkyreaderGuild
 
             if (data == null)
             {
-                note.AddText("The heatmap table is compiling town contamination reports...");
+                note.AddText(SkyreaderGuild.GetOnlineStatusText("The heatmap table is compiling town contamination reports..."), FontColor.Warning);
                 note.Build();
                 return;
             }

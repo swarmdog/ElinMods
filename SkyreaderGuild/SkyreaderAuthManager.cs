@@ -12,13 +12,15 @@ namespace SkyreaderGuild
     internal sealed class SkyreaderAuthManager
     {
         private readonly Func<string> serverUrlProvider;
+        private readonly SkyreaderLocalServerManager localServerManager;
         private readonly object sync = new object();
         private readonly string identityPath;
         private IdentityData identity;
 
-        public SkyreaderAuthManager(Func<string> serverUrlProvider)
+        public SkyreaderAuthManager(Func<string> serverUrlProvider, SkyreaderLocalServerManager localServerManager)
         {
             this.serverUrlProvider = serverUrlProvider;
+            this.localServerManager = localServerManager;
             string dir = Path.Combine(Paths.ConfigPath, "SkyreaderGuild");
             Directory.CreateDirectory(dir);
             identityPath = Path.Combine(dir, "skyreader_identity.json");
@@ -27,6 +29,7 @@ namespace SkyreaderGuild
 
         public async System.Threading.Tasks.Task<string> GetTokenAsync(HttpClient http, string displayName)
         {
+            localServerManager?.EnsureRequestReady();
             IdentityData snapshot;
             lock (sync)
             {
@@ -57,6 +60,7 @@ namespace SkyreaderGuild
 
         public async System.Threading.Tasks.Task<string> RefreshOrRegisterTokenAsync(HttpClient http, string displayName)
         {
+            localServerManager?.EnsureRequestReady();
             IdentityData snapshot;
             lock (sync)
             {
