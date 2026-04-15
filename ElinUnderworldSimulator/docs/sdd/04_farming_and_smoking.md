@@ -91,7 +91,7 @@ This section explains the vanilla systems the mod plugs into. A developer must u
 
 ### 4.2.2 Custom SourceObj Entries for Drug Herbs
 
-Each plantable drug herb requires a row in the mod's `SourceObj` sheet (or injected via Harmony). These define the growth system, tile graphics, harvest item, and growth parameters.
+Each plantable drug herb requires a row in the mod's `SourceObj` sheet (or injected via Harmony). These define the growth system, tile graphics, harvest item, and growth parameters. Asset generation and integration must also be included, and we always prefer to have mod content in a source card (see SkyreaderGuild for examples and inspiration).
 
 **SourceObj column reference** (from `SourceObj.Row`):
 
