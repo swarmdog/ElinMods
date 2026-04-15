@@ -8,7 +8,7 @@ This document specifies the order lifecycle, client archetypes, reputation track
 
 ## 5.1 Client Archetypes
 
-Orders come from server-generated clients of different types. Each archetype defines the demand profile, risk exposure, and payout characteristics.
+Orders come from server-generated clients of different types. Each archetype defines the demand profile, risk exposure, and payout characteristics.  Clients may have a chance to steal in certain scenarios (Dependent should have a configurable base chance to steal).
 
 | Archetype | Volume | Min Potency | Payment Timing | Payout Multiplier | Risk Multiplier | Heat Cost | Nerve Cost | Unlock Rank |
 |-----------|--------|-------------|----------------|-------------------|-----------------|-----------|------------|-------------|
