@@ -113,6 +113,13 @@ ASSET_SCALE_SPECS: dict[str, AssetScaleSpec] = {
     "srg_eclipse_hearth": furniture("@obj"),
     "srg_nexus_core": AssetScaleSpec("item", (128, 192), (128, 180), ANCHOR_BOTTOM_CENTER, "@obj_LV", 0),
 
+    # Interactive furniture: online multiplayer features.
+    "srg_constellation_board": furniture("@obj", FURNITURE_CANVAS_LARGE),
+    "srg_geometry_orrery": furniture("@obj", FURNITURE_CANVAS_LARGE),
+    "srg_comet_heatmap_table": furniture("@obj", FURNITURE_CANVAS_LARGE),
+    "srg_star_paper_shelf": furniture("@obj", FURNITURE_CANVAS_LARGE),
+    "srg_star_paper_desk": furniture("@obj"),
+
     # Characters: stable 128x192 canvas, explicit visible silhouette scale.
     "srg_arkyn": chara((72, 108), "@chara", ground_lift_px=16),
     "srg_archivist": chara((72, 108), "@chara", ground_lift_px=16),

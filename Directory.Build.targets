@@ -1,0 +1,59 @@
+<Project>
+  <Target Name="ValidateElinReferences" BeforeTargets="ResolveReferences" Condition="'$(IsElinModProject)' == 'true'">
+    <Error Condition="!Exists('$(ElinDir)')" Text="ElinDir '$(ElinDir)' does not exist. Set ELIN_DIR or pass /p:ElinDir=..." />
+    <Error Condition="!Exists('$(ManagedDir)\Elin.dll')" Text="Missing Elin.dll at '$(ManagedDir)\Elin.dll'. Check ElinDir." />
+    <Error Condition="!Exists('$(ManagedDir)\UnityEngine.dll')" Text="Missing UnityEngine.dll at '$(ManagedDir)\UnityEngine.dll'. Check ElinDir." />
+    <Error Condition="!Exists('$(ManagedDir)\UnityEngine.CoreModule.dll')" Text="Missing UnityEngine.CoreModule.dll at '$(ManagedDir)\UnityEngine.CoreModule.dll'. Check ElinDir." />
+    <Error Condition="!Exists('$(BepInExDir)\BepInEx.Core.dll')" Text="Missing BepInEx.Core.dll at '$(BepInExDir)\BepInEx.Core.dll'. Check ElinDir." />
+    <Error Condition="!Exists('$(BepInExDir)\BepInEx.Unity.dll')" Text="Missing BepInEx.Unity.dll at '$(BepInExDir)\BepInEx.Unity.dll'. Check ElinDir." />
+    <Error Condition="!Exists('$(BepInExDir)\0Harmony.dll')" Text="Missing 0Harmony.dll at '$(BepInExDir)\0Harmony.dll'. Check ElinDir." />
+  </Target>
+
+  <ItemGroup Condition="'$(IsElinModProject)' == 'true'">
+    <Reference Include="BepInEx.Core">
+      <HintPath>$(BepInExDir)\BepInEx.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="BepInEx.Unity">
+      <HintPath>$(BepInExDir)\BepInEx.Unity.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(BepInExDir)\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(ManagedDir)\UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(ManagedDir)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(ManagedDir)\UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Elin">
+      <HintPath>$(ManagedDir)\Elin.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Plugins.BaseCore">
+      <HintPath>$(ManagedDir)\Plugins.BaseCore.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Plugins.Modding">
+      <HintPath>$(ManagedDir)\Plugins.Modding.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Plugins.UI">
+      <HintPath>$(ManagedDir)\Plugins.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(ManagedDir)\Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+</Project>

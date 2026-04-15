@@ -155,6 +155,9 @@ namespace SkyreaderGuild
                     new Placement("terra_globe", 14, 11, true, "study_globe", 0),
                     new Placement("candle8", 12, 15, true, "study_candle"),
                     new Placement("carpet", 12, 13, true, "study_carpet"),
+                    // Online: Star Papers
+                    new Placement("srg_star_paper_shelf", 14, 15, true, "study_star_paper_shelf"),
+                    new Placement("srg_star_paper_desk", 10, 14, true, "study_star_paper_desk"),
                 }
             },
             {
@@ -172,6 +175,10 @@ namespace SkyreaderGuild
                     new Placement("chest_stone", 25, 43, true, "obs_chest"),
                     new Placement("pot_plantBig", 28, 42, true, "obs_plant"),
                     new Placement("stand_armor", 22, 42, true, "obs_armor"),
+                    // Online: Constellations, Geometry, Comet Heatmap
+                    new Placement("srg_constellation_board", 25, 38, true, "obs_constellation_board"),
+                    new Placement("srg_geometry_orrery", 22, 39, true, "obs_geometry_orrery"),
+                    new Placement("srg_comet_heatmap_table", 24, 42, true, "obs_comet_heatmap_table"),
                 }
             },
             {

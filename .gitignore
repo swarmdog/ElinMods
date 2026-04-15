@@ -12,6 +12,8 @@ SkyreaderGuild/worklog/reports/*
 Screenshots
 SkyreaderGuildServer/*.db
 SkyreaderGuildServer/.venv
+SkyreaderGuildServer/worklog
+
 # User-specific files
 *.rsuser
 *.suo

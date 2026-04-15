@@ -12,11 +12,6 @@ namespace PartySalaryMod
         private static ConfigEntry<float> SalaryPercentage;
         private static ConfigEntry<string> SalaryFreq;
         private static ConfigEntry<bool> NYB;
-
-        private static ConfigEntry<int> MinimumSafeMoney;
-        private static ConfigEntry<float> SalaryPercentage;
-        private static ConfigEntry<string> SalaryFreq;
-        private static ConfigEntry<bool> NYB;
         private static ConfigEntry<bool> UseBankReserve;
         private static ConfigEntry<int> MinimumBankReserve;
 

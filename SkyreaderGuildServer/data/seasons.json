@@ -1,0 +1,43 @@
+[
+    {
+        "id": "crimson_showers",
+        "name": "Season of Crimson Showers",
+        "description": "Meteors fall with unusual frequency, their crimson trails painting the night sky.",
+        "duration_days": 28,
+        "modifiers": {
+            "meteorChanceMultiplier": 1.3,
+            "skysignWeights": {"DimensionalGateway": 1.5},
+            "geometryBias": "Star"
+        }
+    },
+    {
+        "id": "whispering_tides",
+        "name": "Season of Whispering Tides",
+        "description": "The astral currents shift, carrying the echoes of cleansed starlight further.",
+        "duration_days": 28,
+        "modifiers": {
+            "gpMultiplier": {"Extraction": 1.2},
+            "geometryBias": "Crescent"
+        }
+    },
+    {
+        "id": "hollow_eye",
+        "name": "Season of the Hollow Eye",
+        "description": "Yith incursions intensify. The rift between dimensions feels thin.",
+        "duration_days": 28,
+        "modifiers": {
+            "gpMultiplier": {"BossKill": 1.25},
+            "yithSpawnBonus": {"Weaver": 0.15, "Ancient": 0.1}
+        }
+    },
+    {
+        "id": "frozen_radiance",
+        "name": "Season of Frozen Radiance",
+        "description": "Starlight crystallizes in the cold. Rifts yield geometric perfection.",
+        "duration_days": 28,
+        "modifiers": {
+            "gpMultiplier": {"RiftClear": 1.15},
+            "geometryBias": "Diamond"
+        }
+    }
+]

@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastStart", "FastStart\FastStart.csproj", "{2989565B-944E-4EBB-9569-7BCEAF52E3AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PartyWage", "PartyWage\PartyWage.csproj", "{0CDD6F05-8BF0-4EA7-B7B3-888EBE80B3CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkyreaderGuild", "SkyreaderGuild\SkyreaderGuild.csproj", "{46A8F9F3-B1EF-41EF-B91B-DD082BF493E0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2989565B-944E-4EBB-9569-7BCEAF52E3AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2989565B-944E-4EBB-9569-7BCEAF52E3AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2989565B-944E-4EBB-9569-7BCEAF52E3AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2989565B-944E-4EBB-9569-7BCEAF52E3AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CDD6F05-8BF0-4EA7-B7B3-888EBE80B3CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CDD6F05-8BF0-4EA7-B7B3-888EBE80B3CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CDD6F05-8BF0-4EA7-B7B3-888EBE80B3CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CDD6F05-8BF0-4EA7-B7B3-888EBE80B3CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46A8F9F3-B1EF-41EF-B91B-DD082BF493E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46A8F9F3-B1EF-41EF-B91B-DD082BF493E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46A8F9F3-B1EF-41EF-B91B-DD082BF493E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46A8F9F3-B1EF-41EF-B91B-DD082BF493E0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

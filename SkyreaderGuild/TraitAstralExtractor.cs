@@ -77,6 +77,13 @@ public class TraitAstralExtractor : TraitItem
             SkyreaderGuild.SkyreaderGuild.EnqueueLadderContribution("Extraction", gpReward);
             quest.touched_cleansed++;
             SkyreaderGuild.SkyreaderGuild.Log($"Skysign extraction complete: target={target.id}, gp={gpReward}.");
+
+            // Submit a comet report for the heatmap
+            CometHeatSiteResolver.SiteInfo site;
+            if (CometHeatSiteResolver.TryResolve(EClass._zone, out site))
+            {
+                SkyreaderGuild.SkyreaderGuild.SubmitCometReport(site.SiteId, site.SiteName, site.WorldX, site.WorldY, 0, 1);
+            }
         }
 
         RollSkysignEffect(user, target);

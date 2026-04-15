@@ -1,0 +1,18 @@
+<Project>
+  <PropertyGroup>
+    <IsElinModProject Condition="'$(MSBuildProjectName)' == 'FastStart' or '$(MSBuildProjectName)' == 'PartyWage' or '$(MSBuildProjectName)' == 'SkyreaderGuild'">true</IsElinModProject>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsElinModProject)' == 'true'">
+    <ElinDir Condition="'$(ElinDir)' == '' and '$(ELIN_DIR)' != ''">$(ELIN_DIR)</ElinDir>
+    <ElinDir Condition="'$(ElinDir)' == ''">D:\Steam\steamapps\common\Elin</ElinDir>
+    <ManagedDir>$(ElinDir)\Elin_Data\Managed</ManagedDir>
+    <BepInExDir>$(ElinDir)\BepInEx\core</BepInExDir>
+
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NuGetAudit>false</NuGetAudit>
+  </PropertyGroup>
+</Project>

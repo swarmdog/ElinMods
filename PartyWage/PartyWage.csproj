@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>PartyWage</AssemblyName>
+    <RootNamespace>PartySalaryMod</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="PartySalaryMod.cs" />
+    <Compile Include="PartyWageStrings.cs" />
+  </ItemGroup>
+</Project>

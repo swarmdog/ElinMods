@@ -1,0 +1,150 @@
+{
+    "crimson_showers": [
+        {
+            "id": "gale_crimson",
+            "name": "The Gale",
+            "description": "Lulwy's wind scatters the meteor trails. Followers of the Gale track extraction across storm-swept lands.",
+            "lore_domain": "Wind",
+            "goal_config": {"Extraction": 150000}
+        },
+        {
+            "id": "mountain_crimson",
+            "name": "The Mountain",
+            "description": "Opatos's endurance. The Mountain stands firm against the crimson rain.",
+            "lore_domain": "Earth",
+            "goal_config": {"RiftClear": 80000}
+        },
+        {
+            "id": "flame_crimson",
+            "name": "The Flame",
+            "description": "Itzpalt's fire mirrors the meteor showers. Those aligned see magic in the chaos.",
+            "lore_domain": "Element",
+            "goal_config": {"Extraction": 100000, "BossKill": 20}
+        },
+        {
+            "id": "harvest_crimson",
+            "name": "The Harvest",
+            "description": "Kumiromi's growth feeds on starfall. The Harvest transforms destruction into bounty.",
+            "lore_domain": "Harvest",
+            "goal_config": {"Extraction": 120000}
+        },
+        {
+            "id": "eye_crimson",
+            "name": "The Cat's Eye",
+            "description": "Ehekatl's luck shines brightest when stars fall. Chance favors the bold.",
+            "lore_domain": "Luck",
+            "goal_config": {"RiftClear": 60000, "Extraction": 60000}
+        }
+    ],
+    "whispering_tides": [
+        {
+            "id": "gale_tides",
+            "name": "The Gale",
+            "description": "Lulwy's breath carries whispers from distant rifts. The Gale listens.",
+            "lore_domain": "Wind",
+            "goal_config": {"RiftClear": 100000}
+        },
+        {
+            "id": "mountain_tides",
+            "name": "The Mountain",
+            "description": "Opatos anchors the tides. His followers weather every storm.",
+            "lore_domain": "Earth",
+            "goal_config": {"Extraction": 130000}
+        },
+        {
+            "id": "flame_tides",
+            "name": "The Flame",
+            "description": "Itzpalt's fire burns beneath the waves. The Flame ignites even in the deep.",
+            "lore_domain": "Element",
+            "goal_config": {"BossKill": 25}
+        },
+        {
+            "id": "harvest_tides",
+            "name": "The Harvest",
+            "description": "Kumiromi sees bounty in the tidal surge. Every cleansed entity feeds the vine.",
+            "lore_domain": "Harvest",
+            "goal_config": {"Extraction": 150000}
+        },
+        {
+            "id": "eye_tides",
+            "name": "The Cat's Eye",
+            "description": "Ehekatl dances on the waves. Fortune favors the curious.",
+            "lore_domain": "Luck",
+            "goal_config": {"Extraction": 80000, "RiftClear": 50000}
+        }
+    ],
+    "hollow_eye": [
+        {
+            "id": "gale_hollow",
+            "name": "The Gale",
+            "description": "Lulwy's wind howls through the hollow spaces between dimensions.",
+            "lore_domain": "Wind",
+            "goal_config": {"RiftClear": 120000}
+        },
+        {
+            "id": "mountain_hollow",
+            "name": "The Mountain",
+            "description": "Opatos's stone resists the incursion. The Mountain will not be moved.",
+            "lore_domain": "Earth",
+            "goal_config": {"BossKill": 30}
+        },
+        {
+            "id": "flame_hollow",
+            "name": "The Flame",
+            "description": "Itzpalt studies the Yith with scholarly detachment. Knowledge through fire.",
+            "lore_domain": "Element",
+            "goal_config": {"Extraction": 90000, "BossKill": 15}
+        },
+        {
+            "id": "harvest_hollow",
+            "name": "The Harvest",
+            "description": "Kumiromi tends the wounded lands. Even hollow ground can bear fruit.",
+            "lore_domain": "Harvest",
+            "goal_config": {"Extraction": 140000}
+        },
+        {
+            "id": "eye_hollow",
+            "name": "The Cat's Eye",
+            "description": "Ehekatl peers into the void and finds it amusing. The Eye blinks back.",
+            "lore_domain": "Luck",
+            "goal_config": {"RiftClear": 70000, "BossKill": 10}
+        }
+    ],
+    "frozen_radiance": [
+        {
+            "id": "gale_frozen",
+            "name": "The Gale",
+            "description": "Lulwy's frozen breath carries crystalline starlight on arctic winds.",
+            "lore_domain": "Wind",
+            "goal_config": {"Extraction": 160000}
+        },
+        {
+            "id": "mountain_frozen",
+            "name": "The Mountain",
+            "description": "Opatos gleams with frost. The Mountain's patience outlasts even winter.",
+            "lore_domain": "Earth",
+            "goal_config": {"RiftClear": 90000}
+        },
+        {
+            "id": "flame_frozen",
+            "name": "The Flame",
+            "description": "Itzpalt's fire defies the cold. His followers forge meaning from frozen light.",
+            "lore_domain": "Element",
+            "goal_config": {"Extraction": 100000, "RiftClear": 50000}
+        },
+        {
+            "id": "harvest_frozen",
+            "name": "The Harvest",
+            "description": "Kumiromi sleeps beneath the snow, waiting. The Harvest is patient.",
+            "lore_domain": "Harvest",
+            "goal_config": {"Extraction": 120000}
+        },
+        {
+            "id": "eye_frozen",
+            "name": "The Cat's Eye",
+            "description": "Ehekatl's luck glitters in the frost. Every step on ice is a gamble she adores.",
+            "lore_domain": "Luck",
+            "goal_config": {"RiftClear": 80000, "Extraction": 40000}
+        }
+    ]
+}

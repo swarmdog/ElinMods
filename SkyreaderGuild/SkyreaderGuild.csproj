@@ -1,17 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
-    <LangVersion>latest</LangVersion>
     <AssemblyName>SkyreaderGuild</AssemblyName>
     <RootNamespace>SkyreaderGuild</RootNamespace>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-
-    <!-- Elin install path -->
-    <ElinDir>D:\Steam\steamapps\common\Elin</ElinDir>
-    <ManagedDir>$(ElinDir)\Elin_Data\Managed</ManagedDir>
-    <BepInExDir>$(ElinDir)\BepInEx\core</BepInExDir>
   </PropertyGroup>
 
   <ItemGroup>
@@ -34,64 +25,20 @@
     <Compile Include="Zone_SkyreaderGuild.cs" />
     <Compile Include="GuildLayoutBuilder.cs" />
     <Compile Include="RiftLayoutShaper.cs" />
+    <Compile Include="CometHeatSiteResolver.cs" />
+    <Compile Include="SkyreaderOnlineClient.cs" />
+    <Compile Include="SkyreaderConstellationDialog.cs" />
+    <Compile Include="SkyreaderGeometryDialog.cs" />
+    <Compile Include="SkyreaderHeatmapDialog.cs" />
+    <Compile Include="SkyreaderHeatmapGraphic.cs" />
+    <Compile Include="SkyreaderStarPaperReadDialog.cs" />
+    <Compile Include="SkyreaderStarPaperWriteDialog.cs" />
+    <Compile Include="TraitConstellationBoard.cs" />
+    <Compile Include="TraitGeometryOrrery.cs" />
+    <Compile Include="TraitCometHeatmapTable.cs" />
+    <Compile Include="TraitStarPaperShelf.cs" />
+    <Compile Include="TraitStarPaperWritingDesk.cs" />
+    <Compile Include="TraitArchivist.cs" />
   </ItemGroup>
-
-  <!-- BepInEx -->
-  <ItemGroup>
-    <Reference Include="BepInEx.Core">
-      <HintPath>$(BepInExDir)\BepInEx.Core.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="BepInEx.Unity">
-      <HintPath>$(BepInExDir)\BepInEx.Unity.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="0Harmony">
-      <HintPath>$(BepInExDir)\0Harmony.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="System.Net.Http" />
-  </ItemGroup>
-
-  <!-- Unity / Game -->
-  <ItemGroup>
-    <Reference Include="UnityEngine">
-      <HintPath>$(ManagedDir)\UnityEngine.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(ManagedDir)\UnityEngine.CoreModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>$(ManagedDir)\UnityEngine.UI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Elin">
-      <HintPath>$(ManagedDir)\Elin.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Plugins.BaseCore">
-      <HintPath>$(ManagedDir)\Plugins.BaseCore.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Plugins.Modding">
-      <HintPath>$(ManagedDir)\Plugins.Modding.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>$(ManagedDir)\Newtonsoft.Json.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Plugins.UI">
-      <HintPath>$(ManagedDir)\Plugins.UI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-
-  <!-- Post-build deployment to Elin directory -->
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(DeployToElin)' != 'false'">
-    <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="$(ElinDir)\Package\$(AssemblyName)\" />
-  </Target>
 
 </Project>

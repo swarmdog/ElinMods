@@ -447,6 +447,82 @@ ITEM_ASSETS = [
             "no frame, game asset"
         ),
     },
+    # ── Interactive online furniture (Phase 9) ──────────────────────────
+    {
+        "id": "srg_constellation_board",
+        "preview_size": (64, 64),
+        "prompt": (
+            "2D isometric RPG game furniture sprite, three-quarter top-down view "
+            "angled from upper-right, a large ornate notice board on a wooden "
+            "easel, the board face covered with a painted star map showing five "
+            "constellation patterns connected by glowing gold thread pins, "
+            "small brass star markers at key positions, dark navy background "
+            "with tiny silver dots, showing the board surface and easel legs, "
+            "pixel art style, dark navy and gold palette, uniform flat "
+            "fuchsia/magenta screen background, centered, clean edges, no text, "
+            "no frame, game asset"
+        ),
+    },
+    {
+        "id": "srg_geometry_orrery",
+        "preview_size": (64, 64),
+        "prompt": (
+            "2D isometric RPG game furniture sprite, three-quarter top-down view "
+            "angled from upper-right, a brass mechanical orrery on a polished "
+            "wooden table, multiple rotating rings and arms with small crystal "
+            "spheres representing different geometric shapes, gears visible "
+            "underneath, faint blue energy glowing from the central axis, "
+            "showing the mechanism top and table front-left face, pixel art "
+            "style, brass gold and crystal blue palette, uniform flat "
+            "fuchsia/magenta screen background, centered, clean edges, no text, "
+            "no frame, game asset"
+        ),
+    },
+    {
+        "id": "srg_comet_heatmap_table",
+        "preview_size": (64, 64),
+        "prompt": (
+            "2D isometric RPG game furniture sprite, three-quarter top-down view "
+            "angled from upper-right, a heavy stone table with a large map "
+            "etched into its surface, used to track astral contamination from "
+            "meteor-touched townspeople and items, different regions glowing in "
+            "varying intensities of warm orange to cool blue, small crystal "
+            "markers placed at hot spots, brass compass rose in one corner, "
+            "showing the tabletop and front-left stone legs, pixel art style, "
+            "warm orange and cool blue palette with stone grey, uniform flat "
+            "fuchsia/magenta screen background, centered, clean edges, no text, "
+            "no frame, game asset"
+        ),
+    },
+    {
+        "id": "srg_star_paper_shelf",
+        "preview_size": (64, 64),
+        "prompt": (
+            "2D isometric RPG game furniture sprite, three-quarter top-down view "
+            "angled from upper-right, a tall wooden bookshelf filled with "
+            "rolled scrolls and loose papers, some scrolls have tiny glowing "
+            "star seals, one paper is partially unrolled showing constellation "
+            "diagrams, warm wood construction with brass corner brackets, "
+            "showing shelves front-left face and top, pixel art style, warm "
+            "wood brown and parchment gold palette, uniform flat fuchsia/magenta "
+            "screen background, centered, clean edges, no text, no frame, "
+            "game asset"
+        ),
+    },
+    {
+        "id": "srg_star_paper_desk",
+        "preview_size": (48, 48),
+        "prompt": (
+            "2D isometric RPG game furniture sprite, three-quarter top-down view "
+            "angled from upper-right, a wooden writing desk with a sloped "
+            "surface, an inkwell and quill pen on the right side, blank "
+            "parchment paper on the writing surface, small drawer underneath, "
+            "brass lamp with a glowing crystal tip attached to one corner, "
+            "pixel art style, dark wood and warm parchment palette, uniform "
+            "flat fuchsia/magenta screen background, centered, clean edges, "
+            "no text, no frame, game asset"
+        ),
+    },
 ]
 
 CHARA_ASSETS = [

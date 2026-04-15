@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 using BepInEx;
 using BepInEx.Configuration;
@@ -43,6 +44,7 @@ namespace SkyreaderGuild {
         public static ConfigEntry<string> ConfigLadderServerUrl;
         internal static SkyreaderAuthManager LadderAuthManager;
         internal static SkyreaderLadderClient LadderClient;
+        internal static SkyreaderOnlineClient OnlineClient;
 
         /// <summary>
         /// Set to false to suppress all debug logging.
@@ -231,6 +233,11 @@ namespace SkyreaderGuild {
         private void Awake()
         {
             LogSource = Logger;
+            string assemblyPath = GetType().Assembly.Location;
+            string buildStamp = File.Exists(assemblyPath)
+                ? File.GetLastWriteTime(assemblyPath).ToString("yyyy-MM-dd HH:mm:ss")
+                : "unknown";
+            Log($"Loaded {ModInfo.Name} {ModInfo.Version} from {assemblyPath} (built {buildStamp}).");
             
             ConfigMaxStarImbuements = Config.Bind("General", "MaxStarImbuements", 1, "The maximum number of times starlight can be imbued into a single item.");
             ConfigYithGrowthSpawnChance = Config.Bind("General", "YithGrowthSpawnChance", 20, "Percentage chance for a Yith Growth to spawn in high danger Nefias.");
@@ -246,6 +253,7 @@ namespace SkyreaderGuild {
 
             LadderAuthManager = new SkyreaderAuthManager(() => ConfigLadderServerUrl.Value);
             LadderClient = new SkyreaderLadderClient(() => ConfigLadderServerUrl.Value, LadderAuthManager);
+            OnlineClient = new SkyreaderOnlineClient(() => ConfigLadderServerUrl.Value, LadderAuthManager);
 
             ModUtil.RegisterSerializedTypeFallback("SkyreaderGuild", "SkyreaderGuild.QuestSkyreader", "QuestDummy");
             Harmony harmony = new Harmony(ModInfo.Guid);
@@ -331,6 +339,130 @@ namespace SkyreaderGuild {
             return quest == null ? 0 : (int)quest.GetCurrentRank();
         }
 
+        // ─── Phase 9 Online Feature Facades ─────────────────────────────
+
+        internal static void ShowConstellationBoard()
+        {
+            SkyreaderConstellationDialog.Open();
+        }
+
+        internal static void RefreshConstellations(bool force = false, Action onDone = null)
+        {
+            if (!IsOnlineLadderReady()) return;
+            OnlineClient?.RefreshConstellations(force, onDone);
+        }
+
+        internal static void ShowGeometryOrrery()
+        {
+            SkyreaderGeometryDialog.Open();
+        }
+
+        internal static void RefreshGeometry(bool force = false, Action onDone = null)
+        {
+            if (!IsOnlineLadderReady()) return;
+            OnlineClient?.RefreshGeometry(force, onDone);
+        }
+
+        internal static void SubmitGeometrySample(int dangerBand, string shapeType, int roomCount)
+        {
+            if (!IsOnlineLadderReady()) return;
+            OnlineClient?.SubmitGeometrySample(dangerBand, shapeType, roomCount);
+        }
+
+        internal static void ShowCometHeatmap()
+        {
+            SkyreaderHeatmapDialog.Open();
+        }
+
+        internal static void RefreshHeatmap(bool force = false, Action onDone = null)
+        {
+            if (!IsOnlineLadderReady()) return;
+            OnlineClient?.RefreshHeatmap(force, onDone);
+        }
+
+        internal static void SubmitCometReport(string siteId, string siteName, int worldX, int worldY, int touched, int cleansed)
+        {
+            if (!IsOnlineLadderReady()) return;
+            OnlineClient?.SubmitCometReport(siteId, siteName, worldX, worldY, touched, cleansed);
+        }
+
+        internal static void ShowStarPaperShelf()
+        {
+            SkyreaderStarPaperReadDialog.Open();
+        }
+
+        internal static void ShowStarPaperDesk()
+        {
+            SkyreaderStarPaperWriteDialog.Open();
+        }
+
+        internal static void PullStarPapers(Action onDone = null)
+        {
+            if (!IsOnlineLadderReady()) return;
+            OnlineClient?.PullNotes(5, onDone);
+        }
+
+        internal static void ForcePullStarPapers(Action onDone = null)
+        {
+            if (!IsOnlineLadderReady()) return;
+            OnlineClient?.ForcePullNotes(5, onDone);
+        }
+
+        internal static void PullMyStarPapers(Action onDone = null)
+        {
+            if (!IsOnlineLadderReady()) return;
+            OnlineClient?.PullOwnNotes(50, onDone);
+        }
+
+        internal static void ForcePullMyStarPapers(Action onDone = null)
+        {
+            if (!IsOnlineLadderReady()) return;
+            OnlineClient?.ForcePullOwnNotes(50, onDone);
+        }
+
+        internal static int CountMeteoriteSources()
+        {
+            if (EClass.pc?.things == null) return 0;
+            ThingStack stack = EClass.pc.things.GetThingStack("srg_meteorite_source");
+            return stack?.count ?? 0;
+        }
+
+        internal static bool ConsumeMeteoriteSources(int amount)
+        {
+            if (amount <= 0) return true;
+            if (EClass.pc?.things == null) return false;
+
+            ThingStack stack = EClass.pc.things.GetThingStack("srg_meteorite_source");
+            if (stack == null || stack.count < amount) return false;
+
+            int remaining = amount;
+            foreach (Thing thing in new List<Thing>(stack.list))
+            {
+                if (thing == null || thing.isDestroyed) continue;
+                int taken = Math.Min(remaining, thing.Num);
+                thing.ModNum(-taken, notify: false);
+                remaining -= taken;
+                if (remaining <= 0) return true;
+            }
+
+            return false;
+        }
+
+        internal static void RefundMeteoriteSources(int amount)
+        {
+            if (amount <= 0 || EClass.pc == null) return;
+            for (int i = 0; i < amount; i++)
+            {
+                EClass.pc.Pick(ThingGen.Create("srg_meteorite_source"));
+            }
+        }
+
+        internal static void EnforceSkyreaderQuestInvariant()
+        {
+            if (EClass.game?.quests?.globalList == null) return;
+            EClass.game.quests.globalList.RemoveAll(q => q != null && q.id == "skyreader_guild");
+        }
+
         internal static void Log(string payload)
         {
             if (!DebugLogging) return;
@@ -377,12 +509,14 @@ namespace SkyreaderGuild {
                     !EClass.game.quests.IsStarted<QuestSkyreader>())
                 {
                     SkyreaderGuild.Log("Initiating player into skyreader guild...");
-                    EClass.game.quests.globalList.Add(Quest.Create("skyreader_guild").SetClient(c, false));
+                    SkyreaderGuild.EnforceSkyreaderQuestInvariant();
                     Msg.SayRaw("Your head pounds as the sigils on the chart waver.  After a period of time, you discover the scroll is a lost history of the Skyreader's Guild, who tracked the occasional falling meteorite.  Keep an eye out.");
                     EClass.game.quests.Start("skyreader_guild", c, true);
+                    SkyreaderGuild.EnforceSkyreaderQuestInvariant();
                 }
                 else
                 {
+                    SkyreaderGuild.EnforceSkyreaderQuestInvariant();
                     Msg.SayRaw("The starchart dissolves into celestial dust. Its mysteries are already known to you.");
                 }
 
@@ -768,6 +902,17 @@ namespace SkyreaderGuild {
             int totalCharas = preTouchedCharas;
             int totalThings = preTouchedThings;
             int totalTouched = totalCharas + totalThings;
+            int newlyTouched = totalTouched - alreadyTouched;
+
+            // Report newly touched entities to the comet heatmap
+            if (newlyTouched > 0)
+            {
+                CometHeatSiteResolver.SiteInfo site;
+                if (CometHeatSiteResolver.TryResolve(__instance, out site))
+                {
+                    SkyreaderGuild.SubmitCometReport(site.SiteId, site.SiteName, site.WorldX, site.WorldY, newlyTouched, 0);
+                }
+            }
 
             if (totalTouched > 0)
             {
@@ -975,9 +1120,58 @@ namespace SkyreaderGuild {
         }
 
         public override string TitlePrefix { get { return "⚆"; } }
+
+        public override bool CanUpdateOnTalk(Chara c)
+        {
+            SkyreaderGuild.EnforceSkyreaderQuestInvariant();
+            return c != null && c.id == "srg_arkyn";
+        }
+
         public override bool UpdateOnTalk()
         {
-            return false;
+            if (chara == null || chara.id != "srg_arkyn") return false;
+            ShowMembershipDialog();
+            return true;
+        }
+
+        private void ShowMembershipDialog()
+        {
+            Dialog dialog = Layer.Create<Dialog>();
+            if (dialog.windows.Count > 0)
+                dialog.windows[0].SetCaption("Arkyn, Keeper of Stars");
+
+            dialog.textDetail.SetText("");
+            dialog.spacer.SetActive(enable: false);
+
+            Action rebuild = delegate
+            {
+                if (dialog == null || dialog.gameObject == null) return;
+                UINote note = dialog.note;
+                note.Clear();
+                note.AddHeader("HeaderNote", "Skyreader Membership");
+                note.AddText(GetDetailText(onJournal: false));
+
+                var season = SkyreaderGuild.OnlineClient?.GetCachedSeason();
+                if (season != null && !string.IsNullOrWhiteSpace(season.Name))
+                {
+                    note.Space();
+                    note.AddHeaderTopic("Current Season");
+                    note.AddText(season.Name, FontColor.Topic);
+                    if (!string.IsNullOrWhiteSpace(season.Description))
+                    {
+                        note.AddText(season.Description);
+                    }
+                }
+
+                note.Build();
+            };
+
+            rebuild();
+            if (SkyreaderGuild.IsOnlineLadderReady())
+                SkyreaderGuild.OnlineClient?.RefreshSeason(force: false, onDone: rebuild);
+
+            dialog.AddButton(Lang.Get("close"));
+            ELayer.ui.AddLayer(dialog);
         }
 
         public GuildRank GetCurrentRank()

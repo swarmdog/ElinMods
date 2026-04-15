@@ -101,6 +101,7 @@ namespace SkyreaderGuild
             int depthBracket = GetDepthBracket(zone.lv);
             int shapedCount = 0;
             HashSet<long> allNewWalls = new HashSet<long>();
+            Dictionary<string, int> shapeCounts = new Dictionary<string, int>();
 
             for (int i = 0; i < rooms.Count; i++)
             {
@@ -130,6 +131,10 @@ namespace SkyreaderGuild
                 foreach (long key in newWalls)
                     allNewWalls.Add(key);
 
+                string shapeName = shape.ToString();
+                if (!shapeCounts.ContainsKey(shapeName)) shapeCounts[shapeName] = 0;
+                shapeCounts[shapeName]++;
+
                 shapedCount++;
             }
 
@@ -141,6 +146,22 @@ namespace SkyreaderGuild
 
             map.RefreshAllTiles();
             SkyreaderGuild.Log($"Reshaped {shapedCount}/{rooms.Count} rooms on rift floor lv={zone.lv}.");
+
+            // Submit dominant shape as a geometry sample to the server
+            if (shapedCount > 0)
+            {
+                string dominantShape = null;
+                int maxCount = 0;
+                foreach (var kv in shapeCounts)
+                {
+                    if (kv.Value > maxCount) { dominantShape = kv.Key; maxCount = kv.Value; }
+                }
+                if (dominantShape != null)
+                {
+                    int dangerBand = Math.Max(1, Math.Min(10, Math.Abs(zone.lv)));
+                    SkyreaderGuild.SubmitGeometrySample(dangerBand, dominantShape, shapedCount);
+                }
+            }
         }
 
         // ===================== Protected Cell Marking =====================
