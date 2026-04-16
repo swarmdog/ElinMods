@@ -278,6 +278,30 @@ function Assert-SourceCardWorkbook([string]$Path) {
     }
 }
 
+function Assert-WorkbookSharedStrings([string]$Path, [string]$Label) {
+    if (!(Test-Path -LiteralPath $Path -PathType Leaf)) {
+        Fail "Missing $Label workbook: $Path"
+    }
+
+    $archive = [System.IO.Compression.ZipFile]::OpenRead($Path)
+    try {
+        if ($null -eq $archive.GetEntry("xl/sharedStrings.xml")) {
+            Fail "$Label workbook is missing xl/sharedStrings.xml."
+        }
+
+        foreach ($entry in $archive.Entries) {
+            if ($entry.FullName -like "xl/worksheets/*.xml") {
+                $text = Read-ZipEntryText $archive $entry.FullName
+                if ($text -match 't="inlineStr"|<is>') {
+                    Fail "$Label workbook contains inlineStr cells in $($entry.FullName)."
+                }
+            }
+        }
+    } finally {
+        $archive.Dispose()
+    }
+}
+
 function Assert-FlatTextureDirectory([string]$TextureDir) {
     if (!(Test-Path -LiteralPath $TextureDir -PathType Container)) {
         Fail "Missing texture directory: $TextureDir"
@@ -481,6 +505,7 @@ function Copy-SkyreaderPackage {
 
 function Copy-UnderworldPackage {
     $sourceDir = Join-Path $RepoRoot "ElinUnderworldSimulator"
+    $serverSourceDir = Join-Path $sourceDir "Server\UnderworldServer"
     $packageDir = Join-Path $StagingRoot "ElinUnderworldSimulator"
     New-Item -ItemType Directory -Path $packageDir -Force | Out-Null
 
@@ -500,6 +525,16 @@ function Copy-UnderworldPackage {
     Copy-RequiredFile $sourceCardSource $sourceCardDest
     Assert-SourceCardWorkbook $sourceCardDest
 
+    $sourceBlockSource = Join-Path $sourceDir "LangMod\EN\SourceBlock.xlsx"
+    $sourceBlockDest = Join-Path $packageDir "LangMod\EN\SourceBlock.xlsx"
+    Copy-RequiredFile $sourceBlockSource $sourceBlockDest
+    Assert-WorkbookSharedStrings $sourceBlockDest "SourceBlock"
+
+    $sourceGameSource = Join-Path $sourceDir "LangMod\EN\SourceGame.xlsx"
+    $sourceGameDest = Join-Path $packageDir "LangMod\EN\SourceGame.xlsx"
+    Copy-RequiredFile $sourceGameSource $sourceGameDest
+    Assert-WorkbookSharedStrings $sourceGameDest "SourceGame"
+
     $textureSource = Join-Path $sourceDir "Texture"
     $textureDest = Join-Path $packageDir "Texture"
     New-Item -ItemType Directory -Path $textureDest -Force | Out-Null
@@ -508,6 +543,23 @@ function Copy-UnderworldPackage {
         ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $textureDest $_.Name) -Force }
 
     Assert-PrefixedTextures "ElinUnderworldSimulator" "uw_" $sourceCardDest $textureSource $textureDest
+
+    $serverDest = Join-Path $packageDir "Server\UnderworldServer"
+    New-Item -ItemType Directory -Path $serverDest -Force | Out-Null
+    Copy-RequiredFile (Join-Path $serverSourceDir "pyproject.toml") (Join-Path $serverDest "pyproject.toml")
+    Copy-RequiredFile (Join-Path $serverSourceDir "README.md") (Join-Path $serverDest "README.md")
+    $serverSrcRoot = Join-Path $serverSourceDir "src"
+    $serverSrcDest = Join-Path $serverDest "src"
+    New-Item -ItemType Directory -Path $serverSrcDest -Force | Out-Null
+    Get-ChildItem -LiteralPath $serverSrcRoot -Recurse -File |
+        Where-Object { $_.FullName -notmatch "\\__pycache__\\" } |
+        ForEach-Object {
+            $relative = Get-RelativeZipPath $serverSrcRoot $_.FullName
+            $destination = Join-Path $serverSrcDest $relative
+            $destinationDir = Split-Path $destination -Parent
+            New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
+            Copy-Item -LiteralPath $_.FullName -Destination $destination -Force
+        }
 
     Assert-PackageMetaMatches (Join-Path $sourceDir "package.xml") (Join-Path $packageDir "package.xml") "Staged ElinUnderworldSimulator"
     Assert-FileHashMatches (Join-Path $sourceDir "bin\$Configuration\ElinUnderworldSimulator.dll") (Join-Path $packageDir "ElinUnderworldSimulator.dll") "Staged ElinUnderworldSimulator.dll"

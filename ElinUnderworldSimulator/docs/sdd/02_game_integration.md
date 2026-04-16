@@ -148,6 +148,8 @@ public static class PatchStartNewGame
 
 ### 2.1.3 Bootstrap Logic — `UnderworldStartupBootstrap.Apply()`
 
+**Current contract:** Meadow is auto-claimed on Underworld start, but the vanilla `main` / `home` onboarding chain is removed instead of being advanced. The Fixer is spawned directly into Meadow, immediately added to the player's faction/home branch, and acts as a stock merchant-capable NPC there from day one.
+
 This is the core new-game setup. It executes once, immediately after `Game.StartNewGame` completes for our scenario. The implementation must follow this exact sequence:
 
 ```csharp
@@ -164,13 +166,7 @@ public static class UnderworldStartupBootstrap
         home.ClaimZone(player);
         
         // ── Step 2: Start QuestHome, advance to phase 2 (land claimed) ──
-        var questHome = game.quests.Get<QuestHome>();
-        if (questHome == null)
-        {
-            questHome = Quest.Create("QuestHome") as QuestHome;
-            game.quests.Start(questHome);
-        }
-        questHome.ChangePhase(2); // land claimed & base operational
+        SuppressVanillaStartupState(game);
         
         // ── Step 3: DO NOT advance QuestMain ────────────────────────────
         // The vanilla main quest simply stays at phase 0.
@@ -180,12 +176,15 @@ public static class UnderworldStartupBootstrap
         
         // ── Step 4: Spawn the Fixer NPC ─────────────────────────────────
         SpawnFixer(home);
+        AddFixerToPlayerFaction(home);
         
         // ── Step 5: Grant Starter Items ─────────────────────────────────
-        GrantStarterItems(player);
+        GrantStarterItems(player, home);
         
         // ── Step 6: Place Mixing Table in Base ──────────────────────────
         PlaceMixingTable(home);
+        PlaceContrabandChest(home);
+        PlaceStarterChestTableAndChair(home);
         
         // ── Step 7: Suppress tutorial dialogs ───────────────────────────
         // Set flags so Elin doesn't interrupt with tutorial popups
@@ -359,20 +358,15 @@ Column values (using [CHARA_COL mapping](Documents/ElinMods/SkyreaderGuild/workl
 ### 2.3.2 Fixer Trait
 
 ```csharp
-public class TraitUnderworldFixer : TraitUnique
+public class TraitUnderworldFixer : TraitUniqueMerchant
 {
-    // When the player interacts with the Fixer, open the Network Panel
-    public override bool OnUse(Chara c)
-    {
-        if (c.IsPC)
-        {
-            UnderworldPlugin.Instance.UI.OpenNetworkPanel();
-            return true;
-        }
-        return false;
-    }
+    public override ShopType ShopType => ShopType.Specific;
+    public override CurrencyType CurrencyType => CurrencyType.Money2;
+    public override string LangBarter => "daBuyStarter";
 }
 ```
+
+In vanilla `DramaCustomSequence.Build`, merchant choices are suppressed in user-owned zones. Underworld startup claims Meadow immediately, so the mod restores the Fixer's normal `_buy` choice with a narrow Harmony postfix only for `uw_fixer` in Underworld mode. The mod does not manually open barter UI for the Fixer; it injects the stock merchant choice and lets vanilla `_buy` drive `OnBarter()` and `LayerInventory.CreateBuy(...)`.
 
 ### 2.3.3 Fixer Placement
 
@@ -695,6 +689,8 @@ All multiplayer state (orders, shipments, reputation, territory) lives on the se
 
 ### Startup Scenario Tests
 
+**Current startup assertions:** the player inventory should contain only the dealer ledger, sample kit, antidotes, and starting orens. The startup `chest6` should hold the five base-progression tools (`hoe`, `shovel`, `axe`, `pickaxe`, `hammer`), the normal Underworld starter materials, and the explicit debug Whisper Tonic crafting bundle. Talking to the Fixer in claimed Meadow must show the normal barter option and route through vanilla `_buy`.
+
 | Test | Steps | Expected Result |
 |------|-------|-----------------|
 | Scenario appears | New game → character creation | "Underworld Startup" appears in scenario dropdown |
@@ -702,8 +698,8 @@ All multiplayer state (orders, shipments, reputation, territory) lives on the se
 | Bootstrap items | Start Underworld game | Inventory contains: mixing table, chest, 10× whispervine, 5× crude moonite, 5000 gold, axe, pickaxe, hoe, bandages, torch, rations |
 | Basic tool check | Start Underworld game → check inventory | Player has axe, pickaxe, hoe for Elin crafting/gathering |
 | Fixer spawned | Start Underworld game → check starting zone | Fixer NPC present, interactable |
-| QuestMain suppressed | Start Underworld game → check quest log | QuestMain at phase 0, no main quest prompts or NPCs |
-| QuestHome active | Start Underworld game → check quest log | QuestHome at phase 2 (land claimed) |
+| Quest log sanitized | Start Underworld game → check quest log | No `main`, `home`, or early Meadow tutorial quests are present |
+| Meadow still claimed | Start Underworld game → inspect starting zone | Meadow belongs to the player faction without relying on `QuestHome` |
 | Vanilla scenarios unaffected | New game → select Meadow/Cave start | Vanilla scenarios work identically to unmodded game |
 
 ### Zone Registration Tests

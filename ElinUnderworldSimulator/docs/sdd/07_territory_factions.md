@@ -193,105 +193,54 @@ Faction operations are accessed through specific furniture placed in the player'
 
 ### 7.4.1 The Fixer as Permanent Recruit
 
-The Fixer begins as a static NPC in the player's starting zone (§2.1.3) but can be **recruited as a permanent party member** during the Peddler rank promotion. This makes the Fixer a persistent companion who travels with the player, providing access to the underworld network from anywhere.
+**Implementation note (current startup contract):** On an Underworld start, the Fixer is spawned directly into Meadow, immediately added to the player's faction/home branch, and behaves as a normal merchant-capable NPC there. Because Meadow is claimed at startup, the mod restores the Fixer's stock `_buy` talk option with a narrow Harmony injection rather than manually opening barter UI. This is the baseline behavior for base support, barter stock, and small-time dealing immunity. Any later "travel with the player" recruitment flow should extend that setup rather than replace it.
+
+The Fixer begins as a static NPC in the player's starting zone (§2.1.3) but can be **recruited as a permanent party member** once the player reaches the configured recruitment rank. Recruitment uses Elin's native `CanInvite` pattern (matching `TraitNanasu`/`TraitTyche`) — the Fixer becomes invitable through the standard Elin dialog flow when the player's server-side underworld rank meets the threshold.
 
 **Recruitment flow:**
-1. Player reaches **Peddler** rank (500 total rep)
-2. Fixer offers new dialog: *"You've proven useful. How about I tag along — keep things running smooth no matter where we go?"*
-3. On acceptance, the Fixer joins the player's party as a permanent ally using Elin's `Chara.party.AddMember()` system
+1. Player reaches the configured minimum rank (default: **Peddler**, rank 1)
+2. Elin's standard recruitment dialog becomes available (the same "invite to party" option used for unique NPCs like Nanasu)
+3. On acceptance, the Fixer joins the player's party as a permanent ally
 4. As a party member, the Fixer can be interacted with at any time to open the Network Panel — no need to return to a specific town
 
-**Implementation:**
+**Implementation (`TraitUnderworldFixer.cs`):**
 ```csharp
-// In TraitUnderworldFixer.OnUse():
-if (c.IsPC && !owner.IsPCParty)
+public class TraitUnderworldFixer : TraitUniqueChara
 {
-    int rank = UnderworldPlugin.Instance.Reputation.GlobalRank;
-    if (rank >= UnderworldRank.Peddler && !recruitDialogShown)
+    public override bool CanInvite
     {
-        ShowRecruitDialog(() => {
-            // Recruit the Fixer as a permanent party member
-            owner.SetGlobal(EClass.pc.currentZone, owner.pos.x, owner.pos.z);
-            EClass.pc.party.AddMember(owner);
-            owner.SetFaction(EClass.Home);
-            Msg.Say("uw_fixer_joined"); // "The Fixer nods. 'Partners, then.'"
-            recruitDialogShown = true;
-        });
-        return true;
+        get
+        {
+            int rank = UnderworldPlugin.NetworkState?.PlayerStatus?.UnderworldRank ?? 0;
+            return rank >= UnderworldConfig.FixerRecruitMinRank.Value;
+        }
     }
 }
 ```
 
-**Fixer combat behavior**: The Fixer uses the `thief` job class and has moderate combat stats. They can hold their own in dungeons but aren't a primary fighter. The Fixer's real value is mobile access to the network.
+This approach:
+- Uses Elin's built-in recruitment UI — no custom dialog needed
+- Falls back to non-recruitable (rank 0 < min 1) when offline
+- Is fully configurable via BepInEx config (`FixerRecruitMinRank`)
+
+**Fixer combat behavior**: The Fixer uses the `merchant` job class and has moderate stats. They can hold their own in dungeons but aren't a primary fighter. The Fixer's real value is mobile access to the network.
 
 ### 7.4.2 Faction Management Furniture
 
-| Furniture ID | Name | Purpose | Unlock Rank | Interaction |
-|-------------|------|---------|-------------|-------------|
-| `uw_territory_map` | Territory Map | Wall-mounted map showing all territory statuses, heat levels, and controlling factions. Click to view detailed territory breakdown. | Novice | Opens Territory Panel (read-only) |
-| `uw_faction_desk` | Syndicate Desk | Administrative desk for faction operations. Create, manage, and coordinate faction activities. | Supplier | Opens Faction Management Panel |
-| `uw_dead_drop_board` | Dead Drop Board | A corkboard showing available network orders for the base's territory. Quick access to market without the Fixer. | Peddler | Opens Market Screen (filtered to local territory) |
-| `uw_heat_monitor` | Heat Monitor | A crystal apparatus that displays real-time heat levels for all territories. Pulses red when any territory is Critical+. | Novice | Opens Territory Overlay |
+| Furniture ID | Name | Trait Class | Purpose | Interaction |
+|-------------|------|-------------|---------|-------------|
+| `uw_territory_map` | Territory Map | `TraitTerritoryMap` | Wall-mounted map showing all territory statuses, heat levels, and controlling factions | Opens territory intelligence dialog with heat colors and faction control |
+| `uw_faction_desk` | Faction Desk | `TraitFactionDesk` | Administrative desk for faction operations | Opens faction management dialog with role, reputation, and operations summary |
+| `uw_dead_drop_board` | Dead Drop Board | `TraitDeadDropBoard` | A corkboard showing available network orders | Opens available contracts dialog with product, quantity, payout, and deadline details |
+| `uw_heat_monitor` | Heat Monitor | `TraitHeatMonitor` | A crystal apparatus displaying real-time heat levels. Emits ambient light. | Opens heat status dialog with color-coded bar visualization per territory |
 
-**Furniture source row specs:**
+All furniture traits:
+- Extend `TraitItem` with `LangUse` and `OnUse` overrides
+- Open a `Dialog` with `UINote`-based content (following the SkyreaderHeatmapDialog pattern)
+- Fetch data from `UnderworldPlugin.NetworkClient` asynchronously on open and via a Refresh button
+- Display an offline fallback message when `UnderworldPlugin.IsOnlineReady()` is false
 
-```python
-FACTION_FURNITURE = {
-    "uw_territory_map": {
-        "name": "territory map",
-        "category": "crafter",
-        "_tileType": "ObjBig",
-        "_idRenderData": "@obj tall",
-        "factory": "uw_mixing_table",
-        "components": "parchment/3,ingot/1",
-        "value": 1500,
-        "weight": 5000,
-        "trait": "TerritoryMap",
-        "detail": "A well-worn map marked with symbols only the initiated would understand. "
-                  "Each pin represents a market and its current... temperature.",
-    },
-    "uw_faction_desk": {
-        "name": "syndicate desk",
-        "category": "crafter",
-        "_tileType": "ObjBig",
-        "_idRenderData": "@obj",
-        "factory": "uw_mixing_table",
-        "components": "plank/6,ingot/2,parchment/2",
-        "value": 4000,
-        "weight": 12000,
-        "trait": "FactionDesk",
-        "detail": "A heavy oak desk with locked drawers and a concealed compartment. "
-                  "From here, empires are coordinated.",
-    },
-    "uw_dead_drop_board": {
-        "name": "dead drop board",
-        "category": "crafter",
-        "_tileType": "ObjBig",
-        "_idRenderData": "@obj tall",
-        "factory": "uw_mixing_table",
-        "components": "plank/3,bolt/2",
-        "value": 800,
-        "weight": 3000,
-        "trait": "DeadDropBoard",
-        "detail": "A nondescript corkboard pinned with coded notes. "
-                  "Each one represents a request from the network.",
-    },
-    "uw_heat_monitor": {
-        "name": "heat monitor",
-        "category": "crafter",
-        "_tileType": "ObjBig",
-        "_idRenderData": "@obj",
-        "factory": "uw_mixing_table",
-        "components": "uw_mineral_crystal/1,glass/3,ingot/2",
-        "value": 3000,
-        "weight": 8000,
-        "trait": "HeatMonitor",
-        "lightData": "0,255,200,200,3",  # red-tinted glow
-        "detail": "A glass apparatus filled with dark fluid. "
-                  "It reacts to the network's collective anxiety.",
-    },
-}
-```
+**Furniture registration:** All items are defined in `uw_asset_specs.py` `THING_ROWS` and registered through the automated asset pipeline (`uw_asset_pipeline.py build`).
 
 ### 7.4.3 Faction Management Panel
 

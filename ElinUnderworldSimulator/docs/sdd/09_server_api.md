@@ -21,29 +21,31 @@ This document is the complete API specification for the Underworld backend serve
 
 ```
 UnderworldServer/
-├── main.py                 # FastAPI app, lifespan, router registration
-├── config.py               # Tuning constants, env vars
-├── database.py             # Schema creation, connection pool, migrations
-├── auth.py                 # Token generation, validation middleware
-├── orders.py               # /orders/* endpoints
-├── shipments.py            # /shipments/* endpoints  
-├── territories.py          # /territories/* endpoints
-├── factions.py             # /factions/* endpoints
-├── players.py              # /player/* endpoints
-├── jobs.py                 # Background: heat decay, order gen, warfare
-├── resolution.py           # Shipment resolution logic (satisfaction, enforcement)
-├── requirements.txt
+├── pyproject.toml
+├── README.md
 ├── pytest.ini
-├── worklog/
-│   └── pytest/             # Test state (per agents.md)
+├── src/
+│   └── underworld_server/
+│       ├── __main__.py
+│       ├── cli.py
+│       ├── main.py
+│       ├── config.py
+│       ├── database.py
+│       ├── auth.py
+│       ├── orders.py
+│       ├── shipments.py
+│       ├── territories.py
+│       ├── factions.py
+│       ├── players.py
+│       ├── jobs.py
+│       ├── resolution.py
+│       └── schemas.py
 └── tests/
-    ├── conftest.py          # Fixtures, tmp_path → worklog/pytest/test_tmp
+    ├── conftest.py
+    ├── helpers.py
     ├── test_auth.py
-    ├── test_orders.py
-    ├── test_shipments.py
-    ├── test_territories.py
-    ├── test_factions.py
-    └── test_resolution.py
+    ├── test_orders_shipments.py
+    └── test_factions_player_jobs.py
 ```
 
 ---
@@ -244,14 +246,14 @@ CREATE INDEX IF NOT EXISTS idx_shipments_player ON shipments(player_id);
 
 ### 9.4.1 Flow
 
-Token-based auth matching the [SkyreaderAuthManager](Documents/ElinMods/SkyreaderGuild/SkyreaderAuthManager.cs) pattern:
+Token-based auth matching the [SkyreaderAuthManager](Documents/ElinMods/SkyreaderGuild/SkyreaderAuthManager.cs) bootstrap pattern, with an added `install_key` so the same anonymous player identity can be re-registered safely:
 
 ```mermaid
 sequenceDiagram
     participant Client as Elin Mod
     participant Server as FastAPI
     
-    Client->>Server: POST /api/register {display_name}
+    Client->>Server: POST /api/register {install_key, display_name}
     Server-->>Client: {auth_token, player_id}
     Note over Client: Store token in mod config
     
@@ -538,6 +540,51 @@ Poll for resolved shipments the player hasn't seen yet.
 }
 ```
 
+#### `POST /api/factions/leave`
+
+Leave the caller's current faction. Leaders cannot leave — they must disband or promote a successor first.
+
+```python
+# Response 200
+{"status": "left", "faction_name": "Night Owls"}
+
+# Response 400
+{"detail": "Leaders cannot leave their faction. Disband or promote another member first."}
+
+# Response 404
+{"detail": "Not in a faction"}
+```
+
+#### `DELETE /api/factions/{id}`
+
+Disband a faction. Only the faction leader can disband. All members are removed and controlled territories are released.
+
+```python
+# Response 200
+{"status": "disbanded", "faction_name": "Night Owls"}
+
+# Response 403
+{"detail": "Only the faction leader can disband"}
+```
+
+#### `POST /api/factions/{id}/promote`
+
+Promote a faction member to officer. Only the faction leader can promote.
+
+```python
+# Request
+{"player_id": 7}
+
+# Response 200
+{"status": "promoted", "player_display_name": "GhostRunner", "new_role": "officer"}
+
+# Response 403
+{"detail": "Only the faction leader can promote members"}
+
+# Response 404
+{"detail": "Player is not a member of this faction"}
+```
+
 ### 9.5.6 Player Status
 
 #### `GET /api/player/status`
@@ -736,6 +783,9 @@ async def client(tmp_path):
 | `GET /api/territories` | All territories listed with correct data |
 | `POST /api/factions/create` | Success, insufficient rank, duplicate name |
 | `POST /api/factions/join` | Success, full faction, already in faction |
+| `POST /api/factions/leave` | Success, leader blocked, not in faction |
+| `DELETE /api/factions/{id}` | Success, member cleanup, territory release |
+| `POST /api/factions/{id}/promote` | Success, non-leader blocked, non-member target |
 | `GET /api/player/status` | Returns correct player state |
 
 ### Integration Test: Full Order Cycle

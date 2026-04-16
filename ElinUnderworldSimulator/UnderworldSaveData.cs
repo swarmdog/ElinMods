@@ -19,6 +19,18 @@ namespace ElinUnderworldSimulator
 
         [JsonProperty]
         public Dictionary<string, ZoneHeatState> ZoneHeat = new Dictionary<string, ZoneHeatState>();
+
+        [JsonProperty]
+        public Dictionary<string, int> TerritoryRep = new Dictionary<string, int>();
+
+        [JsonProperty]
+        public int PlayerAddiction;
+
+        [JsonProperty]
+        public int LastPlayerAddictionDecayRaw;
+
+        [JsonProperty]
+        public int LastProcessedWorldRaw;
     }
 
     internal sealed class CustomerState
@@ -70,6 +82,36 @@ namespace ElinUnderworldSimulator
 
         [JsonProperty]
         public int ActiveOverdoseStage;
+
+        [JsonProperty]
+        public int OverdoseExpiresRaw;
+
+        [JsonProperty]
+        public int CooldownExpiresRaw;
+
+        [JsonProperty]
+        public int VisitsSinceService;
+
+        [JsonProperty]
+        public int LastToleranceDecayRaw;
+
+        [JsonProperty]
+        public int LastAddictionDecayRaw;
+
+        [JsonProperty]
+        public int LastPassiveRepRaw;
+
+        [JsonProperty]
+        public NpcArchetype LastKnownArchetype;
+
+        [JsonProperty]
+        public bool IsDead;
+
+        [JsonProperty]
+        public int LastDeathRaw;
+
+        [JsonProperty]
+        public string DeathSummary;
 
         [JsonProperty]
         public string LastOutcome;

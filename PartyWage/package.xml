@@ -10,12 +10,6 @@
 
 		You can change all of these in your Elin game folder in BepInEx/config/mrmeagle.elin.partywage.cfg
 
-		Source code:
-		- https://github.com/swarmdog/ElinMods
-
-		This mod was created using a personal GPT loaded with the Elin mod documentation and the discovered CSV data. Tips - start the conversation by asking for an Elin mod template, and refer to Elin often.
-		GPT:
-		- https://chatgpt.com/g/g-6744f2ed7dd481918b4faf55062cafdb-elin-s-inn-c-modder
 	</description>
 	<tags>QoL</tags>
 	<version>0.23.45</version>

@@ -1,6 +1,6 @@
 using ElinUnderworldSimulator;
 
-public class TraitUwDealerLedger : TraitItem
+public class TraitDealerLedger : TraitItem
 {
     public override string LangUse => "Read the ledger";
 

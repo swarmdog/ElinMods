@@ -1,4 +1,10 @@
 <Project>
+  <PropertyGroup Condition="'$(IsElinModProject)' == 'true'">
+    <DeployToElin Condition="'$(DeployToElin)' == ''">false</DeployToElin>
+    <ElinPackageDirName Condition="'$(ElinPackageDirName)' == ''">$(AssemblyName)</ElinPackageDirName>
+    <ElinPackageDir>$(ElinDir)\Package\$(ElinPackageDirName)</ElinPackageDir>
+  </PropertyGroup>
+
   <Target Name="ValidateElinReferences" BeforeTargets="ResolveReferences" Condition="'$(IsElinModProject)' == 'true'">
     <Error Condition="!Exists('$(ElinDir)')" Text="ElinDir '$(ElinDir)' does not exist. Set ELIN_DIR or pass /p:ElinDir=..." />
     <Error Condition="!Exists('$(ManagedDir)\Elin.dll')" Text="Missing Elin.dll at '$(ManagedDir)\Elin.dll'. Check ElinDir." />
@@ -30,6 +36,10 @@
       <HintPath>$(ManagedDir)\UnityEngine.CoreModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>$(ManagedDir)\UnityEngine.ParticleSystemModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>$(ManagedDir)\UnityEngine.UI.dll</HintPath>
       <Private>false</Private>
@@ -56,4 +66,35 @@
     </Reference>
     <Reference Include="System.Net.Http" />
   </ItemGroup>
+
+  <Target Name="DeployElinPackage" AfterTargets="Build" Condition="'$(IsElinModProject)' == 'true' and '$(DeployToElin)' == 'true'">
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\package.xml')" Text="Missing package.xml at '$(MSBuildProjectDirectory)\package.xml'." />
+
+    <ItemGroup>
+      <_DeployLangFiles Include="$(MSBuildProjectDirectory)\LangMod\**\*" Condition="Exists('$(MSBuildProjectDirectory)\LangMod')" />
+      <_DeployTextureFiles Include="$(MSBuildProjectDirectory)\Texture\**\*" Condition="Exists('$(MSBuildProjectDirectory)\Texture')" />
+    </ItemGroup>
+
+    <Message Importance="high" Text="Deploying $(AssemblyName) to $(ElinPackageDir)" />
+
+    <MakeDir Directories="$(ElinPackageDir)" />
+    <RemoveDir Directories="$(ElinPackageDir)\LangMod;$(ElinPackageDir)\Texture" />
+    <Delete Files="$(ElinPackageDir)\preview.jpg" Condition="Exists('$(ElinPackageDir)\preview.jpg') and !Exists('$(MSBuildProjectDirectory)\preview.jpg')" />
+
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(ElinPackageDir)\$(AssemblyName).dll" OverwriteReadOnlyFiles="true" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\package.xml" DestinationFiles="$(ElinPackageDir)\package.xml" OverwriteReadOnlyFiles="true" />
+    <Copy Condition="Exists('$(MSBuildProjectDirectory)\preview.jpg')" SourceFiles="$(MSBuildProjectDirectory)\preview.jpg" DestinationFiles="$(ElinPackageDir)\preview.jpg" OverwriteReadOnlyFiles="true" />
+
+    <MakeDir Condition="Exists('$(MSBuildProjectDirectory)\LangMod')" Directories="$(ElinPackageDir)\LangMod" />
+    <Copy Condition="'@(_DeployLangFiles)' != ''"
+          SourceFiles="@(_DeployLangFiles)"
+          DestinationFiles="@(_DeployLangFiles->'$(ElinPackageDir)\LangMod\%(RecursiveDir)%(Filename)%(Extension)')"
+          OverwriteReadOnlyFiles="true" />
+
+    <MakeDir Condition="Exists('$(MSBuildProjectDirectory)\Texture')" Directories="$(ElinPackageDir)\Texture" />
+    <Copy Condition="'@(_DeployTextureFiles)' != ''"
+          SourceFiles="@(_DeployTextureFiles)"
+          DestinationFiles="@(_DeployTextureFiles->'$(ElinPackageDir)\Texture\%(RecursiveDir)%(Filename)%(Extension)')"
+          OverwriteReadOnlyFiles="true" />
+  </Target>
 </Project>

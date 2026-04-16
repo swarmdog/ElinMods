@@ -2,7 +2,7 @@
 
 > Parent: [00_overview.md](./00_overview.md) · Data Model: [03_data_model.md](./03_data_model.md)
 
-This document specifies the complete mod packaging structure, build pipeline, automated asset generation, SourceCard management, and deployment process.
+This document specifies the complete mod packaging structure, build pipeline, automated asset generation, SourceCard management, deployment process, and bundled Python server layout.
 
 ---
 
@@ -11,34 +11,26 @@ This document specifies the complete mod packaging structure, build pipeline, au
 ```
 ElinUnderworldSimulator/
 ├── UnderworldPlugin.cs              # BepInEx entry point
-├── UnderworldStartupBootstrap.cs    # Scenario setup
+├── UnderworldBootstrap.cs           # Scenario setup
 ├── Patches/
-│   ├── PatchGamePrologue.cs         # Prologue getter
-│   ├── PatchSetChara.cs             # Mode list injection
-│   ├── PatchListModes.cs            # Mode selection mapping
-│   └── PatchStartNewGame.cs         # Bootstrap trigger
+│   └── UnderworldGameplayPatches.cs # Gameplay hooks
 ├── Traits/
 │   ├── TraitMixingTable.cs          # Basic crafting station
 │   ├── TraitProcessingVat.cs        # Time-delayed processing
 │   ├── TraitAdvancedLab.cs          # High-tier crafting
 │   ├── TraitContrabandChest.cs      # Shipping container
-│   └── TraitUnderworldFixer.cs      # Fixer NPC interaction
+│   └── TraitDealerLedger.cs         # Existing interaction entrypoint
 ├── Network/
 │   ├── UnderworldAuthManager.cs     # Token management
-│   └── UnderworldNetworkClient.cs   # HTTP client
-├── Economy/
-│   ├── OrderManager.cs              # Local order tracking
-│   ├── ReputationTracker.cs         # Rep + rank
-│   ├── HeatTracker.cs               # Territory heat cache
-│   └── NerveTracker.cs              # Shadow Nerve resource
-├── UI/
-│   ├── UnderworldUIManager.cs       # Panel coordinator
-│   ├── LayerUnderworldNetwork.cs    # Main hub panel
-│   ├── MarketPanel.cs               # Available orders
-│   ├── ActiveOrdersPanel.cs         # Accepted orders
-│   ├── ResultsPanel.cs              # Shipment results
-│   ├── TerritoryPanel.cs            # Territory overview
-│   └── ProfilePanel.cs              # Player stats
+│   ├── UnderworldLocalServerManager.cs
+│   ├── UnderworldNetworkClient.cs   # HTTP client
+│   ├── UnderworldNetworkDtos.cs
+│   └── UnderworldNetworkState.cs
+├── Server/
+│   └── UnderworldServer/
+│       ├── pyproject.toml
+│       ├── README.md
+│       └── src/underworld_server/*.py
 ├── ElinUnderworldSimulator.csproj
 ├── package.xml
 ├── LangMod/

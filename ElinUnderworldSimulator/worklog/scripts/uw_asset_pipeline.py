@@ -1,16 +1,10 @@
-"""Build importer-safe source sheets and final assets for ElinUnderworldSimulator.
-
-Commands:
-    python uw_asset_pipeline.py generate [--only ids...] [--model nano-banana-pro-preview]
-    python uw_asset_pipeline.py integrate [--only ids...]
-    python uw_asset_pipeline.py verify
-    python uw_asset_pipeline.py all [--only ids...] [--model nano-banana-pro-preview]
-"""
+"""Build importer-safe source sheets and canonical textures for ElinUnderworldSimulator."""
 
 from __future__ import annotations
 
 import argparse
 from copy import copy
+from functools import lru_cache
 import os
 import shutil
 import tempfile
@@ -20,21 +14,31 @@ import xml.etree.ElementTree as ET
 from openpyxl import Workbook, load_workbook
 from PIL import Image, ImageDraw
 
-from generate_assets import DEFAULT_MODEL, run_generation
-from integrate_assets import integrate_assets
 from uw_asset_specs import (
     CHARA_COLUMNS,
-    CHARAS,
+    CHARA_ROWS,
+    ELEMENT_COLUMNS,
+    ELEMENT_ROWS,
+    EXPECTED_TEXTURE_IDS,
+    LANG_DIR,
+    NUMERIC_FIELDS,
+    OBJ_COLUMNS,
+    OBJ_ROWS,
     PREVIEW_OUT,
-    REPO_ROOT,
+    SOURCE_BLOCK_OUT,
     SOURCE_CARD_OUT,
+    SOURCE_GAME_OUT,
+    STAT_COLUMNS,
+    STAT_ROWS,
+    TEMPLATE_SOURCE_BLOCK,
     TEMPLATE_SOURCE_CARD,
+    TEMPLATE_SOURCE_CHARA,
+    TEMPLATE_SOURCE_GAME,
     TEXTURE_DIR,
+    TEXTURE_SOURCE_MAP,
     THING_COLUMNS,
-    THINGS,
+    THING_ROWS,
 )
-
-TEMPLATE_SOURCE_CHARA = REPO_ROOT / "elin_readable_game_data" / "xlsx format" / "SourceChara.xlsx"
 
 NS_MAIN = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
 NS_REL = "http://schemas.openxmlformats.org/package/2006/relationships"
@@ -44,9 +48,14 @@ NS_DOC_REL = "http://schemas.openxmlformats.org/officeDocument/2006/relationship
 ET.register_namespace("", NS_MAIN)
 ET.register_namespace("r", NS_DOC_REL)
 
+EXPECTED_STATION_SKILL_ALIASES = {
+    "uw_mixing_table": "handicraft",
+    "uw_advanced_lab": "handicraft",
+}
+
 
 def ensure_dirs() -> None:
-    SOURCE_CARD_OUT.parent.mkdir(parents=True, exist_ok=True)
+    LANG_DIR.mkdir(parents=True, exist_ok=True)
     TEXTURE_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -83,8 +92,8 @@ def copy_template_rows(src_sheet, dst_sheet, row_count: int, col_count: int) -> 
     dst_sheet.sheet_view.zoomScale = src_sheet.sheet_view.zoomScale
 
 
-def write_rows(sheet, columns: list[str], rows: list[dict[str, object]]) -> None:
-    for row_offset, data in enumerate(rows, start=4):
+def write_rows(sheet, columns: list[str], rows: list[dict[str, object]], start_row: int = 4) -> None:
+    for row_offset, data in enumerate(rows, start=start_row):
         for col_idx, column_name in enumerate(columns, start=1):
             if column_name not in data:
                 continue
@@ -167,10 +176,7 @@ def normalize_shared_strings(path) -> None:
                                 f"{{{NS_CT}}}Override",
                                 {
                                     "PartName": part_name,
-                                    "ContentType": (
-                                        "application/vnd.openxmlformats-officedocument."
-                                        "spreadsheetml.sharedStrings+xml"
-                                    ),
+                                    "ContentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml",
                                 },
                             )
                         data = ET.tostring(root, encoding="utf-8", xml_declaration=True)
@@ -204,20 +210,14 @@ def normalize_shared_strings(path) -> None:
 
                     zout.writestr(info, data)
 
-                sst = ET.Element(
-                    f"{{{NS_MAIN}}}sst",
-                    {"count": str(len(shared)), "uniqueCount": str(len(shared))},
-                )
+                sst = ET.Element(f"{{{NS_MAIN}}}sst", {"count": str(len(shared)), "uniqueCount": str(len(shared))})
                 for text in shared:
                     si = ET.SubElement(sst, f"{{{NS_MAIN}}}si")
                     t = ET.SubElement(si, f"{{{NS_MAIN}}}t")
                     if text != text.strip():
                         t.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
                     t.text = text
-                zout.writestr(
-                    "xl/sharedStrings.xml",
-                    ET.tostring(sst, encoding="utf-8", xml_declaration=True),
-                )
+                zout.writestr("xl/sharedStrings.xml", ET.tostring(sst, encoding="utf-8", xml_declaration=True))
 
         shutil.move(tmp_path, path)
     finally:
@@ -225,7 +225,7 @@ def normalize_shared_strings(path) -> None:
             os.unlink(tmp_path)
 
 
-def build_workbook() -> None:
+def build_source_card() -> None:
     ensure_dirs()
     thing_template_wb = load_workbook(TEMPLATE_SOURCE_CARD)
     chara_template_wb = load_workbook(TEMPLATE_SOURCE_CHARA)
@@ -238,29 +238,82 @@ def build_workbook() -> None:
 
     copy_template_rows(thing_template_wb["Thing"], thing_sheet, row_count=3, col_count=len(THING_COLUMNS))
     copy_template_rows(chara_template_wb["Chara"], chara_sheet, row_count=3, col_count=len(CHARA_COLUMNS))
-    write_rows(thing_sheet, THING_COLUMNS, THINGS)
-    write_rows(chara_sheet, CHARA_COLUMNS, CHARAS)
+    write_rows(thing_sheet, THING_COLUMNS, THING_ROWS)
+    write_rows(chara_sheet, CHARA_COLUMNS, CHARA_ROWS)
 
     workbook.save(SOURCE_CARD_OUT)
     normalize_shared_strings(SOURCE_CARD_OUT)
 
 
+def clone_template_workbook(template_path, output_path, sheet_rows: dict[str, tuple[list[str], list[dict[str, object]], int]]) -> None:
+    ensure_dirs()
+    template_wb = load_workbook(template_path)
+
+    workbook = Workbook()
+    workbook.remove(workbook.active)
+
+    for sheet_name in template_wb.sheetnames:
+        src_sheet = template_wb[sheet_name]
+        dst_sheet = workbook.create_sheet(sheet_name)
+        col_count = src_sheet.max_column
+        copy_template_rows(src_sheet, dst_sheet, row_count=3, col_count=col_count)
+        if sheet_name in sheet_rows:
+            columns, rows, start_row = sheet_rows[sheet_name]
+            write_rows(dst_sheet, columns, rows, start_row=start_row)
+
+    workbook.save(output_path)
+    normalize_shared_strings(output_path)
+
+
+def build_source_block() -> None:
+    clone_template_workbook(
+        TEMPLATE_SOURCE_BLOCK,
+        SOURCE_BLOCK_OUT,
+        {"Obj": (OBJ_COLUMNS, OBJ_ROWS, 4)},
+    )
+
+
+def build_source_game() -> None:
+    clone_template_workbook(
+        TEMPLATE_SOURCE_GAME,
+        SOURCE_GAME_OUT,
+        {
+            "Element": (ELEMENT_COLUMNS, ELEMENT_ROWS, 4),
+            "Stat": (STAT_COLUMNS, STAT_ROWS, 11),
+        },
+    )
+
+
+def materialize_textures() -> None:
+    ensure_dirs()
+    missing_textures: list[str] = []
+    for asset_id in TEXTURE_SOURCE_MAP:
+        dest_path = TEXTURE_DIR / f"{asset_id}.png"
+        if not dest_path.exists():
+            missing_textures.append(asset_id)
+
+    if missing_textures:
+        raise FileNotFoundError(
+            "Missing required textures: " + ", ".join(sorted(missing_textures))
+        )
+
+
 def build_preview() -> None:
     ensure_dirs()
-    card_ids = [
+    preview_ids = [
         "uw_mixing_table",
-        "uw_contraband_chest",
-        "uw_dealers_ledger",
-        "uw_antidote_vial",
-        "uw_whispervine",
-        "uw_dreamblossom",
-        "uw_shadowcap",
-        "uw_shadow_elixir",
+        "uw_processing_vat",
+        "uw_advanced_lab",
+        "uw_herb_whisper",
+        "uw_powder_dream",
+        "uw_elixir_shadow",
+        "uw_incense_ash",
+        "uw_tonic_whisper_refined",
         "uw_fixer",
     ]
 
     tiles = []
-    for asset_id in card_ids:
+    for asset_id in preview_ids:
         image = Image.open(TEXTURE_DIR / f"{asset_id}.png").convert("RGBA")
         tile = Image.new("RGBA", (180, 120), (18, 22, 28, 255))
         image.thumbnail((96, 96), Image.Resampling.NEAREST)
@@ -273,7 +326,7 @@ def build_preview() -> None:
     preview = Image.new("RGB", (960, 640), (12, 16, 22))
     draw = ImageDraw.Draw(preview)
     draw.text((36, 28), "Elin Underworld Simulator", fill=(237, 242, 232))
-    draw.text((36, 62), "Local-first dealing loop MVP", fill=(130, 208, 176))
+    draw.text((36, 62), "Crafting, farming, smoking core slice", fill=(130, 208, 176))
     for idx, tile in enumerate(tiles):
         row = idx // 3
         col = idx % 3
@@ -281,103 +334,259 @@ def build_preview() -> None:
     preview.save(PREVIEW_OUT, quality=92)
 
 
-def read_sheet_rows(path, sheet_name: str, rows: int = 3, cols: int | None = None) -> list[list[object]]:
-    wb = load_workbook(path, data_only=False, read_only=True)
-    ws = wb[sheet_name]
-    cols = cols or ws.max_column
-    return [
-        [ws.cell(row=row_idx, column=col_idx).value for col_idx in range(1, cols + 1)]
-        for row_idx in range(1, rows + 1)
-    ]
-
-
 def workbook_sheet_xml_entries(path) -> list[str]:
     with zipfile.ZipFile(path, "r") as archive:
-        return sorted(
-            name for name in archive.namelist()
-            if name.startswith("xl/worksheets/") and name.endswith(".xml")
-        )
+        return sorted(name for name in archive.namelist() if name.startswith("xl/worksheets/") and name.endswith(".xml"))
 
 
-def assert_no_inline_strings() -> None:
-    with zipfile.ZipFile(SOURCE_CARD_OUT, "r") as archive:
+def assert_no_inline_strings(path) -> None:
+    with zipfile.ZipFile(path, "r") as archive:
         if "xl/sharedStrings.xml" not in archive.namelist():
-            raise ValueError("Workbook is missing xl/sharedStrings.xml")
-        for entry_name in workbook_sheet_xml_entries(SOURCE_CARD_OUT):
+            raise ValueError(f"{path.name} is missing xl/sharedStrings.xml")
+        for entry_name in sorted(
+            name for name in archive.namelist() if name.startswith("xl/worksheets/") and name.endswith(".xml")
+        ):
             text = archive.read(entry_name).decode("utf-8")
             if 't="inlineStr"' in text or "<is>" in text:
-                raise ValueError(f"Workbook still contains inline strings in {entry_name}")
+                raise ValueError(f"{path.name} still contains inline strings in {entry_name}")
 
 
-def assert_template_rows_preserved() -> None:
-    generated_thing = read_sheet_rows(SOURCE_CARD_OUT, "Thing", rows=3, cols=len(THING_COLUMNS))
-    template_thing = read_sheet_rows(TEMPLATE_SOURCE_CARD, "Thing", rows=3, cols=len(THING_COLUMNS))
-    if generated_thing != template_thing:
-        raise ValueError("Thing sheet rows 1-3 do not match the SourceCard template.")
+@lru_cache(maxsize=1)
+def _template_header_snapshot() -> tuple[tuple[tuple[object, ...], ...], tuple[tuple[object, ...], ...]]:
+    template_card = load_workbook(TEMPLATE_SOURCE_CARD, read_only=True, data_only=False)
+    template_chara = load_workbook(TEMPLATE_SOURCE_CHARA, read_only=True, data_only=False)
+    try:
+        return (
+            tuple(
+                tuple(row)
+                for row in template_card["Thing"].iter_rows(
+                    min_row=1,
+                    max_row=3,
+                    min_col=1,
+                    max_col=len(THING_COLUMNS),
+                    values_only=True,
+                )
+            ),
+            tuple(
+                tuple(row)
+                for row in template_chara["Chara"].iter_rows(
+                    min_row=1,
+                    max_row=3,
+                    min_col=1,
+                    max_col=len(CHARA_COLUMNS),
+                    values_only=True,
+                )
+            ),
+        )
+    finally:
+        template_card.close()
+        template_chara.close()
 
-    generated_chara = read_sheet_rows(SOURCE_CARD_OUT, "Chara", rows=3, cols=len(CHARA_COLUMNS))
-    template_chara = read_sheet_rows(TEMPLATE_SOURCE_CHARA, "Chara", rows=3, cols=len(CHARA_COLUMNS))
-    if generated_chara != template_chara:
-        raise ValueError("Chara sheet rows 1-3 do not match the SourceChara template.")
+
+def assert_template_rows_preserved(generated_card=None) -> None:
+    close_generated = generated_card is None
+    if generated_card is None:
+        generated_card = load_workbook(SOURCE_CARD_OUT, read_only=True, data_only=False)
+
+    try:
+        expected_thing_rows, expected_chara_rows = _template_header_snapshot()
+        actual_thing_rows = tuple(
+            tuple(row)
+            for row in generated_card["Thing"].iter_rows(
+                min_row=1,
+                max_row=3,
+                min_col=1,
+                max_col=len(THING_COLUMNS),
+                values_only=True,
+            )
+        )
+        actual_chara_rows = tuple(
+            tuple(row)
+            for row in generated_card["Chara"].iter_rows(
+                min_row=1,
+                max_row=3,
+                min_col=1,
+                max_col=len(CHARA_COLUMNS),
+                values_only=True,
+            )
+        )
+
+        if actual_thing_rows != expected_thing_rows:
+            raise ValueError("Thing sheet template rows were modified.")
+
+        if actual_chara_rows != expected_chara_rows:
+            raise ValueError("Chara sheet template rows were modified.")
+    finally:
+        if close_generated:
+            generated_card.close()
 
 
-def assert_thing_sort_numeric() -> None:
-    wb = load_workbook(SOURCE_CARD_OUT, data_only=False, read_only=True)
-    ws = wb["Thing"]
-    sort_value_col = THING_COLUMNS.index("sort_value") + 1
-    for row_idx in range(4, ws.max_row + 1):
-        value = ws.cell(row=row_idx, column=sort_value_col).value
-        if value in (None, ""):
+def assert_numeric_integrity(workbook, path, sheet_name: str, columns: list[str], start_row: int, row_count: int) -> None:
+    sheet = workbook[sheet_name]
+    numeric_fields = NUMERIC_FIELDS.get(sheet_name, set())
+    numeric_columns = [(columns.index(name) + 1, name) for name in columns if name in numeric_fields]
+    end_row = start_row + row_count - 1
+    for row_idx, row in enumerate(
+        sheet.iter_rows(
+            min_row=start_row,
+            max_row=end_row,
+            min_col=1,
+            max_col=len(columns),
+            values_only=True,
+        ),
+        start=start_row,
+    ):
+        for col_idx, column_name in numeric_columns:
+            value = row[col_idx - 1]
+            if value in (None, ""):
+                continue
+            if not isinstance(value, (int, float)):
+                raise ValueError(f"{path.name}:{sheet_name} row {row_idx} column {column_name} must be numeric, got {value!r}")
+
+
+def parse_components(components: str | None) -> list[str]:
+    if not components:
+        return []
+    result: list[str] = []
+    for part in components.split(","):
+        item = part.strip()
+        if not item or item == "-":
             continue
-        if not isinstance(value, (int, float)):
-            raise ValueError(f"Thing row {row_idx} sort_value must be numeric or blank, got {value!r}")
+        item_id = item.split("/")[0].split("|")[0].split("@")[0].strip()
+        if item_id.startswith("#"):
+            continue
+        result.append(item_id)
+    return result
 
 
-def assert_id_texture_parity() -> None:
-    expected = {row["id"] for row in THINGS} | {row["id"] for row in CHARAS}
+@lru_cache(maxsize=1)
+def build_valid_base_ids() -> set[str]:
+    workbook = load_workbook(TEMPLATE_SOURCE_CARD, read_only=True, data_only=False)
+    try:
+        sheet = workbook["Thing"]
+        ids = set()
+        for (value,) in sheet.iter_rows(min_row=4, min_col=1, max_col=1, values_only=True):
+            if isinstance(value, str) and value:
+                ids.add(value)
+        return ids
+    finally:
+        workbook.close()
+
+
+def assert_recipe_and_factory_integrity() -> None:
+    known_ids = build_valid_base_ids() | {row["id"] for row in THING_ROWS}
+    known_factories = known_ids | {"self", "workbench"}
+    known_conditions = {row["alias"] for row in STAT_ROWS}
+
+    for row in THING_ROWS:
+        for component_id in parse_components(row.get("components")):
+            if component_id not in known_ids:
+                raise ValueError(f"Unknown recipe component '{component_id}' in {row['id']}")
+
+        factory = row.get("factory")
+        if factory and factory not in known_factories:
+            raise ValueError(f"Unknown factory '{factory}' in {row['id']}")
+
+        trait = row.get("trait")
+        if isinstance(trait, str):
+            for token in trait.split(","):
+                token = token.strip()
+                if token.startswith("ConUW") and token not in known_conditions:
+                    raise ValueError(f"Unknown condition '{token}' referenced by {row['id']}")
+
+
+def assert_station_skill_aliases() -> None:
+    for row in THING_ROWS:
+        expected_alias = EXPECTED_STATION_SKILL_ALIASES.get(row["id"])
+        if expected_alias is None:
+            continue
+
+        trait = row.get("trait")
+        if not isinstance(trait, str):
+            raise ValueError(f"{row['id']} is missing required trait metadata.")
+
+        tokens = [token.strip() for token in trait.split(",") if token.strip()]
+        if len(tokens) < 2:
+            raise ValueError(f"{row['id']} must declare a skill alias in its trait string.")
+
+        actual_alias = tokens[1]
+        if actual_alias != expected_alias:
+            raise ValueError(
+                f"{row['id']} must use vanilla skill alias '{expected_alias}', got '{actual_alias}'."
+            )
+
+def assert_texture_parity() -> None:
     actual = {path.stem for path in TEXTURE_DIR.glob("*.png")}
-    missing = sorted(expected - actual)
-    extras = sorted(actual - expected)
+    missing = sorted(EXPECTED_TEXTURE_IDS - actual)
     if missing:
-        raise ValueError(f"Missing textures: {', '.join(missing)}")
-    if extras:
-        raise ValueError(f"Unexpected textures: {', '.join(extras)}")
+        raise ValueError(f"Missing canonical textures: {', '.join(missing)}")
 
 
 def verify() -> None:
-    if not SOURCE_CARD_OUT.exists():
-        raise FileNotFoundError(f"Missing workbook: {SOURCE_CARD_OUT}")
-    if not PREVIEW_OUT.exists():
-        raise FileNotFoundError(f"Missing preview: {PREVIEW_OUT}")
-    assert_no_inline_strings()
-    assert_template_rows_preserved()
-    assert_thing_sort_numeric()
-    assert_id_texture_parity()
+    for path in (SOURCE_CARD_OUT, SOURCE_BLOCK_OUT, SOURCE_GAME_OUT):
+        if not path.exists():
+            raise FileNotFoundError(f"Missing workbook: {path}")
+        assert_no_inline_strings(path)
+
+    generated_card = load_workbook(SOURCE_CARD_OUT, read_only=True, data_only=False)
+    generated_block = load_workbook(SOURCE_BLOCK_OUT, read_only=True, data_only=False)
+    generated_game = load_workbook(SOURCE_GAME_OUT, read_only=True, data_only=False)
+    try:
+        assert_template_rows_preserved(generated_card)
+        assert_numeric_integrity(generated_card, SOURCE_CARD_OUT, "Thing", THING_COLUMNS, 4, len(THING_ROWS))
+        assert_numeric_integrity(generated_card, SOURCE_CARD_OUT, "Chara", CHARA_COLUMNS, 4, len(CHARA_ROWS))
+        assert_numeric_integrity(generated_block, SOURCE_BLOCK_OUT, "Obj", OBJ_COLUMNS, 4, len(OBJ_ROWS))
+        assert_numeric_integrity(generated_game, SOURCE_GAME_OUT, "Element", ELEMENT_COLUMNS, 4, len(ELEMENT_ROWS))
+        assert_numeric_integrity(generated_game, SOURCE_GAME_OUT, "Stat", STAT_COLUMNS, 11, len(STAT_ROWS))
+        assert_recipe_and_factory_integrity()
+        assert_station_skill_aliases()
+        assert_texture_parity()
+    finally:
+        generated_card.close()
+        generated_block.close()
+        generated_game.close()
 
 
-def run_integration(only_ids: list[str] | None = None) -> None:
-    integrate_assets(only_ids=only_ids)
-    build_workbook()
+def build_all() -> None:
+    materialize_textures()
+    build_source_card()
+    build_source_block()
+    build_source_game()
     build_preview()
+
+
+def run_integrate(only_ids: list[str] | None = None) -> None:
+    from integrate_assets import integrate_assets
+
+    integrate_assets(only_ids=only_ids)
+    build_all()
     verify()
+
+
+def run_generate(only_ids: list[str] | None = None, model: str = "nano-banana-pro-preview") -> None:
+    from generate_assets import run_generation
+
+    run_generation(only_ids=only_ids, model=model)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Underworld asset/source-sheet pipeline")
-    parser.add_argument("command", choices=("generate", "integrate", "verify", "all"), nargs="?", default="all")
-    parser.add_argument("--only", nargs="+", help="Limit to specific asset ids")
-    parser.add_argument("--model", default=DEFAULT_MODEL, help=f"Gemini image model (default: {DEFAULT_MODEL})")
+    parser.add_argument("command", choices=("build", "verify", "all", "generate", "integrate"), nargs="?", default="all")
+    parser.add_argument("--only", nargs="+", help="Limit generation/integration to specific asset ids")
+    parser.add_argument("--model", default="nano-banana-pro-preview", help="Gemini image model for generation")
     args = parser.parse_args()
 
     if args.command == "generate":
-        run_generation(only_ids=args.only, model=args.model)
+        run_generate(only_ids=args.only, model=args.model)
     elif args.command == "integrate":
-        run_integration(only_ids=args.only)
+        run_integrate(only_ids=args.only)
     elif args.command == "verify":
         verify()
+    elif args.command == "build":
+        build_all()
     else:
-        run_generation(only_ids=args.only, model=args.model)
-        run_integration(only_ids=args.only)
+        build_all()
+        verify()
 
     print("Underworld asset pipeline completed successfully.")
 

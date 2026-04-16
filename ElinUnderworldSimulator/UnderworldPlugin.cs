@@ -1,13 +1,22 @@
 using System;
+using System.IO;
 using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
+using UnityEngine;
 
 namespace ElinUnderworldSimulator
 {
     [BepInPlugin(ModInfo.Guid, ModInfo.Name, ModInfo.Version)]
     internal sealed class UnderworldPlugin : BaseUnityPlugin
     {
+        internal static ConfigEntry<bool> ConfigEnableOnlineFeatures;
+        internal static ConfigEntry<string> ConfigUnderworldServerUrl;
+        internal static UnderworldLocalServerManager LocalServerManager;
+        internal static UnderworldAuthManager AuthManager;
+        internal static UnderworldNetworkClient NetworkClient;
+        internal static UnderworldNetworkState NetworkState;
         internal static ManualLogSource LogSource;
         internal static bool IsApplyingStartup;
         internal static bool HasAppliedStartup;
@@ -17,10 +26,27 @@ namespace ElinUnderworldSimulator
         private void Awake()
         {
             LogSource = Logger;
+            string assemblyPath = GetType().Assembly.Location;
+            string buildStamp = File.Exists(assemblyPath)
+                ? File.GetLastWriteTime(assemblyPath).ToString("yyyy-MM-dd HH:mm:ss")
+                : "unknown";
+            Log($"Loaded plugin {ModInfo.Name} v{ModInfo.Version} from {assemblyPath} (built {buildStamp}).");
+
+            ConfigEnableOnlineFeatures = Config.Bind("Online", "EnableOnlineFeatures", false, "Enable connection to the Underworld server.");
+            ConfigUnderworldServerUrl = Config.Bind("Online", "UnderworldServerUrl", "http://127.0.0.1:8001", "URL of the bundled or self-hosted Underworld server.");
             Harmony harmony = new Harmony(ModInfo.Guid);
             harmony.PatchAll();
+            UnderworldConfig.Bind(Config);
             UnderworldRuntime.Initialize();
-            Log($"Loaded plugin {ModInfo.Name} v{ModInfo.Version}.");
+            NetworkState = new UnderworldNetworkState();
+            LocalServerManager = new UnderworldLocalServerManager(
+                () => ConfigEnableOnlineFeatures != null && ConfigEnableOnlineFeatures.Value,
+                () => ConfigUnderworldServerUrl.Value,
+                Path.GetDirectoryName(assemblyPath) ?? string.Empty
+            );
+            AuthManager = new UnderworldAuthManager(() => ConfigUnderworldServerUrl.Value, LocalServerManager);
+            NetworkClient = new UnderworldNetworkClient(() => ConfigUnderworldServerUrl.Value, AuthManager, NetworkState);
+            LocalServerManager.InitializeOnPluginLoad();
         }
 
         internal static void Log(string message) => LogSource?.LogInfo(message);
@@ -30,6 +56,57 @@ namespace ElinUnderworldSimulator
         internal static void Error(string message, Exception ex = null)
         {
             LogSource?.LogError(ex == null ? message : message + Environment.NewLine + ex);
+        }
+
+        internal static bool IsOnlineReady()
+        {
+            return ConfigEnableOnlineFeatures != null
+                && ConfigEnableOnlineFeatures.Value
+                && NetworkClient != null;
+        }
+
+        internal static string GetPlayerDisplayName()
+        {
+            return EClass.pc?.NameTitled ?? EClass.pc?.Name ?? "Unknown Operator";
+        }
+
+        internal static string GetOnlineStatusText(string fallback)
+        {
+            string localStatus = LocalServerManager?.GetStatusMessage();
+            return string.IsNullOrEmpty(localStatus) ? fallback : localStatus;
+        }
+
+        internal static string GetOnlineFailureMessage(Exception ex, string fallback)
+        {
+            string localStatus = LocalServerManager?.GetStatusMessage();
+            if (!string.IsNullOrEmpty(localStatus))
+            {
+                return localStatus;
+            }
+
+            if (ex != null && !string.IsNullOrEmpty(ex.Message))
+            {
+                return ex.Message;
+            }
+
+            return fallback;
+        }
+
+        internal static bool IsUnderworldMode()
+        {
+            return EClass.game != null
+                && RegisteredPrologueIndex >= 0
+                && EClass.game.idPrologue == RegisteredPrologueIndex;
+        }
+
+        private void OnApplicationQuit()
+        {
+            LocalServerManager?.Shutdown();
+        }
+
+        private void OnDestroy()
+        {
+            LocalServerManager?.Shutdown();
         }
 
         internal static int EnsureUnderworldPrologueRegistered()
@@ -109,7 +186,7 @@ namespace ElinUnderworldSimulator
 
         private static void Postfix()
         {
-            if (EClass.game.idPrologue != UnderworldPlugin.RegisteredPrologueIndex)
+            if (!UnderworldPlugin.IsUnderworldMode())
             {
                 return;
             }
@@ -120,23 +197,38 @@ namespace ElinUnderworldSimulator
                 return;
             }
 
-            UnderworldPlugin.HasAppliedStartup = true;
             UnderworldPlugin.IsApplyingStartup = true;
             UnderworldPlugin.Log("Applying underworld startup bootstrap.");
 
             try
             {
                 UnderworldBootstrap.Apply();
+                UnderworldPlugin.HasAppliedStartup = true;
                 UnderworldPlugin.Log("Underworld startup bootstrap complete.");
             }
             catch (Exception ex)
             {
+                UnderworldPlugin.HasAppliedStartup = false;
                 UnderworldPlugin.Error("Underworld startup failed.", ex);
             }
             finally
             {
                 UnderworldPlugin.IsApplyingStartup = false;
             }
+        }
+    }
+
+    [HarmonyPatch(typeof(GameDate), nameof(GameDate.AdvanceDay))]
+    internal static class Patch_GameDate_AdvanceDay
+    {
+        private static void Postfix()
+        {
+            if (!UnderworldPlugin.IsUnderworldMode())
+            {
+                return;
+            }
+
+            UnderworldBootstrap.MaintainStoryIsolation();
         }
     }
 
@@ -155,6 +247,10 @@ namespace ElinUnderworldSimulator
         private static void Postfix()
         {
             UnderworldRuntime.Load();
+            if (UnderworldPlugin.IsOnlineReady())
+            {
+                UnderworldPlugin.LocalServerManager?.EnsureBootstrapStarted();
+            }
         }
     }
 
@@ -163,7 +259,24 @@ namespace ElinUnderworldSimulator
     {
         private static void Postfix(DramaCustomSequence __instance, Chara c)
         {
+            if (UnderworldPlugin.IsUnderworldMode()
+                && c != null
+                && c.id == ModInfo.FixerId
+                && EClass._zone.IsUserZone)
+            {
+                __instance.Choice2(c.trait.TextNextRestock, "_buy").DisableSound();
+            }
+
             UnderworldDealService.AppendChoices(__instance, c);
+        }
+    }
+
+    [HarmonyPatch(typeof(Trait), nameof(Trait.OnBarter))]
+    internal static class Patch_Trait_OnBarter
+    {
+        private static void Postfix(Trait __instance)
+        {
+            UnderworldFixerShopService.TryPopulate(__instance);
         }
     }
 }

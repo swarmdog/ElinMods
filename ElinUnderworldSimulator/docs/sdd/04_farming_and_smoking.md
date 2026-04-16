@@ -294,7 +294,7 @@ These are the core refined drugs, produced at the Mixing Table or Advanced Lab f
 | ID | `uw_tonic_whisper` |
 | Fallout Analogue | Med-X (damage resistance / pain suppression) |
 | Route | **Drink** (`TraitDrug` — inherits `TraitDrink`) |
-| Category | `potion` |
+| Category | `_drink` |
 | Trait | `Drug,Buff,ConUWWhisperHigh` |
 | Factory | `uw_mixing_table` |
 | Components | `uw_extract_whisper/2,uw_powder_moonite/1` |
@@ -328,7 +328,7 @@ These are the core refined drugs, produced at the Mixing Table or Advanced Lab f
 | ID | `uw_elixir_shadow` |
 | Fallout Analogue | Jet (speed / extra actions) |
 | Route | **Drink** (`TraitDrug`) |
-| Category | `potion` |
+| Category | `_drink` |
 | Trait | `Drug,Buff,ConUWShadowRush` |
 | Factory | `uw_mixing_table` |
 | Components | `uw_extract_shadow/2,uw_crystal_void/1` |
@@ -363,7 +363,7 @@ These are the core refined drugs, produced at the Mixing Table or Advanced Lab f
 | ID | `uw_elixir_crimson` |
 | Fallout Analogue | Buffout (STR + END + MaxHP) |
 | Route | **Drink** (`TraitDrug`) |
-| Category | `potion` |
+| Category | `_drink` |
 | Trait | `Drug,Buff,ConUWCrimsonSurge` |
 | Factory | `uw_advanced_lab` |
 | Components | `uw_herb_crimson/4,uw_extract_shadow/2,uw_crystal_void/1` |
@@ -489,7 +489,7 @@ These are dual-product combinations crafted at the Advanced Lab. They require tw
 | ID | `uw_draught_berserker` |
 | Fallout Analogue | Psychobuff (Psycho + Buffout combined) |
 | Route | **Drink** (`TraitDrug`) |
-| Category | `potion` |
+| Category | `_drink` |
 | Trait | `Drug,Buff,ConUWBerserkerRage` |
 | Factory | `uw_advanced_lab` |
 | Components | `uw_salts_void/1,uw_elixir_crimson/1` |
@@ -503,8 +503,8 @@ These are dual-product combinations crafted at the Advanced Lab. They require tw
 "uw_draught_berserker": {
     "name_JP": "狂戦士の薬酒",
     "name": "berserker's draught",
-    "category": "potion",
-    "sort": "junk",
+    "category": "_drink",
+    "sort": "drink",
     "_idRenderData": "@obj_S",
     "tiles": 792,
     "recipeKey": "*",
@@ -530,7 +530,7 @@ These are dual-product combinations crafted at the Advanced Lab. They require tw
 | ID | `uw_elixir_rush` |
 | Fallout Analogue | Psycho Jet (Psycho + Jet combined) |
 | Route | **Drink** (`TraitDrug`) |
-| Category | `potion` |
+| Category | `_drink` |
 | Trait | `Drug,Buff,ConUWShadowRushX` |
 | Factory | `uw_advanced_lab` |
 | Components | `uw_elixir_shadow/1,uw_salts_void/1` |
@@ -544,8 +544,8 @@ These are dual-product combinations crafted at the Advanced Lab. They require tw
 "uw_elixir_rush": {
     "name_JP": "疾影一閃",
     "name": "shadow rush",
-    "category": "potion",
-    "sort": "junk",
+    "category": "_drink",
+    "sort": "drink",
     "_idRenderData": "@obj_S",
     "tiles": 792,
     "recipeKey": "*",
@@ -594,7 +594,7 @@ These products require herbs that can only be sourced from specific biome zones 
 | ID | `uw_elixir_frost` |
 | Region | Noyel (snow town) / Winter season |
 | Route | **Drink** (`TraitDrug`) |
-| Category | `potion` |
+| Category | `_drink` |
 | Trait | `Drug,Buff,ConUWFrostbloom` |
 | Factory | `uw_mixing_table` |
 | Components | `uw_herb_frostbloom/3,uw_extract_whisper/1,potion_empty/1` |
@@ -609,8 +609,8 @@ These products require herbs that can only be sourced from specific biome zones 
 "uw_elixir_frost": {
     "name_JP": "霜花の霊薬",
     "name": "frostbloom elixir",
-    "category": "potion",
-    "sort": "junk",
+    "category": "_drink",
+    "sort": "drink",
     "_idRenderData": "@obj_S",
     "tiles": 792,
     "recipeKey": "*",
@@ -786,9 +786,9 @@ public static class PatchSmokeableItems
 
 **Pattern:** Standard `TraitDrink` / `TraitDrug` — no custom code needed.
 
-Items with `category: "potion"` and `trait: "Drug,Buff,ConUW[Name]"` automatically work with Elin's drinking pipeline:
+Items with `category: "_drink"` and `trait: "Drug,Buff,ConUW[Name]"` automatically work with Elin's drinking pipeline:
 
-1. Player right-clicks potion → `Chara.TryUse()` → `t.trait.CanDrink(this)` returns `true` (inherited from `TraitDrink`)
+1. Player right-clicks the bottled drug → `Chara.TryUse()` → `t.trait.CanDrink(this)` returns `true` (inherited from `TraitDrink`)
 2. `Chara.Drink(t)` is called → `t.trait.OnDrink(c)` fires
 3. `TraitDrink.OnDrink()` calls `ActEffect.Proc(IdEffect, Power, ...)` with the trait params
 4. For `trait: "Drug,Buff,ConUWShadowRush"`:
@@ -881,7 +881,7 @@ public static class PatchDrugBlendEffect
 
 **Pattern:** `TraitDrink.OnThrowGround()` — creates `CellEffect` puddles/clouds.
 
-Liquid drugs (all potions with `category: "potion"`) automatically support throwing via `TraitDrink`:
+Liquid drugs (all bottled contraband items with `category: "_drink"`) automatically support throwing via `TraitDrink`:
 - Whisper Tonic, Shadow Elixir, Crimson Elixir, Berserker's Draught, Shadow Rush, Frostbloom Elixir — all create a potion puddle when thrown
 - `ThrowType.Potion` animation plays automatically
 
@@ -1465,7 +1465,7 @@ UW_NEW_THINGS = {
     "uw_draught_berserker": {
         "name_JP": "狂戦士の薬酒",
         "name": "berserker's draught",
-        "category": "potion",
+        "category": "_drink",
         "sort": "junk",
         "_idRenderData": "@obj_S",
         "tiles": 792,
@@ -1486,7 +1486,7 @@ UW_NEW_THINGS = {
     "uw_elixir_rush": {
         "name_JP": "疾影一閃",
         "name": "shadow rush",
-        "category": "potion",
+        "category": "_drink",
         "sort": "junk",
         "_idRenderData": "@obj_S",
         "tiles": 792,
@@ -1509,7 +1509,7 @@ UW_NEW_THINGS = {
     "uw_elixir_frost": {
         "name_JP": "霜花の霊薬",
         "name": "frostbloom elixir",
-        "category": "potion",
+        "category": "_drink",
         "sort": "junk",
         "_idRenderData": "@obj_S",
         "tiles": 792,

@@ -502,7 +502,7 @@ The ledger tracks customers across all towns. Customer data persists in mod save
 
 ```python
 def calculate_deal_payout(product, npc):
-    """Calculate gold for a direct NPC sale."""
+    """Calculate orens for a direct NPC sale."""
     base_price = product.value
     
     loyalty_tier = get_loyalty_tier(npc)
@@ -545,7 +545,7 @@ LOYALTY_PAY_MULTIPLIERS = {
 Small-time dealing and network orders are complementary:
 
 - **Early game**: Player relies on street dealing for income while building processing capability
-- **Mid game**: Network orders become primary income; street dealing provides supplementary gold and local rep
+- **Mid game**: Network orders become primary income; street dealing provides supplementary orens and local rep
 - **Late game**: Street dealing can be automated by recruiting dealer residents (§8.4.1), freeing the player for network-scale operations
 
 Local rep earned from dealing counts toward territory reputation.

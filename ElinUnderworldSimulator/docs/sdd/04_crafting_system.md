@@ -180,10 +180,11 @@ public class TraitProcessingVat : TraitBrewery
     
     /// <summary>
     /// Controls how fast items decay (process) inside the vat.
-    /// Lower = faster processing.
-    /// TraitBrewery default is 10. We use 8 for slightly faster processing.
+    /// Higher = faster processing.
+    /// TraitBrewery default is 500. We use 350 for a slower,
+    /// more deliberate maturation than the vanilla brewery.
     /// </summary>
-    public override int DecaySpeedChild => 8;
+    public override int DecaySpeedChild => 350;
     
     /// <summary>
     /// The container type category for the vat.

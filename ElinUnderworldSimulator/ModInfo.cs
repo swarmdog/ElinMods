@@ -6,13 +6,13 @@ namespace ElinUnderworldSimulator
         internal const string Name = "Elin Underworld Simulator";
         internal const string Version = "0.1.0";
 
-        internal const string StartupLabel = "Underworld Startup";
+        internal const string StartupLabel = "Underworld Simulator";
 
-        internal const string FixerId = "uw_fixer";
-        internal const string MixingTableId = "uw_mixing_table";
-        internal const string ContrabandChestId = "uw_contraband_chest";
-        internal const string DealerLedgerId = "uw_dealers_ledger";
-        internal const string SampleKitId = "uw_sample_kit";
-        internal const string AntidoteId = "uw_antidote_vial";
+        internal const string FixerId = UnderworldContentIds.FixerId;
+        internal const string MixingTableId = UnderworldContentIds.MixingTableId;
+        internal const string ContrabandChestId = UnderworldContentIds.ContrabandChestId;
+        internal const string DealerLedgerId = UnderworldContentIds.DealerLedgerId;
+        internal const string SampleKitId = UnderworldContentIds.SampleKitId;
+        internal const string AntidoteId = UnderworldContentIds.AntidoteId;
     }
 }

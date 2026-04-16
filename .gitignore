@@ -13,6 +13,8 @@ SkyreaderGuildServer/*.db
 SkyreaderGuildServer/worklog
 
 # User-specific files
+.tmp*
+*pytest*
 SkyreaderGuildServer/.venv
 Screenshots
 *.rsuser
